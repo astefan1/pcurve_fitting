@@ -30,7 +30,7 @@
 }
 
 #' P-Hacking function for multiple dependent variables
-#' @description Outputs a p-hacked p-value and a vector of all p-values that were computed in the process
+#' @description Outputs a p-hacked p-value
 #' @param df Data frame with one group variable and multiple dependent variables
 #' @param dvs Vector defining the DV columns (will be checked in given order)
 #' @param group Scalar defining grouping column
@@ -56,8 +56,31 @@
   # Select final p-hacked p-value based on strategy
   p.final <- .selectpvalue(ps = ps, strategy = strategy, alpha = alpha)
 
-  return(list(p.final = p.final,
-              ps = ps))
+  return(p.final)
+
+}
+
+#' Simulate p-Hacking with multiple dependent variables
+#' @description Outputs a vector containing the p-hacked p-values
+#' @param nobs.group Vector giving number of observations per group
+#' @param nvar Number of dependent variables (columns) in the data frame
+#' @param r Desired correlation between the dependent variables (scalar)
+#' @param d Desired population effect size (standardized mean difference between grouping variable levels)
+#' @param strategy String value: One out of "firstsig", "smallest", "smallest.sig"
+#' @param iter Number of simulation iterations
+#' @param alternative Direction of the t-test ("two.sided", "less", "greater")
+#' @param alpha Significance level of the t-test (default: 0.05)
+#' @export
+
+sim.multDVhack <- function(nobs.group, nvar, r, d, strategy = "firstsig", iter = 1000, alternative = "two.sided", alpha = 0.05){
+
+  # Simulate as many datasets as desired iterations
+  dat <- replicate(iter, .sim.multDV(nobs.group = nobs.group, nvar = nvar, r = r, d = d))
+
+  # Apply p-hacking procedure to each dataset and extract p-values
+  ps <- apply(dat, 3, .multDVhack, dvs = c(2:(nvar+1)), group = 1, strategy = strategy, alternative = alternative, alpha = alpha)
+
+  return(ps)
 
 }
 
