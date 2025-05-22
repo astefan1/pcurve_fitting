@@ -29,3 +29,35 @@
   return(res)
 }
 
+#' P-Hacking function for multiple dependent variables
+#' @description Outputs a p-hacked p-value and a vector of all p-values that were computed in the process
+#' @param df Data frame with one group variable and multiple dependent variables
+#' @param dvs Vector defining the DV columns (will be checked in given order)
+#' @param group Scalar defining grouping column
+#' @param strategy String value: One out of "firstsig", "smallest", "smallest.sig"
+#' @param alternative Direction of the t-test ("two.sided", "less", "greater")
+#' @param alpha Significance level of the t-test
+#' @importFrom stats t.test
+
+.multDVhack <- function(df, dvs, group, strategy = "firstsig", alternative = "two.sided", alpha = 0.05){
+
+  # Prepare data frame
+  dvs <- as.matrix(df[, dvs], ncol = length(dvs))
+  group <- df[, group]
+
+  # Define t-test function
+  ttestfun <- function(x){
+    stats::t.test(x ~ group, var.equal = TRUE, alternative = alternative)$p.value
+  }
+
+  # Re-apply t-test function to different DVs
+  ps <- apply(dvs, 2, ttestfun)
+
+  # Select final p-hacked p-value based on strategy
+  p.final <- .selectpvalue(ps = ps, strategy = strategy, alpha = alpha)
+
+  return(list(p.final = p.final,
+              ps = ps))
+
+}
+
