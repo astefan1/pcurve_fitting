@@ -8,6 +8,7 @@
 #' @param alpha Significance level
 #' @param total.sig TRUE/FALSE Should one value be added to the output indicating the overall % of significant p-values
 #' @param binwidth How wide are the bins in p-curve (default: 0.01)
+#' @export
 
 compute_pcurve <- function(ps, alpha = 0.05, total.sig = FALSE, binwidth = 0.01){
 
