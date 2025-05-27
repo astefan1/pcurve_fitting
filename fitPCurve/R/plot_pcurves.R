@@ -25,10 +25,10 @@ plot_pcurves <- function(simdat, poriginal){
          y = "Percentage of p-values") +
     theme(axis.title = element_text(size = 25),
           axis.text = element_text(size = 15)) +
-    geom_line(aes(y = as.numeric(simdat[1, 2:6]))) +
-    geom_line(aes(y = as.numeric(simdat[2, 2:6]))) +
-    geom_line(aes(y = as.numeric(simdat[3, 2:6]))) +
-    geom_line(aes(y = as.numeric(simdat[4, 2:6]))) +
-    geom_line(aes(y = as.numeric(simdat[5, 2:6])))
+    geom_line(aes(y = as.numeric(simdat[1, 2:6])), color = "steelblue") +
+    geom_line(aes(y = as.numeric(simdat[2, 2:6])), color = "steelblue") +
+    geom_line(aes(y = as.numeric(simdat[3, 2:6])), color = "steelblue") +
+    geom_line(aes(y = as.numeric(simdat[4, 2:6])), color = "steelblue") +
+    geom_line(aes(y = as.numeric(simdat[5, 2:6])), color = "steelblue")
 
 }
