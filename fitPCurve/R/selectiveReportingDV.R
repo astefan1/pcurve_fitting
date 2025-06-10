@@ -62,7 +62,6 @@
 
 #' Simulate p-Hacking with multiple dependent variables
 #' @description Outputs a vector containing the p-hacked p-values
-#' @param nobs.group Vector giving number of observations per group
 #' @param nvar Number of dependent variables (columns) in the data frame
 #' @param r Desired correlation between the dependent variables (scalar)
 #' @param d Desired population effect size (standardized mean difference between grouping variable levels)

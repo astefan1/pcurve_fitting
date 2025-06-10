@@ -3,5 +3,7 @@
 export(compute_pcurve)
 export(rmse)
 export(sim.multDVhack)
+import(ggplot2)
+importFrom(TruncExpFam,rtruncinvgamma)
 importFrom(stats,rnorm)
 importFrom(stats,t.test)
