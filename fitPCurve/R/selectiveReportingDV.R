@@ -70,15 +70,19 @@
 #' @param iter Number of simulation iterations
 #' @param alternative Direction of the t-test ("two.sided", "less", "greater")
 #' @param alpha Significance level of the t-test (default: 0.05)
+#' @importFrom TruncExpFam rtruncinvgamma
 #' @export
 
-sim.multDVhack <- function(nobs.group, nvar, r, d, strategy = "firstsig", iter = 1000, alternative = "two.sided", alpha = 0.05){
+sim.multDVhack <- function(nvar, r, d, strategy = "firstsig", iter = 1000, alternative = "two.sided", alpha = 0.05){
+
+  # Draw number of observations from empirical distribution
+  nobs.group <- round(TruncExpFam::rtruncinvgamma(n = iter, a=5, b=1905, shape=1.15326986, scale=0.04622745))
 
   # Simulate as many datasets as desired iterations
-  dat <- replicate(iter, .sim.multDV(nobs.group = nobs.group, nvar = nvar, r = r, d = d))
+  dat <- sapply(nobs.group, function(x) .sim.multDV(nobs.group = x, nvar = nvar, r = r, d = d))
 
   # Apply p-hacking procedure to each dataset and extract p-values
-  ps <- apply(dat, 3, .multDVhack, dvs = c(2:(nvar+1)), group = 1, strategy = strategy, alternative = alternative, alpha = alpha)
+  ps <- unname(sapply(dat, .multDVhack, dvs = c(2:(nvar+1)), group = 1, strategy = strategy, alternative = alternative, alpha = alpha, USE.NAMES = FALSE))
 
   return(ps)
 
