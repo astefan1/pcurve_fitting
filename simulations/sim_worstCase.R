@@ -11,6 +11,7 @@ iter <- 10000
 alternative <- "two.sided"
 alpha <- 0.05
 
+
 simres <- expand.grid(nobs.group, nvar, r, d, strategy, iter, alternative, alpha, stringsAsFactors = FALSE)
 colnames(simres) <- c("nobs.group", "nvar", "r", "d", "strategy", "iter", "alternative", "alpha")
 simres[, c(9:13)] <- NA
