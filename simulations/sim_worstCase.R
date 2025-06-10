@@ -3,13 +3,14 @@
 # ==============================================================================
 
 nobs.group <- 100
-nvar <- seq(2, 20, by = 2)
-r <- seq(0, 0.9, by = 0.3)
+nvar <- seq(2, 200, by = 2)
+r <- seq(0, 0.9, by = 0.1)
 d <- 0
 strategy <- c("firstsig", "smallest", "smallest.sig")
-iter <- 1000
+iter <- 10000
 alternative <- "two.sided"
 alpha <- 0.05
+
 
 simres <- expand.grid(nobs.group, nvar, r, d, strategy, iter, alternative, alpha, stringsAsFactors = FALSE)
 colnames(simres) <- c("nobs.group", "nvar", "r", "d", "strategy", "iter", "alternative", "alpha")
