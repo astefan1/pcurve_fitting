@@ -22,7 +22,7 @@ a <- Sys.time()
 cl <- parallel::makeCluster(4)
 doParallel::registerDoParallel(cl)
 
-foreach(i=1:nrow(simres)) %do% {
+foreach(i=1:nrow(simres)) %dopar% {
   ps <- sim.multDVhack (nvar=simres[i,1],
                         r=simres[i,2],
                         d=simres[i,3],
