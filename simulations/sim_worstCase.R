@@ -34,4 +34,4 @@ for(i in 1:nrow(simres)){
 b <- Sys.time()-a
 b
 
-write.csv(simres, "./sim-results/worstCase.csv")
+write.csv(simres, "../simulations/sim-results/worstCase.csv")
