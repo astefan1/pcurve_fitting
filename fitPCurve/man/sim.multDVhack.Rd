@@ -4,15 +4,7 @@
 \alias{sim.multDVhack}
 \title{Simulate p-Hacking with multiple dependent variables}
 \usage{
-sim.multDVhack(
-  nvar,
-  r,
-  d,
-  strategy = "firstsig",
-  iter = 1000,
-  alternative = "two.sided",
-  alpha = 0.05
-)
+sim.multDVhack(nvar, r, d, strategy = "firstsig", iter = 1000, alpha = 0.05)
 }
 \arguments{
 \item{nvar}{Number of dependent variables (columns) in the data frame}
@@ -24,8 +16,6 @@ sim.multDVhack(
 \item{strategy}{String value: One out of "firstsig", "smallest", "smallest.sig"}
 
 \item{iter}{Number of simulation iterations}
-
-\item{alternative}{Direction of the t-test ("two.sided", "less", "greater")}
 
 \item{alpha}{Significance level of the t-test (default: 0.05)}
 }

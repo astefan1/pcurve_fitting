@@ -10,8 +10,6 @@ plot_pcurves(simdat, poriginal)
 \item{simdat}{Result of simulation function}
 
 \item{poriginal}{Original p-curve (vector)}
-
-\item{ncurves}{Number of best fitting pcurves to display}
 }
 \description{
 Create a plot displaying the original and a number of fitted p-curves
