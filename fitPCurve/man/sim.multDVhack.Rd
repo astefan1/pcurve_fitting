@@ -5,7 +5,6 @@
 \title{Simulate p-Hacking with multiple dependent variables}
 \usage{
 sim.multDVhack(
-  nobs.group,
   nvar,
   r,
   d,
@@ -16,8 +15,6 @@ sim.multDVhack(
 )
 }
 \arguments{
-\item{nobs.group}{Vector giving number of observations per group}
-
 \item{nvar}{Number of dependent variables (columns) in the data frame}
 
 \item{r}{Desired correlation between the dependent variables (scalar)}
