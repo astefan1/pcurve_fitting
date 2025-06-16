@@ -2,11 +2,8 @@
 # Worst Case Scenario: No effect, only p-hacking (selective reporting of DV)
 # ==============================================================================
 
-#nvar <- seq(2, 200, by = 2)
-#r <- seq(0, 0.9, by = 0.1)
-
-nvar <- c(2:3)
-r <- c(0, 0.3)
+nvar <- seq(2, 200, by = 2)
+r <- seq(0, 0.9, by = 0.1)
 d <- 0
 iter <- 10000
 alpha <- 0.05
