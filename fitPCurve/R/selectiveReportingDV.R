@@ -15,7 +15,7 @@
   group <- c(rep(0, nobs.group), rep(1, nobs.group))
 
   # Generate dependent variables
-  dvs <- .rmultcor(nobs = sum(nobs.group), nvar = nvar, r = r)
+  dvs <- .rmultcor(nobs = nobs.group*2, nvar = nvar, r = r)
 
   # Introduce population effect size
   dvs <- apply(dvs, 2, function(x) x + group*d)

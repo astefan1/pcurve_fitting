@@ -1,5 +1,9 @@
 #' Compute independent-samples t-test
 #' @description Computes p-value from two-sided t-test from sample
+#' @param y Vector of y values
+#' @param group Vector indicating group membership as 0 or 1
+#' @importFrom stats var
+#' @importFrom stats pt
 
 .runttest <- function(y, group){
 

@@ -6,6 +6,11 @@
 \usage{
 .runttest(y, group)
 }
+\arguments{
+\item{y}{Vector of y values}
+
+\item{group}{Vector indicating group membership as 0 or 1}
+}
 \description{
 Computes p-value from two-sided t-test from sample
 }
