@@ -31,10 +31,9 @@
 #' @param df Data frame with one group variable and multiple dependent variables
 #' @param dvs Vector defining the DV columns (will be checked in given order)
 #' @param group Scalar defining grouping column
-#' @param strategy String value: One out of "firstsig", "smallest", "smallest.sig"
 #' @param alpha Significance level of the t-test
 
-.multDVhack <- function(df, dvs, group, strategy = "firstsig", alpha = 0.05){
+.multDVhack <- function(df, dvs, group, alpha = 0.05){
 
   # Prepare data frame
   dvs <- as.matrix(df[, dvs], ncol = length(dvs))
@@ -44,7 +43,7 @@
   ps <- apply(dvs, 2, function(x) .runttest(y=x, group=group))
 
   # Select final p-hacked p-value based on strategy
-  p.final <- .selectpvalue(ps = ps, strategy = strategy, alpha = alpha)
+  p.final <- .selectpvalue(ps = ps, alpha = alpha)
 
   return(p.final)
 
@@ -55,13 +54,13 @@
 #' @param nvar Number of dependent variables (columns) in the data frame
 #' @param r Desired correlation between the dependent variables (scalar)
 #' @param d Desired population effect size (standardized mean difference between grouping variable levels)
-#' @param strategy String value: One out of "firstsig", "smallest", "smallest.sig"
 #' @param iter Number of simulation iterations
 #' @param alpha Significance level of the t-test (default: 0.05)
 #' @importFrom TruncExpFam rtruncinvgamma
 #' @export
+#' @return Matrix of size iter x 3, with columns being smallest, smallest significant, and first significant p-value
 
-sim.multDVhack <- function(nvar, r, d, strategy = "firstsig", iter = 1000, alpha = 0.05){
+sim.multDVhack <- function(nvar, r, d, iter = 1000, alpha = 0.05){
 
   # Draw number of observations from empirical distribution
   nobs.group <- round(TruncExpFam::rtruncinvgamma(n = iter, a=5, b=1905, shape=1.15326986, scale=0.04622745))
@@ -70,9 +69,9 @@ sim.multDVhack <- function(nvar, r, d, strategy = "firstsig", iter = 1000, alpha
   dat <- sapply(nobs.group, function(x) .sim.multDV(nobs.group = x, nvar = nvar, r = r, d = d))
 
   # Apply p-hacking procedure to each dataset and extract p-values
-  ps <- unname(sapply(dat, .multDVhack, dvs = c(2:(nvar+1)), group = 1, strategy = strategy, alpha = alpha, USE.NAMES = FALSE))
+  ps <- unname(sapply(dat, .multDVhack, dvs = c(2:(nvar+1)), group = 1, alpha = alpha, USE.NAMES = FALSE))
 
-  return(ps)
+  return(t(ps))
 
 }
 

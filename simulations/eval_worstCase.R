@@ -5,9 +5,9 @@
 pcurves <- read.csv("../simulations/pcurves-to-fit.csv")
 simres <- read.csv("../simulations/sim-results/worstCase.csv")
 
-simres$rmseSotola <- apply(simres[, 10:14], 1, function(x) rmse(x, pcurves$sotola))
-simres$rmseWetzels <- apply(simres[, 10:14], 1, function(x) rmse(x, pcurves$wetzels))
-simres$rmseSimonsohn <- apply(simres[, 10:14], 1, function(x) rmse(x, pcurves$simonsohn))
+simres$rmseSotola <- apply(simres[, 7:11], 1, function(x) rmse(x, pcurves$sotola))
+simres$rmseWetzels <- apply(simres[, 7:11], 1, function(x) rmse(x, pcurves$wetzels))
+simres$rmseSimonsohn <- apply(simres[, 7:11], 1, function(x) rmse(x, pcurves$simonsohn))
 
 simres[order(simres$rmseSotola)[1:5], ]
 simres[order(simres$rmseWetzels)[1:5], ]
