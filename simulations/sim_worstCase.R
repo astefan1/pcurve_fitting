@@ -46,4 +46,4 @@ parallel::stopCluster(cl)
 b <- Sys.time()-a
 b
 
-
+write.csv(simres, "../simulations/sim-results/worstCase.csv")
