@@ -2,7 +2,7 @@
 # p-Hacking Strategy: Selective Reporting of the Dependent Variable
 # ==============================================================================
 
-#' Simulate dataset with multiple dependent variables
+#' Simulate one dataset with multiple dependent variables
 #' @description Outputs data frame with a grouping variable and multiple correlated dependent variables
 #' @param nobs.group Integer giving number of observations per group
 #' @param nvar Number of dependent variables in the data frame
@@ -53,20 +53,25 @@
 #' @description Outputs a vector containing the p-hacked p-values
 #' @param nvar Number of dependent variables (columns) in the data frame
 #' @param r Desired correlation between the dependent variables (scalar)
-#' @param d Desired population effect size (standardized mean difference between grouping variable levels)
+#' @param d Population effect size (standardized mean difference between grouping variable levels)
+#' @param het Effect size heterogeneity (standard deviation of effect sizes in the population, set to zero if no heterogeneity is modeled)
 #' @param iter Number of simulation iterations
 #' @param alpha Significance level of the t-test (default: 0.05)
 #' @importFrom TruncExpFam rtruncinvgamma
+#' @importFrom stats rnorm
 #' @export
 #' @return Matrix of size iter x 3, with columns being smallest, smallest significant, and first significant p-value
 
-sim.multDVhack <- function(nvar, r, d, iter = 1000, alpha = 0.05){
+sim.multDVhack <- function(nvar, r, d, het = 0, iter = 1000, alpha = 0.05){
 
   # Draw number of observations from empirical distribution
   nobs.group <- round(TruncExpFam::rtruncinvgamma(n = iter, a=5, b=1905, shape=1.15326986, scale=0.04622745))
 
+  # Draw population effect size from specified distribution
+  effsize <- stats::rnorm(n = iter, mean = d, sd = het)
+
   # Simulate as many datasets as desired iterations
-  dat <- sapply(nobs.group, function(x) .sim.multDV(nobs.group = x, nvar = nvar, r = r, d = d))
+  dat <- sapply(1:iter, function(x) .sim.multDV(nobs.group = nobs.group[x], nvar = nvar, r = r, d = effsize[x]))
 
   # Apply p-hacking procedure to each dataset and extract p-values
   ps <- unname(sapply(dat, .multDVhack, dvs = c(2:(nvar+1)), group = 1, alpha = alpha, USE.NAMES = FALSE))

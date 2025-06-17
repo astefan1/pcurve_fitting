@@ -4,20 +4,23 @@
 \alias{sim.multDVhack}
 \title{Simulate p-Hacking with multiple dependent variables}
 \usage{
-sim.multDVhack(nvar, r, d, strategy = "firstsig", iter = 1000, alpha = 0.05)
+sim.multDVhack(nvar, r, d, het = 0, iter = 1000, alpha = 0.05)
 }
 \arguments{
 \item{nvar}{Number of dependent variables (columns) in the data frame}
 
 \item{r}{Desired correlation between the dependent variables (scalar)}
 
-\item{d}{Desired population effect size (standardized mean difference between grouping variable levels)}
+\item{d}{Population effect size (standardized mean difference between grouping variable levels)}
 
-\item{strategy}{String value: One out of "firstsig", "smallest", "smallest.sig"}
+\item{het}{Effect size heterogeneity (standard deviation of effect sizes in the population, set to zero if no heterogeneity is modeled)}
 
 \item{iter}{Number of simulation iterations}
 
 \item{alpha}{Significance level of the t-test (default: 0.05)}
+}
+\value{
+Matrix of size iter x 3, with columns being smallest, smallest significant, and first significant p-value
 }
 \description{
 Outputs a vector containing the p-hacked p-values

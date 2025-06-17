@@ -2,7 +2,7 @@
 % Please edit documentation in R/selectiveReportingDV.R
 \name{.sim.multDV}
 \alias{.sim.multDV}
-\title{Simulate dataset with multiple dependent variables}
+\title{Simulate one dataset with multiple dependent variables}
 \usage{
 .sim.multDV(nobs.group, nvar, r, d)
 }
