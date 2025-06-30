@@ -23,18 +23,6 @@
   # create raw data from matrix multiplication of U and random noise
   X <- as.data.frame(t(U %*% random.normal))
 
-  # add missing values
-  if(missing > 0){
-    if(missing * nobs < 2){
-      navalues <- as.data.frame(t(replicate(nvar, sample(1:nobs, missing*nobs))))
-    } else {
-      navalues <- as.data.frame(replicate(nvar, sample(1:nobs, missing*nobs)))
-    }
-    for(i in 1:nvar){
-      X[unlist(navalues[,i]),i] <- NA
-    }
-  }
-
   return(X)
 
 }

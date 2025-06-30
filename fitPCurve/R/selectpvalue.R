@@ -1,35 +1,20 @@
-#' Select a p-value from a vector of p-hacked p-values
+#' Select smallest, smallest significant, and first significant p-value from a vector of p-hacked p-values
 #' @description Takes a vector of p-values and selects the smallest, first significant, or smallest significant p-value.
 #' @param ps Vector of p values
-#' @param strategy String value: One out of "firstsig", "smallest", "smallest.sig"
 #' @param alpha Significance level (default: 0.05)
 
-.selectpvalue <- function(ps, strategy, alpha){
+.selectpvalue <- function(ps, alpha){
 
-  p.final <- NA
+  p.final <- rep(NA, 3) # 1: smallest, 2: smallest significant, 3: first significant
   p.orig <- ps[1]
 
-  # Select smallest significant p-value
-  if(strategy == "smallest.sig"){
+  p.final[1] <- min(ps)
 
-    if(min(ps) < alpha){
-      p.final <- min(ps)
-    } else {
-      p.final <- p.orig
-    }
-
-    # Select first significant p-value
-  } else if (strategy == "firstsig") {
-
-    if(min(ps) < alpha){
-      p.final <- ps[which(ps < alpha)[1]]
-    } else {
-      p.final <- p.orig
-    }
-
-    # Select smallest p-value
-  } else if (strategy == "smallest") {
-    p.final <- min(ps)
+  if(min(ps) < alpha){
+    p.final[2] <- min(ps)
+    p.final[3] <- ps[which(ps < alpha)[1]]
+  } else {
+    p.final[2:3] <- p.orig
   }
 
   return(p.final)

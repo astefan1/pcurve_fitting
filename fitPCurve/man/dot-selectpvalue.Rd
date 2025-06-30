@@ -2,14 +2,12 @@
 % Please edit documentation in R/selectpvalue.R
 \name{.selectpvalue}
 \alias{.selectpvalue}
-\title{Select a p-value from a vector of p-hacked p-values}
+\title{Select smallest, smallest significant, and first significant p-value from a vector of p-hacked p-values}
 \usage{
-.selectpvalue(ps, strategy, alpha)
+.selectpvalue(ps, alpha)
 }
 \arguments{
 \item{ps}{Vector of p values}
-
-\item{strategy}{String value: One out of "firstsig", "smallest", "smallest.sig"}
 
 \item{alpha}{Significance level (default: 0.05)}
 }

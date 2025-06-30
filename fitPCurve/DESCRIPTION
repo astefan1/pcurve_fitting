@@ -12,4 +12,6 @@ RoxygenNote: 7.3.2
 Imports: 
     stats,
     TruncExpFam,
-    ggplot2
+    ggplot2,
+    dplyr,
+    rlang

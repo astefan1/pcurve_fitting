@@ -2,12 +2,12 @@
 % Please edit documentation in R/selectiveReportingDV.R
 \name{.sim.multDV}
 \alias{.sim.multDV}
-\title{Simulate dataset with multiple dependent variables}
+\title{Simulate one dataset with multiple dependent variables}
 \usage{
 .sim.multDV(nobs.group, nvar, r, d)
 }
 \arguments{
-\item{nobs.group}{Vector giving number of observations per group}
+\item{nobs.group}{Integer giving number of observations per group}
 
 \item{nvar}{Number of dependent variables in the data frame}
 

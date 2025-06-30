@@ -4,14 +4,7 @@
 \alias{.multDVhack}
 \title{P-Hacking function for multiple dependent variables}
 \usage{
-.multDVhack(
-  df,
-  dvs,
-  group,
-  strategy = "firstsig",
-  alternative = "two.sided",
-  alpha = 0.05
-)
+.multDVhack(df, dvs, group, alpha = 0.05)
 }
 \arguments{
 \item{df}{Data frame with one group variable and multiple dependent variables}
@@ -19,10 +12,6 @@
 \item{dvs}{Vector defining the DV columns (will be checked in given order)}
 
 \item{group}{Scalar defining grouping column}
-
-\item{strategy}{String value: One out of "firstsig", "smallest", "smallest.sig"}
-
-\item{alternative}{Direction of the t-test ("two.sided", "less", "greater")}
 
 \item{alpha}{Significance level of the t-test}
 }
