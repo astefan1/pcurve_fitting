@@ -20,11 +20,12 @@ iter <- 10000
 alpha <- 0.05
 
 # Do a limited simulation for testing
-nvar <- c(2, 50, 200)
-r <- c(0, 0.5)
-d <- 0
-iter <- 5000
-alpha <- 0.05
+# nvar <- c(2, 5, 10)
+# r <- c(0, 0.5)
+# d <- c(.1, .2, .5)
+# het <- c(0, .2, .4)
+# iter <- 1000
+# alpha <- 0.05
 
 #---------------------------------------------------
 # Prepare the parallel processing
@@ -45,8 +46,8 @@ registerDoParallel(cl)
 #---------------------------------------------------
 
 # Create grid of conditions
-conditions <- expand.grid(nvar, r, d, iter, alpha, stringsAsFactors = FALSE)
-colnames(conditions) <- c("nvar", "r", "d", "iter", "alpha")
+conditions <- expand.grid(nvar, r, d, het, iter, alpha, stringsAsFactors = FALSE)
+colnames(conditions) <- c("nvar", "r", "d", "het", "iter", "alpha")
 
 cat("Total conditions to process:", nrow(conditions), "\n")
 
@@ -65,8 +66,9 @@ simres <- foreach(i = 1:nrow(conditions),
                     ps <- sim.multDVhack(nvar = conditions[i, 1],
                                          r = conditions[i, 2],
                                          d = conditions[i, 3],
-                                         iter = conditions[i, 4],
-                                         alpha = conditions[i, 5])
+                                         het = conditions[i, 4],
+                                         iter = conditions[i, 5],
+                                         alpha = conditions[i, 6])
 
                     res_pcurve <- matrix(c(
                       compute_pcurve(ps[, 1]),
@@ -110,4 +112,4 @@ cat("First few rows:\n")
 print(head(simres))
 
 # Optional: Save results
-write.csv(simres, "../simulations/sim-results/worstCase.csv")
+write.csv(simres, "../simulations/sim-results/bestCase.csv")
