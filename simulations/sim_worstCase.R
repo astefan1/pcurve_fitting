@@ -26,37 +26,50 @@ alpha <- 0.05
 conditions <- expand.grid(nvar, r, d, iter, alpha, stringsAsFactors = FALSE)
 colnames(conditions) <- c("nvar", "r", "d", "iter", "alpha")
 
-# Create results object (3-dim array: (1) condition, (2) pcurve %s, (3) selection method)
-simresArray <- array(data = NA, dim=c(nrow(conditions), 5, 3))
-
 a <- Sys.time()
 
 #cl <- parallel::makeCluster(n_cores-2)
 cl <- parallel::makeCluster(1)
 doParallel::registerDoParallel(cl)
 
-foreach(i=1:nrow(conditions)) %dopar% {
-  # the library call must be in the loop so that all workers have the functions
-  library(fitPCurve)
+simres <- foreach(i=1:nrow(conditions),
+        .combine = rbind,
+        .packages = "fitPCurve") %dopar% {
+
+#for (i in 1:nrow(conditions)) {
   ps <- sim.multDVhack (nvar=conditions[i,1],
                         r=conditions[i,2],
                         d=conditions[i,3],
                         iter = conditions[i,4],
                         alpha = conditions[i,5]
                         )
-  simresArray[i, , 1] <- compute_pcurve(ps[,1])
-  simresArray[i, , 2] <- compute_pcurve(ps[,2])
-  simresArray[i, , 3] <- compute_pcurve(ps[,3])
+
+   res_pcurve <- matrix(c(
+    compute_pcurve(ps[,1]),
+    compute_pcurve(ps[,2]),
+    compute_pcurve(ps[,3])),
+    byrow=TRUE,
+    ncol=5
+  )
+
+  res_i <- cbind(
+    # The conditions; adding the selection method 1, 2, and 3
+    cbind(
+      matrix(rep(conditions[i, ], each = 3), nrow = 3, byrow = FALSE),
+      1:3),
+    res_pcurve
+  )
+  res_i
 }
 
 parallel::stopCluster(cl)
 b <- Sys.time()-a
 b
 
-# Merge 3rd dimension of results array into strategy condition in results dataframe 
-simresDF <- rbind(cbind(conditions, strategy="smallest", simresArray[,,1]),
-                  cbind(conditions, strategy="smallest.sig", simresArray[,,2]),
-                  cbind(conditions, strategy="firstsig", simresArray[,,3]))
-colnames(simresDF)[7:11] <- paste0("p", 1:5)
+colnames(simres) <- c(
+  colnames(conditions),
+  "strategy",
+  paste0("p", 1:5)
+)
 
-write.csv(simresDF, "../simulations/sim-results/worstCase.csv")
+write.csv(simres, "../simulations/sim-results/worstCase.csv")
