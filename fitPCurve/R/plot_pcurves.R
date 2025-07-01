@@ -6,7 +6,7 @@
 #' @param poriginal Original p-curve (vector)
 #' @import ggplot2
 
-plot_pcurves <- function(simdat, poriginal, n_best=5){
+plot_pcurves <- function(simdat, poriginal, n_best=10){
 
   # Compute RMSEs between original and simulated
   simdat$rmse <- apply(simdat[, paste0("p", 1:5)], 1, function(x) rmse(x, poriginal))

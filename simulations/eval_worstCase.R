@@ -3,6 +3,7 @@
 # ==============================================================================
 
 library(rio)
+library(dplyr)
 
 pcurves <- import("../simulations/pcurves-to-fit.csv")
 simres <- import("../simulations/sim-results/sim_worstCase.csv")
@@ -25,8 +26,20 @@ plot_pcurves(simres, poriginal = pcurves$simonsohn)
 
 ## Heatmap
 
+# TODO: add labels to facets; 1: smallest, 2: smallest significant, 3: first significant as labels
+
 library(patchwork)
 p1 <- heatmap(simres, "rmseSotola")
 p2 <- heatmap(simres, "rmseWetzels")
 p3 <- heatmap(simres, "rmseSimonsohn")
 p1 / p2 / p3
+
+
+
+
+## Test the bump with a custom p-curve
+
+plot_pcurves(
+  simres,
+  poriginal = c(15, 15, 15, 15, 40),
+  n_best = 10)
