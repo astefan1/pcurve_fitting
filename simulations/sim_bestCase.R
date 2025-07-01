@@ -8,7 +8,7 @@ library(foreach)
 
 # Set seed for reproducibility
 set.seed(12345)
-progress_file <- "../simulations/sim-results/sim_best_case_progress.txt"
+sim_name <- "sim_bestCase"
 
 #---------------------------------------------------
 # Final simulation conditions
@@ -16,8 +16,10 @@ nvar <- seq(2, 200, by = 2)
 r <- seq(0, 0.9, by = 0.1)
 d <- seq(0.1, 1, by = 0.1)
 het <- seq(0, 0.5, by = 0.05)
-iter <- 10000
+#iter <- 10000
+iter <- 1000
 alpha <- 0.05
+
 
 # Do a limited simulation for testing
 # nvar <- c(2, 5, 10)
@@ -28,6 +30,7 @@ alpha <- 0.05
 # alpha <- 0.05
 
 #---------------------------------------------------
+# NOTHING NEEDS TO BE CHANGED FROM HERE ON -->
 # Prepare the parallel processing
 
 # Clean up any existing parallel backends
@@ -54,7 +57,7 @@ cat("Total conditions to process:", nrow(conditions), "\n")
 
 # Progress tracking setup
 cat("Processing", nrow(conditions), "conditions...\n")
-cat("Progress file:", progress_file, "\n")
+dir.create(paste0("../simulations/sim-results/", sim_name))
 start_time <- Sys.time()
 
 # Run parallel simulation with reproducible RNG
@@ -62,7 +65,6 @@ simres <- foreach(i = 1:nrow(conditions),
                   .combine = rbind,
                   .packages = "fitPCurve") %dorng% {  # Using %dorng% instead of %dopar%
 
-                    # Your simulation code
                     ps <- sim.multDVhack(nvar = conditions[i, 1],
                                          r = conditions[i, 2],
                                          d = conditions[i, 3],
@@ -95,8 +97,10 @@ simres <- foreach(i = 1:nrow(conditions),
                     # Simple progress tracking in a file
                     progress_msg <- sprintf("Completed %d/%d (%.1f%%) at %s",
                                             i, nrow(conditions), 100 * i / nrow(conditions), Sys.time())
-                    write(progress_msg, file = progress_file, append = TRUE)
+                    write(progress_msg, file = paste0("../simulations/sim-results/", sim_name, "/", sim_name,"_progress.txt"), append = TRUE)
 
+                    # write intermediate file
+                    write.csv(res_i, paste0("../simulations/sim-results/", sim_name, "/", sim_name,"_", i, ".csv"))
                     res_i
                   }
 
@@ -111,5 +115,21 @@ stopCluster(cl)
 cat("First few rows:\n")
 print(head(simres))
 
-# Optional: Save results
-write.csv(simres, "../simulations/sim-results/bestCase.csv")
+# Save results
+write.csv(result_matrix, paste0("../simulations/sim-results/", sim_name, ".csv"))
+
+
+#---------------------------------------------------
+# Optionally: Aggregate intermediate files
+# (e.g., if the computation has been interrupted due to an error)
+
+library(data.table)
+
+im_files <- list.files(paste0("../simulations/sim-results/", sim_name), pattern=paste0(sim_name,"_\\d*.csv"), full.names = TRUE)
+
+combined_data <- rbindlist(lapply(im_files, fread))
+combined_data$V1 <- NULL
+result_matrix <- as.matrix(combined_data)
+
+write.csv(result_matrix, paste0("../simulations/sim-results/", sim_name, ".csv"))
+
