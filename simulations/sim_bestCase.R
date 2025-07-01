@@ -12,8 +12,8 @@ sim_name <- "sim_bestCase"
 
 #---------------------------------------------------
 # Final simulation conditions
-nvar <- seq(2, 200, by = 2)
-r <- seq(0, 0.9, by = 0.1)
+nvar <- 1
+r <- 0
 d <- seq(0.1, 1, by = 0.1)
 het <- seq(0, 0.5, by = 0.05)
 #iter <- 10000
