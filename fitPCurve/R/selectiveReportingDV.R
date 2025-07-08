@@ -57,24 +57,38 @@
 #' @param het Effect size heterogeneity (standard deviation of effect sizes in the population, set to zero if no heterogeneity is modeled)
 #' @param iter Number of simulation iterations
 #' @param alpha Significance level of the t-test (default: 0.05)
+#' @param prop_Hacker Proportion of p-hackers in the population
+#' @param prop_H1 Proportion of H1 in the population
 #' @importFrom TruncExpFam rtruncinvgamma
 #' @importFrom stats rnorm
 #' @export
 #' @return Matrix of size iter x 3, with columns being smallest, smallest significant, and first significant p-value
 
-sim.multDVhack <- function(nvar, r, d, het = 0, iter = 1000, alpha = 0.05){
+sim.multDVhack <- function(nvar, r, d, prop_Hacker, prop_H1, het = 0, iter = 1000, alpha = 0.05){
 
   # Draw number of observations from empirical distribution
   nobs.group <- round(TruncExpFam::rtruncinvgamma(n = iter, a=5, b=1905, shape=1.15326986, scale=0.04622745))
 
-  # Draw population effect size from specified distribution
-  effsize <- stats::rnorm(n = iter, mean = d, sd = het)
+  # Draw population effect size from specified distribution and scramble
+  effsize <- c(stats::rnorm(n = round(iter*prop_H1), mean = d, sd = het), rep(0, round((1-prop_H1)*iter)))
+  effsize <- sample(effsize, iter, replace = FALSE)
 
   # Simulate as many datasets as desired iterations
   dat <- sapply(1:iter, function(x) .sim.multDV(nobs.group = nobs.group[x], nvar = nvar, r = r, d = effsize[x]))
 
   # Apply p-hacking procedure to each dataset and extract p-values
-  ps <- unname(sapply(dat, .multDVhack, dvs = c(2:(nvar+1)), group = 1, alpha = alpha, USE.NAMES = FALSE))
+  if(prop_Hacker == 0){
+    ps <- unname(sapply(dat, .multDVhack, dvs = 2, group = 1, alpha = alpha, USE.NAMES = FALSE))
+  } else if (prop_Hacker == 1){
+    ps <- unname(sapply(dat, .multDVhack, dvs = c(2:(nvar+1)), group = 1, alpha = alpha, USE.NAMES = FALSE))
+  } else {
+    ps <- cbind(
+      # P-Hacked part of the datasets
+      unname(sapply(dat[1:round(prop_Hacker*iter)], .multDVhack, dvs = c(2:(nvar+1)), group = 1, alpha = alpha, USE.NAMES = FALSE)),
+      # Non-p-hacked part of the datasets
+      unname(sapply(dat[(round(prop_Hacker*iter+1):iter)], .multDVhack, dvs = 2, group = 1, alpha = alpha, USE.NAMES = FALSE))
+    )
+  }
 
   return(t(ps))
 
