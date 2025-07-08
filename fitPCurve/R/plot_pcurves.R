@@ -6,29 +6,34 @@
 #' @param poriginal Original p-curve (vector)
 #' @import ggplot2
 
-plot_pcurves <- function(simdat, poriginal){
+plot_pcurves <- function(simdat, poriginal, n_best=10){
 
   # Compute RMSEs between original and simulated
-  simdat$rmses <- apply(simdat[, 10:14], 1, function(x) rmse(x, poriginal))
+  simdat$rmse <- apply(simdat[, paste0("p", 1:5)], 1, function(x) rmse(x, poriginal))
 
-  # Order by RMSE and extract ncurves
-  simdat <- simdat[order(simdat$rmses)[1:5],c(1,10:15)]
+  simdat$condition <- 1:nrow(simdat)
+
+  # Selection: Order by RMSE and extract the n_best curves
+  simdat_sel <- simdat[order(simdat$rmse)[1:n_best], c("condition", paste0("p", 1:5))]
+
+  simdat_sel_long <- pivot_longer(simdat_sel,
+                                  cols = matches("p\\d"),
+                                  values_to = "yval")
+  simdat_sel_long$pval <- substr(simdat_sel_long$name, 2, 2) |> as.numeric()
+  simdat_sel_long$pval <- simdat_sel_long$pval / 100
 
   plotdat <- data.frame(pval = seq(0.01, 0.05, by = 0.01),
                         yval = poriginal)
 
-  ggplot2::ggplot(plotdat, ggplot2::aes(x = .data$pval)) +
-    ggplot2::geom_line(ggplot2::aes(y = poriginal), linewidth=1.5) +
-    ggplot2::theme_bw() +
-    ggplot2::ylim(c(0,100)) +
-    ggplot2::labs(x = "p-value",
+  p1 <- ggplot(simdat_sel_long, aes(y = yval, x=pval, group=condition)) +
+    theme_bw() +
+    ylim(c(0,100)) +
+    labs(x = "p-value bin",
          y = "Percentage of p-values") +
-    ggplot2::theme(axis.title = ggplot2::element_text(size = 25),
-          axis.text = ggplot2::element_text(size = 15)) +
-    ggplot2::geom_line(ggplot2::aes(y = as.numeric(simdat[1, 2:6])), color = "steelblue") +
-    ggplot2::geom_line(aes(y = as.numeric(simdat[2, 2:6])), color = "steelblue") +
-    ggplot2::geom_line(aes(y = as.numeric(simdat[3, 2:6])), color = "steelblue") +
-    ggplot2::geom_line(aes(y = as.numeric(simdat[4, 2:6])), color = "steelblue") +
-    ggplot2::geom_line(aes(y = as.numeric(simdat[5, 2:6])), color = "steelblue")
+    theme(axis.title = element_text(size = 25),
+          axis.text = element_text(size = 15)) +
+    geom_line(color = "steelblue") +
+    geom_line(data=plotdat, aes(y = yval, x=pval, group=1), linewidth=1)
 
+  p1
 }
