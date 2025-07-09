@@ -36,11 +36,11 @@
 .multDVhack <- function(df, dvs, group, alpha = 0.05){
 
   # Prepare data frame
-  dvs <- as.matrix(df[, dvs], ncol = length(dvs))
+  dvs_matrix <- as.matrix(df[, dvs], ncol = length(dvs))
   group <- df[, group]
 
   # Apply t-test function to different DVs
-  ps <- apply(dvs, 2, function(x) .runttest(y=x, group=group))
+  ps <- apply(dvs_matrix, 2, function(x) .runttest(y=x, group=group))
 
   # Select final p-hacked p-value based on strategy
   p.final <- .selectpvalue(ps = ps, alpha = alpha)
