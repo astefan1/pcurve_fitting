@@ -12,6 +12,9 @@
 
 compute_pcurve <- function(ps, alpha = 0.05, total.sig = FALSE, binwidth = 0.01){
 
+  # Catch errors (if any of the p values are missing, return missing)
+  if(all(is.na(ps))) return(rep(NA, 5))
+
   # Count p-values
   np <- length(ps)
 

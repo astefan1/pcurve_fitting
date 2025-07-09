@@ -60,34 +60,38 @@ simres <- foreach(i = 1:nrow(conditions),
                   .combine = rbind,
                   .packages = "fitPCurve") %dorng% {  # Using %dorng% instead of %dopar%
 
-                    ps <- sim.multDVhack(nvar = conditions[i, 1],
-                                         r = conditions[i, 2],
-                                         d = conditions[i, 3],
-                                         het = conditions[i, 4],
-                                         iter = conditions[i, 5],
-                                         alpha = conditions[i, 6])
+                      ps <- tryCatch({
+                        sim.multDVhack(nvar = conditions[i, 1],
+                                           r = conditions[i, 2],
+                                           d = conditions[i, 3],
+                                           het = conditions[i, 4],
+                                           iter = conditions[i, 5],
+                                           alpha = conditions[i, 6])
+                        }, error = function(e) return(matrix(NA, nrow=iter, ncol=3))
+                        )
 
-                    res_pcurve <- matrix(c(
-                      compute_pcurve(ps[, 1]),
-                      compute_pcurve(ps[, 2]),
-                      compute_pcurve(ps[, 3])),
-                      byrow = TRUE,
-                      ncol = 5
-                    )
+                      res_pcurve <- matrix(c(
+                        compute_pcurve(ps[, 1]),
+                        compute_pcurve(ps[, 2]),
+                        compute_pcurve(ps[, 3])),
+                        byrow = TRUE,
+                        ncol = 5
+                      )
 
-                    res_i <- cbind(
-                      # The conditions; adding the selection method 1, 2, and 3
-                      cbind(
-                        matrix(rep(conditions[i, ], each = 3), nrow = 3, byrow = FALSE),
-                        1:3),
-                      res_pcurve
-                    )
+                      res_i <- cbind(
+                        # The conditions; adding the selection method 1, 2, and 3
+                        cbind(
+                          matrix(rep(conditions[i, ], each = 3), nrow = 3, byrow = FALSE),
+                          1:3),
+                        res_pcurve
+                      )
 
-                    colnames(res_i) <- c(
-                      colnames(conditions),
-                      "strategy",
-                      paste0("p", 1:5)
-                    )
+                      colnames(res_i) <- c(
+                        colnames(conditions),
+                        "strategy",
+                        paste0("p", 1:5)
+                      )
+
 
                     # Simple progress tracking in a file
                     progress_msg <- sprintf("Completed %d/%d (%.1f%%) at %s",
