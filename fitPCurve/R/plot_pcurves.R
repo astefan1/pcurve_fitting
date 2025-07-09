@@ -5,6 +5,8 @@
 #' @param simdat Result of simulation function
 #' @param poriginal Original p-curve (vector)
 #' @import ggplot2
+#' @importFrom tidyr pivot_longer
+#' @export
 
 plot_pcurves <- function(simdat, poriginal, n_best=10){
 

@@ -4,7 +4,16 @@
 \alias{sim.multDVhack}
 \title{Simulate p-Hacking with multiple dependent variables}
 \usage{
-sim.multDVhack(nvar, r, d, het = 0, iter = 1000, alpha = 0.05)
+sim.multDVhack(
+  nvar,
+  r,
+  d,
+  prop_Hacker,
+  prop_H1,
+  het = 0,
+  iter = 1000,
+  alpha = 0.05
+)
 }
 \arguments{
 \item{nvar}{Number of dependent variables (columns) in the data frame}
@@ -12,6 +21,10 @@ sim.multDVhack(nvar, r, d, het = 0, iter = 1000, alpha = 0.05)
 \item{r}{Desired correlation between the dependent variables (scalar)}
 
 \item{d}{Population effect size (standardized mean difference between grouping variable levels)}
+
+\item{prop_Hacker}{Proportion of p-hackers in the population}
+
+\item{prop_H1}{Proportion of H1 in the population}
 
 \item{het}{Effect size heterogeneity (standard deviation of effect sizes in the population, set to zero if no heterogeneity is modeled)}
 

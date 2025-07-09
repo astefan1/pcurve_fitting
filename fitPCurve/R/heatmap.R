@@ -43,7 +43,7 @@
 #' # plot one of the rmse columns
 #' heatmap(simres, "rmseSotola")
 #' }
-heatmap <- function(sim, DV) {
+p_heatmap <- function(sim, DV) {
   ggplot(sim, aes(x = nvar, y = r, fill = .data[[DV]])) +
     geom_tile() +
     facet_grid(~strategy) +
