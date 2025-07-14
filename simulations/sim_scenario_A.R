@@ -24,8 +24,8 @@ nvar = c(2:8, floor(exp(seq(log(10), log(150), by = 0.3))) |> unique())
 r = seq(0, 0.9, by = 0.3)
 d = seq(0.1, 1, by = 0.1) # ES under H1; under H0 it's always 0
 het = seq(0, 0.5, by = 0.1)
-prop_Hacker = seq(0.2, 1, by = 0.2) # proportion of researchers practicing p-hacking, 0 = best case, 1 = worst case
-prop_H1 = seq(0.1, 1, by = 0.1) # proportion of true H1 effects
+prop_Hacker = seq(0.2, 1, by = 0.2) # proportion of researchers practicing p-hacking
+prop_H1 = seq(0.1, .7, by = 0.1) # proportion of true H1 effects
 
 iter = 10000   # this is fixed
 alpha = 0.05 # this is fixed
@@ -35,12 +35,12 @@ alpha = 0.05 # this is fixed
 #---------------------------------------------------
 # Testing simulation conditions
 
-nvar = c(2, 5, 10, 50)
+nvar = c(2, 5, 10, 50, 200)
 r = seq(0, 0.9, by = 0.3)
-d = seq(0.1, 0.4, by = 0.1) # ES under H1; under H0 it's always 0
+d = seq(0.1, 0.8, by = 0.1) # ES under H1; under H0 it's always 0
 het = seq(0, 0.3, by = 0.1)
 prop_Hacker = seq(0.2, 0.8, by = 0.2) # proportion of researchers practicing p-hacking, 0 = best case, 1 = worst case
-prop_H1 = seq(0.1, 0.4, by = 0.1) # proportion of true H1 effects
+prop_H1 = seq(0.1, 0.5, by = 0.1) # proportion of true H1 effects
 
 iter = 1000   # this is fixed
 alpha = 0.05 # this is fixed
@@ -70,6 +70,38 @@ conditions <- expand.grid(nvar, r, d, prop_Hacker, prop_H1, het, iter, alpha, st
 colnames(conditions) <- c("nvar", "r", "d", "prop_Hacker", "prop_H1", "het", "iter", "alpha")
 
 cat("Total conditions to process:", nrow(conditions), "\n")
+
+
+#---------------------------------------------------
+# Helper function: Write results of each condition into a shared directory structure
+# (to avoid 300000 files in a single dir)
+
+save_condition_result <- function(cond_row,
+                                  result_object,
+                                  base_dir,
+                                  algo     = "xxhash64",
+                                  compress = "xz")
+{
+  stopifnot(is.data.frame(cond_row), nrow(cond_row) == 1)
+
+  # 1. Stable hash of the row -----------------------------------------------
+  # Serialize the row so that *all* columns influence the hash
+  hash_val <- digest::digest(cond_row, algo = algo)
+
+  # 2. Two-level shard (00–ff / 00–ff) --------------------------------------
+  shard1 <- substr(hash_val, 1, 2)
+  shard2 <- substr(hash_val, 3, 4)
+  dir_path  <- file.path(base_dir, shard1, shard2)
+
+  if (!dir.exists(dir_path))
+    dir.create(dir_path, recursive = TRUE)
+
+  # 3. Write the result ------------------------------------------------------
+  file_path <- file.path(dir_path, paste0(hash_val, ".rds"))
+  saveRDS(result_object, file_path, compress = compress)
+
+  invisible(file_path)
+}
 
 
 # Progress tracking setup
@@ -123,10 +155,10 @@ simres <- foreach(i = 1:nrow(conditions),
                     # Simple progress tracking in a file
                     progress_msg <- sprintf("Completed %d/%d (%.1f%%) at %s",
                                             i, nrow(conditions), 100 * i / nrow(conditions), Sys.time())
-                    write(progress_msg, file = paste0("../simulations/sim-results/", sim_name, "/", sim_name,"_00_progress.txt"), append = TRUE)
+                    write(progress_msg, file = paste0("../simulations/sim-results/", sim_name, "/00-", sim_name,"_progress.txt"), append = TRUE)
 
                     # write intermediate file
-                    export(res_i, paste0("../simulations/sim-results/", sim_name, "/", sim_name,"_", i, ".csv"))
+                    save_condition_result(conditions[i, ], res_i, paste0("../simulations/sim-results/", sim_name, "/"))
                     res_i
                   }
 

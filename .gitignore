@@ -49,4 +49,4 @@ po/*~
 rsconnect/
 
 # single simulation files
-/simulations/sim-results/sim_*/*.csv
+/simulations/sim-results/sim_*/**

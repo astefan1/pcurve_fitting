@@ -4,12 +4,14 @@
 \alias{plot_pcurves}
 \title{Plot original and fitted p-curves}
 \usage{
-plot_pcurves(simdat, poriginal, n_best = 10)
+plot_pcurves(simdat, poriginal, n_best = NA)
 }
 \arguments{
 \item{simdat}{Result of simulation function}
 
 \item{poriginal}{Original p-curve (vector)}
+
+\item{nbest}{Show only the n best curves. If NA, all are shown}
 }
 \description{
 Create a plot displaying the original and a number of fitted p-curves
