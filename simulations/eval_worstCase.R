@@ -31,11 +31,11 @@ plot_pcurves(simres, poriginal = pcurves$simonsohn, n_best=10)
 
 # TODO: add labels to facets; 1: smallest, 2: smallest significant, 3: first significant as labels
 
-library(patchwork)
-p1 <- p_heatmap(simres, "rmseSotola")
-p2 <- p_heatmap(simres, "rmseWetzels")
-p3 <- p_heatmap(simres, "rmseSimonsohn")
-p1 / p2 / p3
+# library(patchwork)
+# p1 <- p_heatmap(simres, "rmseSotola")
+# p2 <- p_heatmap(simres, "rmseWetzels")
+# p3 <- p_heatmap(simres, "rmseSimonsohn")
+# p1 / p2 / p3
 
 
 
@@ -65,22 +65,6 @@ ggplot(simres, aes(x = d, y = prop_H1, fill = rmseSimonsohn)) +
 
 
 
-
-library(GGally)
-
-GGally::ggparcoord(
-  simres,
-  columns = c("nvar", "r", "d", "prop_Hacker",
-              "prop_H1", "het", "strategy", "rmseSimonsohn"),
-  scale = "uniminmax",
-  groupColumn = "strategy",           # colour by strategy
-  alphaLines = 0.2
-) +
-  scale_colour_viridis_d(option = "H") +
-  labs(title = "All design factors vs. RMSE")
-
-
-
 # Get variable importance:
 library(ranger)
 rf_dat <- simres |>
@@ -97,16 +81,17 @@ importance(rf)
 library(partykit)
 
 X$pred <- rf$predictions
-c1 <- ctree(pred~., data=X, control=ctree_control(maxdepth=3))
+c1 <- ctree(pred~., data=X, control=ctree_control(maxdepth=4))
 plot(c1)
 
 
 
 
-
+# interpretable machine learning
+# not sure if the marginal effects are very informative,
+# as we see massive higher-order interactions
 
 library(iml)
-
 
 mod <- Predictor$new(
   model   = rf,
@@ -127,8 +112,7 @@ FeatureEffect$new(mod, feature = "prop_Hacker", method = "ale") |> plot()
 FeatureEffect$new(mod, feature = "prop_H1", method = "ale") |> plot()
 
 
-
-# Reduced heatmap
+# Reduced heatmap: But this removes some of the top combinations
 ggplot(simres |> filter(strategy == 1, het==0), aes(x = d, y = prop_H1, fill = rmseSimonsohn)) +
   geom_tile() +
   facet_grid(
