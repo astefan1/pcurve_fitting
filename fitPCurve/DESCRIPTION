@@ -14,7 +14,9 @@ Imports:
     TruncExpFam,
     ggplot2,
     dplyr,
-    rlang
+    rlang,
+    digest,
+    tidyr
 Suggests: 
     testthat (>= 3.0.0)
 Config/testthat/edition: 3

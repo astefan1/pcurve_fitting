@@ -11,7 +11,7 @@ plot_pcurves(simdat, poriginal, n_best = NA)
 
 \item{poriginal}{Original p-curve (vector)}
 
-\item{nbest}{Show only the n best curves. If NA, all are shown}
+\item{n_best}{Show only the n best curves. If NA, all are shown}
 }
 \description{
 Create a plot displaying the original and a number of fitted p-curves

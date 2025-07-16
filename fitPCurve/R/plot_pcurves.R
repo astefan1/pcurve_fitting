@@ -10,7 +10,7 @@ alpha_ramp <- function(x, min_alpha=0.05, max_alpha=1, min=5, max=1000) {
 #' @description Create a plot displaying the original and a number of fitted p-curves
 #' @param simdat Result of simulation function
 #' @param poriginal Original p-curve (vector)
-#' @param nbest Show only the n best curves. If NA, all are shown
+#' @param n_best Show only the n best curves. If NA, all are shown
 #' @import ggplot2
 #' @importFrom tidyr pivot_longer
 #' @export
