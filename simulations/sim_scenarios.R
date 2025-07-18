@@ -37,7 +37,7 @@ colnames(realistic_conditions) <- c("nvar", "r", "d", "prop_Hacker", "prop_H1", 
 
 cat("Total conditions to process:", nrow(realistic_conditions), "\n")
 
-simres <- sim_pcurve("sim_realistic", realistic_conditions, n_cores = 8)
+simres <- sim_pcurve("sim_realistic", realistic_conditions, n_cores = 10)
 
 # Save results
 export(simres, paste0("../simulations/sim-results/sim_realistic.csv"))
@@ -155,6 +155,10 @@ export(simres, paste0("../simulations/sim-results/sim_worst.csv"))
 #---------------------------------------------------
 # Optionally: Aggregate intermediate files
 # (e.g., if the computation has been interrupted due to an error)
+
+
+simres <- collect_rds("/Users/felix/Documents/Github/pcurve_fitting/simulations/sim-results/sim_realistic")
+export(simres, paste0("../simulations/sim-results/sim_realistic.csv"))
 
 library(data.table)
 
