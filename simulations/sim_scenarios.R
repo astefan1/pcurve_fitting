@@ -26,7 +26,7 @@ r = seq(0, 0.9, by = 0.3)
 d = seq(0.1, 0.8, by = 0.1) # ES under H1; under H0 it's always 0
 het = seq(0, 0.4, by = 0.1)
 prop_Hacker = c(0.1, seq(0.2, 1, by = 0.2)) # proportion of researchers practicing p-hacking
-prop_H1 = seq(0.1, .5, by = 0.1) # proportion of true H1 effects
+prop_H1 = seq(0.1, .7, by = 0.1) # proportion of true H1 effects
 
 iter = 10000   # this is fixed
 alpha = 0.05 # this is fixed
@@ -37,7 +37,7 @@ colnames(realistic_conditions) <- c("nvar", "r", "d", "prop_Hacker", "prop_H1", 
 
 cat("Total conditions to process:", nrow(realistic_conditions), "\n")
 
-simres <- sim_pcurve("sim_realistic", realistic_conditions, n_cores = 10)
+simres <- sim_pcurve("sim_realistic", realistic_conditions, n_cores = 8)
 
 # Save results
 export(simres, paste0("../simulations/sim-results/sim_realistic.csv"))
@@ -50,7 +50,23 @@ export(simres, paste0("../simulations/sim-results/sim_realistic.csv"))
 # Set seed for reproducibility
 set.seed(12345)
 
-simres <- sim.multDVhack(nvar=1, r=0, d=0, het = 0, prop_H1 = 0, prop_Hacker = 0, iter = 100000, alpha = 0.05)
+nvar = 1
+r = 0
+d = 0
+het = 0
+prop_Hacker = 0
+prop_H1 = 0
+
+iter = 10000   # this is fixed
+alpha = 0.05 # this is fixed
+
+# Create grid of conditions
+H0_conditions <- expand.grid(nvar, r, d, prop_Hacker, prop_H1, het, iter, alpha, stringsAsFactors = FALSE)
+colnames(H0_conditions) <- c("nvar", "r", "d", "prop_Hacker", "prop_H1", "het", "iter", "alpha")
+
+cat("Total conditions to process:", nrow(H0_conditions), "\n")
+
+simres <- sim_pcurve("sim_H0", H0_conditions, n_cores = 1)
 
 # Save results
 export(simres, paste0("../simulations/sim-results/sim_H0.csv"))

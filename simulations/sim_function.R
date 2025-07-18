@@ -24,8 +24,8 @@ sim_pcurve <- function(sim_name, conditions, n_cores = NA) {
 
   progress_file <- paste0("../simulations/sim-results/", sim_name, "/00-", sim_name,"_progress.txt")
 
-  # Setup parallel cluster
-  cl <- makeCluster(n_cores)
+  # Setup parallel cluster, one log per worker for error detection
+  cl <- makeCluster(n_cores, type = "PSOCK", outfile = "worker_%a.log")
   registerDoParallel(cl)
 
   # Progress tracking setup
@@ -36,7 +36,9 @@ sim_pcurve <- function(sim_name, conditions, n_cores = NA) {
   # Run parallel simulation with reproducible RNG
   simres <- foreach(i = 1:nrow(conditions),
                     .combine = rbind,
-                    .packages = c("fitPCurve", "rio")) %dorng% {
+                    .packages = c("fitPCurve", "rio"),
+                    # releases mem between tasks
+                    .options.snow = list(preschedule = FALSE)) %dorng% {
 
                       intermediate_fn <- get_cache_filename(conditions[i, ], paste0("../simulations/sim-results/", sim_name))
 

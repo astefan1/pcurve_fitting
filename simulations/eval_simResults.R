@@ -13,7 +13,8 @@ pcurves <- import("../simulations/pcurves-to-fit.csv")
 # load the simulation results here:
 #simres <- import("../simulations/sim-results/sim_realistic.csv")
 #simres <- import("../simulations/sim-results/sim_worst.csv")
-simres <- import("../simulations/sim-results/sim_perfect.csv")
+#simres <- import("../simulations/sim-results/sim_perfect.csv")
+simres <- import("../simulations/sim-results/sim_H0.csv")
 
 simres$rmseSotola    <- apply(simres[, paste0("p", 1:5)], 1, function(x) rmse(x, pcurves$sotola))
 simres$rmseWetzels   <- apply(simres[, paste0("p", 1:5)], 1, function(x) rmse(x, pcurves$wetzels))
