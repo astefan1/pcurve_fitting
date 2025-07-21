@@ -32,6 +32,19 @@ sim3 <- sim.multDVhack(nvar=50, r=0, d=0, prop_Hacker=0.8, prop_H1=0, het=0, ite
 # Check if proportion of p-values below .05 increases compared to Simulation 2
 sum(sim2[,1] < 0.05)/10000 < sum(sim3[,1] < 0.05)/10000
 
+#### Simulation 3b:
+#### Null is true, 100% hacker, extreme p-hacking
+sim3b <- sim.multDVhack(nvar=100, r=0, d=0, prop_Hacker=1, prop_H1=0, het=0, iter=10000, alpha=0.05)
+
+
+# Check if we get the "bump" just below p=.05 (i.e., in the 5th bin),
+# at least in strategy == 3 (first significant)
+compute_pcurve(sim3b[, 1])
+compute_pcurve(sim3b[, 2])
+compute_pcurve(sim3b[, 3])
+
+# TODO: No, we don't!
+
 
 #### Simulation 4a:
 #### Null is true, p-hacking with 2 zero-correlated DVs, 100% hacker

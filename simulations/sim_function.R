@@ -20,7 +20,7 @@ library(rio)         # I/O helpers
 
 
 sim_pcurve <- function(sim_name, conditions, n_cores = NA) {
-  # ── 0. Reset any existing future strategy ────────────────────────────────
+  # ── 0. Reset any existing future strategy ────────────────────────────────
   future::plan(sequential)                # make sure nothing is left running
   if (!is.na(n_cores)) {
     n_cores <- as.integer(n_cores)
@@ -33,7 +33,7 @@ sim_pcurve <- function(sim_name, conditions, n_cores = NA) {
   # ── 1. Set up the multisession future backend ────────────────────────────
   # Each worker is an independent R session started on this machine.
   future::plan(multisession, workers = n_cores)
-  doFuture::registerDoFuture()            # hand over %dopar% / %dorng%
+  doFuture::registerDoFuture()
 
   # ── 2. Prep output directories & bookkeeping ─────────────────────────────
   out_dir <- file.path("..", "simulations", "sim-results", sim_name)
@@ -83,7 +83,7 @@ sim_pcurve <- function(sim_name, conditions, n_cores = NA) {
         return(matrix(NA_real_, nrow = conditions[i, 7], ncol = 3))
       })
 
-    # p‑curve stats ---------------------------------------------------------
+    # p‑curve stats for the three strategies -------------------------------
     res_pcurve <- matrix(c(compute_pcurve(ps[, 1]),
                            compute_pcurve(ps[, 2]),
                            compute_pcurve(ps[, 3])),
@@ -157,13 +157,7 @@ collect_rds <- function(root, quiet = TRUE) {
 
   # Combine with rbind()
   ncol0 <- ncols[1]
-  big_mat <- matrix(
-    unlist(mats, use.names = FALSE),
-    ncol   = ncol0,
-    byrow  = TRUE
-  )
-  colnames(big_mat) <- cn[[1]]
-  rownames(big_mat) <- NULL
+  big_mat <- do.call(rbind, mats)
 
   big_mat
 }

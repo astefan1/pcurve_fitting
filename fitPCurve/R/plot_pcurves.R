@@ -15,7 +15,7 @@ alpha_ramp <- function(x, min_alpha=0.05, max_alpha=1, min=5, max=1000) {
 #' @importFrom tidyr pivot_longer
 #' @export
 
-plot_pcurves <- function(simdat, poriginal, n_best=NA){
+plot_pcurves <- function(simdat, poriginal, n_best=NA, alpha=NA){
 
   # Compute RMSEs between original and simulated
   simdat$rmse <- apply(simdat[, paste0("p", 1:5)], 1, function(x) rmse(x, poriginal))
@@ -38,6 +38,10 @@ plot_pcurves <- function(simdat, poriginal, n_best=NA){
   plotdat <- data.frame(pval = seq(0.01, 0.05, by = 0.01),
                         yval = poriginal)
 
+  if (is.na(alpha)) {
+    alpha <- alpha_ramp(n_best)
+  }
+
   p1 <- ggplot(simdat_sel_long, aes(y = yval, x=pval, group=condition)) +
     theme_bw() +
     ylim(c(0,100)) +
@@ -45,7 +49,7 @@ plot_pcurves <- function(simdat, poriginal, n_best=NA){
          y = "Percentage of p-values") +
     theme(axis.title = element_text(size = 25),
           axis.text = element_text(size = 15)) +
-    geom_line(color = "steelblue", alpha=alpha_ramp(n_best)) +
+    geom_line(color = "steelblue", alpha=alpha) +
     geom_line(data=plotdat, aes(y = yval, x=pval, group=1), linewidth=1)
 
   p1

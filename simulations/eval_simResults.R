@@ -11,7 +11,8 @@ library(ggplot2)
 pcurves <- import("../simulations/pcurves-to-fit.csv")
 
 # load the simulation results here:
-simres <- import("../simulations/sim-results/sim_realistic.csv")
+#simres <- import("../simulations/sim-results/sim_realistic.csv")
+simres <- import("../simulations/sim-results/sim_realistic_1000.csv")
 #simres <- import("../simulations/sim-results/sim_worst.csv")
 #simres <- import("../simulations/sim-results/sim_perfect.csv")
 #simres <- import("../simulations/sim-results/sim_H0.csv")
@@ -33,6 +34,8 @@ plot_pcurves(simres, poriginal = pcurves$wetzels, n_best=10)
 plot_pcurves(simres, poriginal = pcurves$simonsohn, n_best=10)
 
 
+# check a single result:
+simres |> filter(nvar == 2, r == 0, d == 0.3, prop_Hacker == 0.8, prop_H1 == 0.4, het == 0, strategy == 3)
 
 # A heatmap with all conditions (no averaging; each condition is one tile)
 ggplot(simres, aes(x = d, y = prop_H1, fill = rmseSimonsohn)) +
