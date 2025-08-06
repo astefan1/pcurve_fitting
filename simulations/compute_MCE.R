@@ -1,10 +1,10 @@
 library(doParallel)
-library(doRNG)  # Required for %dorng%
+library(doRNG)
 library(foreach)
 library(rio)
 source("../simulations/sim_function.R")
 
-# test the top Simonsohn condition
+# test the top Simonsohn condition from the iterations=1000 run
 nvar = 2
 r = 0
 d = 0.3
@@ -23,7 +23,7 @@ colnames(test_condition0) <- c("nvar", "r", "d", "prop_Hacker", "prop_H1", "het"
 
 # Set seed for reproducibility
 set.seed(12345)
-iter = 1000   # this is fixed
+iter = 1000
 meta_iter = 1000 # Monte Carlo repetitions
 
 # Create grid of conditions
@@ -42,7 +42,7 @@ export(simres, paste0("../simulations/sim-results/sim_test_MCSE_1000.csv"))
 
 # Set seed for reproducibility
 set.seed(12345)
-iter = 1000   # this is fixed
+iter = 1000
 meta_iter = 10000 # Monte Carlo repetitions
 
 # Create grid of conditions

@@ -4,7 +4,7 @@
 \alias{plot_pcurves}
 \title{Plot original and fitted p-curves}
 \usage{
-plot_pcurves(simdat, poriginal, n_best = NA)
+plot_pcurves(simdat, poriginal, n_best = NA, alpha = NA)
 }
 \arguments{
 \item{simdat}{Result of simulation function}

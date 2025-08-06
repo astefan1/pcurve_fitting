@@ -4,8 +4,6 @@
 
 library(fitPCurve)
 library(rio)
-library(dplyr)
-library(ggplot2)
 
 # reference p-curves
 pcurves <- import("../simulations/pcurves-to-fit.csv")

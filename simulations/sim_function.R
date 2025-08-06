@@ -30,12 +30,12 @@ sim_pcurve <- function(sim_name, conditions, n_cores = NA) {
   }
   message("Using ", n_cores, " worker(s)…")
 
-  # ── 1. Set up the multisession future backend ────────────────────────────
+  # ── 1. Set up the multisession future backend ────────────────────────────
   # Each worker is an independent R session started on this machine.
   future::plan(multisession, workers = n_cores)
   doFuture::registerDoFuture()
 
-  # ── 2. Prep output directories & bookkeeping ─────────────────────────────
+  # ── 2. Prep output directories & bookkeeping ─────────────────────────────
   out_dir <- file.path("..", "simulations", "sim-results", sim_name)
   dir.create(out_dir, recursive = TRUE, showWarnings = FALSE)
 
@@ -48,7 +48,7 @@ sim_pcurve <- function(sim_name, conditions, n_cores = NA) {
   start_time <- Sys.time()
   message("Processing ", nrow(conditions), " condition rows…")
 
-  # ── 3. Parallel simulation loop ──────────────────────────────────────────
+  # ── 3. Parallel simulation loop ──────────────────────────────────────────
   simres <- foreach(i = seq_len(nrow(conditions)),
                     .combine   = rbind,
                     .packages  = c("fitPCurve", "rio"),
@@ -104,7 +104,7 @@ sim_pcurve <- function(sim_name, conditions, n_cores = NA) {
     res_i
   }
 
-  # ── 4. Post‑processing & cleanup ─────────────────────────────────────────
+  # ── 4. Post‑processing & cleanup ─────────────────────────────────────────
   total_time <- round(difftime(Sys.time(), start_time, units = "mins"), 2)
   cat("Total processing time:", total_time, "minutes\n")
 
@@ -114,7 +114,7 @@ sim_pcurve <- function(sim_name, conditions, n_cores = NA) {
 
 
 
-#' Combine all .rds matrices in a directory tree
+#' Combine all .rds matrices in a directory tree (including all subfolders)
 #'
 #' @param root   Character. Path to the top‑level directory that contains
 #'               the .rds files (possibly nested in sub‑folders).
