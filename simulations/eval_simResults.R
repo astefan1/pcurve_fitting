@@ -12,9 +12,10 @@ pcurves <- import("../simulations/pcurves-to-fit.csv")
 
 # load the simulation results here:
 #simres <- import("../simulations/sim-results/sim_realistic.csv")
+simres <- import("../simulations/sim-results/sim_realistic_1000.csv")
 #simres <- import("../simulations/sim-results/sim_worst.csv")
 #simres <- import("../simulations/sim-results/sim_perfect.csv")
-simres <- import("../simulations/sim-results/sim_H0.csv")
+simres_H0 <- import("../simulations/sim-results/sim_H0.csv")
 
 simres$rmseSotola    <- apply(simres[, paste0("p", 1:5)], 1, function(x) rmse(x, pcurves$sotola))
 simres$rmseWetzels   <- apply(simres[, paste0("p", 1:5)], 1, function(x) rmse(x, pcurves$wetzels))
@@ -33,6 +34,8 @@ plot_pcurves(simres, poriginal = pcurves$wetzels, n_best=10)
 plot_pcurves(simres, poriginal = pcurves$simonsohn, n_best=10)
 
 
+# check a single result:
+simres |> filter(nvar == 2, r == 0, d == 0.3, prop_Hacker == 0.8, prop_H1 == 0.4, het == 0, strategy == 3)
 
 # A heatmap with all conditions (no averaging; each condition is one tile)
 ggplot(simres, aes(x = d, y = prop_H1, fill = rmseSimonsohn)) +
@@ -65,8 +68,12 @@ ggplot(simres, aes(x = d, y = prop_H1, fill = rmseSimonsohn)) +
 
 ## Test the bump with a custom p-curve
 
-plot_pcurves(
-  #simres |> filter(strategy==1, prop_Hacker==0.2, d==0.1, nvar==50),
-  simres,
-  poriginal = c(15, 15, 15, 15, 40),
-  n_best = 10)
+# realistic scenario:
+simres$rmseBump <- apply(simres[, paste0("p", 1:5)], 1, function(x) rmse(x, c(15, 15, 15, 15, 40)))
+plot_pcurves(simres, poriginal = c(15, 15, 15, 15, 40), n_best = 10)
+simres |> arrange(rmseBump) |> slice(1:5)
+
+# H0 scenario
+simres_H0$rmseBump <- apply(simres_H0[, paste0("p", 1:5)], 1, function(x) rmse(x, c(15, 15, 15, 15, 40)))
+plot_pcurves(simres_H0, poriginal = c(15, 15, 15, 15, 40), n_best = 3)
+simres_H0 |> arrange(rmseBump)
