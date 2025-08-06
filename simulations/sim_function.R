@@ -52,8 +52,6 @@ sim_pcurve <- function(sim_name, conditions, n_cores = NA) {
   simres <- foreach(i = seq_len(nrow(conditions)),
                     .combine   = rbind,
                     .packages  = c("fitPCurve", "rio"),
-                    .export    = c("sim.multDVhack", "compute_pcurve",
-                                   "get_cache_filename", "save_cached_file"),
                     .options.future = list(scheduling = 1)  # one task at a time
   ) %dorng% {
 

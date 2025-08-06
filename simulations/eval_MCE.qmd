@@ -1,0 +1,38 @@
+---
+title: "Monte Carlo Simulation Error"
+format: html
+execute:
+  echo: false
+---
+
+```{r}
+library(fitPCurve)
+library(rio)
+
+# load reference p-curves
+pcurves <- import("../simulations/pcurves-to-fit.csv")
+
+simres_1000 <- import("../simulations/sim-results/sim_test_MCSE_1000.csv")
+simres_10000 <- import("../simulations/sim-results/sim_test_MCSE_10000.csv")
+```
+
+We investigated the Monte Carlo simulation error (MCE) by computing the same condition 1000x times.
+Computationally, the MCE is defined as the standard deviation of all Monte Carlo repetitions of the same quantity. Here, we focus on the fifth *p*-value bin as focal quantity.
+
+## p-curves averaged across 1000 iterations
+
+In the first plot, we did 1000 iterations in the simulation function. That means, each of the 1000 blue *p*-curves is the average of **1000** simulations of the same condition. The MCE of the fith *p*-value bin was `r sd(simres_1000$p5) |> round(2)`.
+
+```{r}
+plot_pcurves(simres_1000, poriginal = pcurves$simonsohn, alpha=.3)
+```
+
+## p-curves averaged across 10,000 iterations
+
+In the first plot, we did 10,000 iterations in the simulation function. That means, each of the 1000 blue *p*-curves is the average of **10,000** simulations of the same condition. The MCE of the fith *p*-value bin was `r sd(simres_10000$p5) |> round(2)`.
+
+```{r}
+plot_pcurves(simres_10000, poriginal = pcurves$simonsohn, alpha=.3)
+```
+
+One can see that 10,000 iterations lead to more stable simulation results. Visually, we judged 10,000 iterations to be sufficiently stable.
