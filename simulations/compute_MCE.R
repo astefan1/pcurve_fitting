@@ -39,6 +39,25 @@ simres <- sim_pcurve("sim_test_MCSE1000", test_conditions, n_cores = 10)
 export(simres, paste0("../simulations/sim-results/sim_test_MCSE_1000.csv"))
 
 # =============================================================================
+# 5000 iterations (repeated 1000 times)
+# =============================================================================
+
+# Set seed for reproducibility
+set.seed(12345)
+test_condition0$iter = 5000
+meta_iter = 1000 # Monte Carlo repetitions
+
+# Create grid of conditions
+test_conditions <- test_condition0 %>% slice(rep(1, each = meta_iter))
+
+cat("Total conditions to process:", nrow(test_conditions), "\n")
+
+simres <- sim_pcurve("sim_test_MCSE5000", test_conditions, n_cores = 10)
+
+# Save results
+export(simres, paste0("../simulations/sim-results/sim_test_MCSE_5000.csv"))
+
+# =============================================================================
 # 10,000 iterations (repeated 1000 times)
 # =============================================================================
 
