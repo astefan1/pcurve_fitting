@@ -17,9 +17,13 @@ simres <- import("../simulations/sim-results/sim_realistic_1000.csv")
 #simres <- import("../simulations/sim-results/sim_perfect.csv")
 simres_H0 <- import("../simulations/sim-results/sim_H0.csv")
 
-simres$rmseSotola    <- apply(simres[, paste0("p", 1:5)], 1, function(x) rmse(x, pcurves$sotola))
-simres$rmseWetzels   <- apply(simres[, paste0("p", 1:5)], 1, function(x) rmse(x, pcurves$wetzels))
-simres$rmseSimonsohn <- apply(simres[, paste0("p", 1:5)], 1, function(x) rmse(x, pcurves$simonsohn))
+simres$rmseSotola    <- apply(simres[, paste0("p", 1:5)], 1, function(x) rmse(x/100, simplify2array(pcurves[1, 3:7])))
+simres$rmseWetzels   <- apply(simres[, paste0("p", 1:5)], 1, function(x) rmse(x/100, simplify2array(pcurves[2, 3:7])))
+simres$rmseSimonsohn <- apply(simres[, paste0("p", 1:5)], 1, function(x) rmse(x/100, simplify2array(pcurves[3, 3:7])))
+
+simres$chi2Sotola    <- apply(simres[, paste0("p", 1:5)], 1, function(x) chi2(x/100, simplify2array(pcurves[1, 3:7]), n = pcurves$nsig[1]))
+simres$chi2Wetzels   <- apply(simres[, paste0("p", 1:5)], 1, function(x) chi2(x/100, simplify2array(pcurves[2, 3:7]), n = pcurves$nsig[2]))
+simres$chi2Simonsohn <- apply(simres[, paste0("p", 1:5)], 1, function(x) chi2(x/100, simplify2array(pcurves[3, 3:7]), n = pcurves$nsig[3]))
 
 simres[order(simres$rmseSotola)[1:10], ]
 simres[order(simres$rmseWetzels)[1:10], ]
