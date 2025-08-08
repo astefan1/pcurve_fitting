@@ -69,3 +69,14 @@ get_cache_filename <- function(cond_row, base_dir, algo = "xxhash64") {
 save_cached_file <- function(object, file, compress = "xz") {
   saveRDS(object, file, compress = compress)
 }
+
+#' Compute cumulative variance
+#' @description Iteratively compute variance of 1:k, 1:k+1, 1:k+2 datapoints in a vector
+#' @param x Vector containing values for variance computation
+#' @export
+
+cumvar <- function (x) {
+  x <- x - x[sample.int(length(x), 1)]  ## see Remark 2 below
+  n <- seq_along(x)
+  (cumsum(x ^ 2) - cumsum(x) ^ 2 / n) / (n - 1)
+}
