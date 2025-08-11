@@ -4,10 +4,10 @@ library(foreach)
 library(rio)
 source("../simulations/sim_function.R")
 
-# A (prop_H1 > 0 and prop_Hacker > 0): 17 (nvar) x 4 (r) x 10 (d) x 6 (het) x 5 (prop_phacker) x 10 (prop_H1) = 204000
+# A (prop_H1 > 0 and prop_Hacker > 0): 6 (nvar) x 4 (r) x 8 (d) x 3 (het) x 5 (prop_phacker) x 5 (prop_H1) = 14400
 # B (prop_H1 = 0 and prop_Hacker = 0): 1 (prop_phacker) x 1 (prop_H1) = 1
-# C (prop_H1 > 0 and prop_Hacker = 0): 10 (d) x 6 (het) x 1 (prop_phacker) x 10 (prop_H1) = 600
-# D (prop_H1 = 0 and prop_Hacker > 0): 17 (nvar) x 4 (r) x 5 (prop_phacker) x 10 (prop_H1) = 3400
+# C (prop_H1 > 0 and prop_Hacker = 0): 8 (d) x 3 (het) x 1 (prop_phacker) x 5 (prop_H1) = 120
+# D (prop_H1 = 0 and prop_Hacker > 0): 6 (nvar) x 4 (r) x 5 (prop_phacker) x 5 (prop_H1) = 600
 
 
 # =============================================================================
@@ -21,12 +21,12 @@ set.seed(12345)
 # note: this approximates a logarithmic progression of nvar:
 # floor(exp(seq(log(2), log(200), by = 0.2))) |> unique()
 
-nvar = c(2, 3, 5, 8, floor(exp(seq(log(10), log(150), by = 0.3))) |> unique())
+nvar = c(2, 5, 10, 30, 70, 150) # inspired by floor(exp(seq(log(10), log(150), by = 0.3))) |> unique())
 r = seq(0, 0.9, by = 0.3)
 d = seq(0.1, 0.8, by = 0.1) # ES under H1; under H0 it's always 0
-het = seq(0, 0.4, by = 0.1)
-prop_Hacker = c(0.1, seq(0.2, 1, by = 0.2)) # proportion of researchers practicing p-hacking
-prop_H1 = seq(0.1, .7, by = 0.1) # proportion of true H1 effects
+het = seq(0, 0.4, by = 0.2)
+prop_Hacker = c(0.1, seq(0.25, 1, by = 0.25)) # proportion of researchers practicing p-hacking
+prop_H1 = c(0.1, 0.2, 0.3, 0.5, 0.7) # proportion of true H1 effects
 
 iter = 10000   # this is fixed
 alpha = 0.05 # this is fixed
@@ -86,9 +86,9 @@ set.seed(12345)
 nvar = 1
 r = 0
 d = seq(0.1, 0.8, by = 0.1) # ES under H1; under H0 it's always 0
-het = seq(0, 0.4, by = 0.1)
+het = seq(0, 0.4, by = 0.2)
 prop_Hacker = 0
-prop_H1 = seq(0.1, .5, by = 0.1) # proportion of true H1 effects
+prop_H1 = c(0.1, 0.2, 0.3, 0.5, 0.7) # proportion of true H1 effects
 
 iter = 10000   # this is fixed
 alpha = 0.05 # this is fixed
@@ -120,11 +120,11 @@ set.seed(12345)
 # note: this approximates a logarithmic progression of nvar:
 # floor(exp(seq(log(2), log(200), by = 0.2))) |> unique()
 
-nvar = c(2, 3, 5, 8, floor(exp(seq(log(10), log(150), by = 0.3))) |> unique())
+nvar = c(2, 5, 10, 30, 70, 150) # inspired by floor(exp(seq(log(10), log(150), by = 0.3))) |> unique())
 r = seq(0, 0.9, by = 0.3)
 d = 0
 het = 0
-prop_Hacker = c(0.1, seq(0.2, 1, by = 0.2)) # proportion of researchers practicing p-hacking
+prop_Hacker = c(0.1, seq(0.25, 1, by = 0.25)) # proportion of researchers practicing p-hacking
 prop_H1 = 0
 
 iter = 10000   # this is fixed
