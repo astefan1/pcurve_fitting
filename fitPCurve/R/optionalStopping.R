@@ -42,13 +42,13 @@ optionalStopping <- function(simres, ES, prop_Hacker, prop_H1, nmin, nmax, steps
     nmax <- round(TruncExpFam::rtruncinvgamma(n=iter, a=5, b=nmax, shape=1.15326986, scale=0.04622745))
     ps <- sapply(1:iter, function(x) selectPs[nmax[x], x])
   } else if(prop_Hacker == 1){
-    peeks <- seq(nmin, nmax, by = stepsize)
+    peeks <- unique(c(nmin, seq(nmin, nmax, by = stepsize), nmax))
     pvalSmall <- selectPs[peeks, ]
     ps <- apply(pvalSmall, 2, function(x) ifelse(any(x < alpha), x[which(x < 0.05)[1]], tail(x, 1))) # this does the stopping
   } else{
     # Hackers
     iterHack <- round(prop_Hacker*iter)
-    peeks <- seq(nmin, nmax, by = stepsize)
+    peeks <- unique(c(nmin, seq(nmin, nmax, by = stepsize), nmax))
     pvalSmall <- selectPs[peeks, 1:iterHack]
     ps <- apply(pvalSmall, 2, function(x) ifelse(any(x < alpha), x[which(x < 0.05)[1]], tail(x, 1))) # this does the stopping
     # Non-hackers

@@ -51,3 +51,21 @@ for(i in 1:ncol(ESlist)){
   pval <- apply(tval, 2, function(x) (1-pt(abs(x), 2*seqOneToNMax-2))*2) # p-value
   simres[,,i] <- pval
 }
+
+# Then, compute p-curves for different scenarios
+
+prop_Hacker = c(0.1, seq(0.25, 1, by = 0.25)) # proportion of researchers practicing p-hacking
+prop_H1 = c(0.1, 0.2, 0.3, 0.5, 0.7) # proportion of true H1 effects
+nmin <- c(6, 12, 23, 222, 444, 532) # based on empirical quantiles of Marzalek (1%, 50%, 95%, 99% and half of each)
+nmax <- c(12, 23, 222, 444, 532, 763)
+stepsize <- c(1, 5, 10, 50, 100)
+ds <- seq(0, 0.8, by = 0.1)
+het <- seq(0, 0.4, by = 0.2)
+
+conditions <- expand.grid(prop_Hacker, prop_H1, nmin, nmax, stepsize, ds, het)
+colnames(conditions) <- c("prop_Hacker", "prop_H1", "nmin", "nmax", "stepsize", "d", "het")
+
+# Delete superfluous conditions
+conditions <- conditions[conditions$nmin < conditions$nmax,] # nmin > nmax
+conditions <- conditions[conditions$stepsize < (conditions$nmax-conditions$nmin), ] # stepsize > than diff between min and max
+
