@@ -11,6 +11,7 @@
 #' @param prop_Hacker Proportion of p-hackers in the population
 #' @param prop_H1 Proportion of H1 in the population
 #' @param nmin Minimum sample size per group
+#' @param nmax Maximum sample size per group
 #' @param stepsize Every how many participants do you check?
 #' @param d Effect size
 #' @param het Heterogeneity
@@ -18,7 +19,7 @@
 #' @importFrom TruncExpFamily rtruncinvgamma
 #' @export
 
-optionalStopping <- function(simres, ES, prop_Hacker, prop_H1, nmin, stepsize, d, het, alpha = 0.05){
+optionalStopping <- function(simres, ES, prop_Hacker, prop_H1, nmin, nmax, stepsize, d, het, alpha = 0.05){
 
   # Compile a dataset of p-values with the right proportions of H0 and H1
   if(prop_H1 == 0){
@@ -38,21 +39,21 @@ optionalStopping <- function(simres, ES, prop_Hacker, prop_H1, nmin, stepsize, d
 
   # Split p-value data into hackers and non-hackers and select p-values accordingly
   if(prop_Hacker == 0){
-    nmax <- round(TruncExpFam::rtruncinvgamma(n=iter, a=5, b=nrow(selectPs), shape=1.15326986, scale=0.04622745))
+    nmax <- round(TruncExpFam::rtruncinvgamma(n=iter, a=5, b=nmax, shape=1.15326986, scale=0.04622745))
     ps <- sapply(1:iter, function(x) selectPs[nmax[x], x])
   } else if(prop_Hacker == 1){
-    peeks <- seq(nmin, nrow(selectPs), by = stepsize)
+    peeks <- seq(nmin, nmax, by = stepsize)
     pvalSmall <- selectPs[peeks, ]
     ps <- apply(pvalSmall, 2, function(x) ifelse(any(x < alpha), x[which(x < 0.05)[1]], tail(x, 1))) # this does the stopping
   } else{
     # Hackers
     iterHack <- round(prop_Hacker*iter)
-    peeks <- seq(nmin, nrow(selectPs), by = stepsize)
+    peeks <- seq(nmin, nmax, by = stepsize)
     pvalSmall <- selectPs[peeks, 1:iterHack]
     ps <- apply(pvalSmall, 2, function(x) ifelse(any(x < alpha), x[which(x < 0.05)[1]], tail(x, 1))) # this does the stopping
     # Non-hackers
     iterNoHack <- iter-iterHack
-    nmax <- round(TruncExpFam::rtruncinvgamma(n=iterNoHack, a=5, b=nrow(selectPs), shape=1.15326986, scale=0.04622745))
+    nmax <- round(TruncExpFam::rtruncinvgamma(n=iterNoHack, a=5, b=nmax, shape=1.15326986, scale=0.04622745))
     pvalSmall <- selectPs[, (iterHack+1):iter]
     ps <- c(ps, sapply(1:iterNoHack, function(x) pvalSmall[nmax[x], x]))
   }
