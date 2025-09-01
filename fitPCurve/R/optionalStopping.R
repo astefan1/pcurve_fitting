@@ -2,53 +2,61 @@
 # p-Hacking Strategy: Selective Reporting of the Dependent Variable
 # ==============================================================================
 
-# First simulate dataset of p-values under H1
+# This function works as parser of the big optional stopping simulation object
+# created in sim_optionalStopping.R .
 
-nMax <- ceiling(TruncExpFam::qtruncinvgamma(p=0.99, a=5, b=1905, shape=1.15326986, scale=0.04622745))
-groups <- 2 # independent-samples t-test
-iter <- 10000
-ds <- seq(0.1, 0.8, by = 0.1)
-het <- seq(0, 0.4, by = 0.1)
-ES <- expand.grid(ds, het)
-ESlist <- apply(ES, 1, function(x) rnorm(iter, x[1], x[2]))
+#' Run optional stopping and return p-curve
+#' @param simres Simulation result created in sim_optionalStopping.R (array: nMax x iter x ncol(ES))
+#' @param ES Corresponding effect size object (expand.grid(ds, het))
+#' @param prop_Hacker Proportion of p-hackers in the population
+#' @param prop_H1 Proportion of H1 in the population
+#' @param nmin Minimum sample size per group
+#' @param stepsize Every how many participants do you check?
+#' @param d Effect size
+#' @param het Heterogeneity
+#' @param alpha Significance level
+#' @importFrom TruncExpFamily rtruncinvgamma
+#' @export
 
-simdata0 <- array(rnorm(prod(nMax, groups, iter)), dim=c(nMax, groups, iter)) # draw from standard normal
-simdata <- array(NA, dim=c(nMax, groups, iter)) # placeholder for each effect size
-simres <- array(NA, dim=c(nMax, iter, ncol(ESlist))) # this is where the p-values go
+optionalStopping <- function(simres, ES, prop_Hacker, prop_H1, nmin, stepsize, d, het, alpha = 0.05){
 
-# Sequentially compute t and p values for different effect sizes
-for(i in 1:ncol(ESlist)){
-
-  print(i)
-  simdata <- simdata0
-
-  # Add effect size to one group
-  for(j in 1:iter){
-    simdata[, 1, j] <- simdata0[, 1, j] + ESlist[j, i]
+  # Compile a dataset of p-values with the right proportions of H0 and H1
+  if(prop_H1 == 0){
+    whichES <- which(ES[,1] == 0 & ES[,2] == 0)
+    selectPs <- simres[,,whichES]
+  } else if(prop_H1 == 1){
+    whichES <- which(round(ES[,1],5) == d & round(ES[,2],5) == het) #rounding necessary due to floating point issues
+    selectPs <- simres[,,whichES]
+  } else {
+    iterH1 <- round(prop_H1*iter)
+    iterH0 <- iter-iterH1
+    whichESH1 <- which(round(ES[,1],5) == d & round(ES[,2],5) == het)
+    whichESH0 <- which(ES[,1] == 0 & ES[,2] == 0)
+    selectPs <- cbind(simres[,1:iterH1,whichESH1], simres[,1:iterH0,whichESH0])
+    selectPs <- selectPs[,sample(1:ncol(selectPs), ncol(selectPs), replace = FALSE)] # scramble columns so that H0 and H1 effects are mixed
   }
 
-  # 1:N
-  seqOneToNMax <- seq(1:nMax)
-  # cumulative mean difference
-  X1minX2 <- apply(simdata, 3, function(x) (cumsum(x[,1])/seqOneToNMax)-(cumsum(x[,2])/seqOneToNMax))
-  # cumulative variance
-  Var1 <- apply(simdata, 3, function(x) cumvar(x[,1]))
-  Var2 <- apply(simdata, 3, function(x) cumvar(x[,2]))
-  # cumulative pooled standard deviation
-  spool <- sapply(1:iter, function(x) sqrt(((seqOneToNMax-1)*Var1[,x] + (seqOneToNMax-1)*Var2[,x])/(seqOneToNMax+seqOneToNMax-2)))
+  # Split p-value data into hackers and non-hackers and select p-values accordingly
+  if(prop_Hacker == 0){
+    nmax <- round(TruncExpFam::rtruncinvgamma(n=iter, a=5, b=nrow(selectPs), shape=1.15326986, scale=0.04622745))
+    ps <- sapply(1:iter, function(x) selectPs[nmax[x], x])
+  } else if(prop_Hacker == 1){
+    peeks <- seq(nmin, nrow(selectPs), by = stepsize)
+    pvalSmall <- selectPs[peeks, ]
+    ps <- apply(pvalSmall, 2, function(x) ifelse(any(x < alpha), x[which(x < 0.05)[1]], tail(x, 1))) # this does the stopping
+  } else{
+    # Hackers
+    iterHack <- round(prop_Hacker*iter)
+    peeks <- seq(nmin, nrow(selectPs), by = stepsize)
+    pvalSmall <- selectPs[peeks, 1:iterHack]
+    ps <- apply(pvalSmall, 2, function(x) ifelse(any(x < alpha), x[which(x < 0.05)[1]], tail(x, 1))) # this does the stopping
+    # Non-hackers
+    iterNoHack <- iter-iterHack
+    nmax <- round(TruncExpFam::rtruncinvgamma(n=iterNoHack, a=5, b=nrow(selectPs), shape=1.15326986, scale=0.04622745))
+    pvalSmall <- selectPs[, (iterHack+1):iter]
+    ps <- c(ps, sapply(1:iterNoHack, function(x) pvalSmall[nmax[x], x]))
+  }
 
-  # cumulative t-value calculation
-  denom <- sapply(1:iter, function(x) spool[,x]*sqrt((1/seqOneToNMax) + (1/seqOneToNMax))) # t value denominator
-  tval <- X1minX2/denom # t-value
+  return(ps)
 
-  # cumulative p-value calculation
-  pval <- apply(tval, 2, function(x) (1-pt(abs(x), 2*seqOneToNMax-2))*2) # p-value
-  simres[,,i] <- pval
-}
-
-optionalStopping <- function(simres, nmin, nmax, stepsize, d, het, alpha, ES){
-  peeks <- seq(nmin, nmax, by = stepsize)
-  whichES <- which(ES[1] == d && ES[2] == het)
-  pvalSmall <- simres[peeks,,whichES]
-  pvals <- apply(pvalSmall, 2, function(x) ifelse(any(x < alpha), x[which(x < 0.05)[1]], tail(x, 1)))
 }
