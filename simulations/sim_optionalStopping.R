@@ -69,16 +69,36 @@ colnames(conditions) <- c("prop_Hacker", "prop_H1", "nmin", "nmax", "stepsize", 
 conditions <- conditions[conditions$nmin < conditions$nmax,] # nmin > nmax
 conditions <- conditions[conditions$stepsize < (conditions$nmax-conditions$nmin), ] # stepsize > than diff between min and max
 
+# Compute p-curves
+conditions[,8:12] <- NA
+colnames(conditions)[8:12] <- paste0("p", 1:5)
+
 for(i in 1:nrow(conditions)){
 
-  optionalStopping <- function(simres=simres, ES=ES,
-                               prop_Hacker=conditions[1,i],
-                               prop_H1=conditions[2,i],
-                               nmin=conditions[3,i],
-                               nmax=conditions[4,i],
-                               stepsize=conditions[5,i],
-                               d=conditions[6,i],
-                               het=conditions[7,i],
-                               alpha = 0.05)
+  ps <- optionalStopping(simres=simres, ES=ES,
+                         prop_Hacker=conditions[i,1],
+                         prop_H1=conditions[i,2],
+                         nmin=conditions[i,3],
+                         nmax=conditions[i,4],
+                         stepsize=conditions[i,5],
+                         d=conditions[i,6],
+                         het=conditions[i,7],
+                         alpha = 0.05)
+
+  conditions[i,8:12] <- compute_pcurve(ps)
 
 }
+
+# Compare to observed p-curve
+
+pcurves_to_fit <- read.csv("../simulations/pcurves-to-fit.csv")
+conditions$sotola <- NA
+conditions$wetzels <- NA
+conditions$simonsohn <- NA
+
+for(i in 1:nrow(conditions)){
+  conditions$sotola[i] <- chi2(pcurves_to_fit[1,3:7], conditions[i, 8:12]/100, 163)
+  conditions$wetzels[i] <- chi2(pcurves_to_fit[2,3:7], conditions[i, 8:12]/100, 593)
+  conditions$simonsohn[i] <- chi2(pcurves_to_fit[3,3:7], conditions[i, 8:12]/100, 22)
+}
+
