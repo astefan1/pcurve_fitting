@@ -21,19 +21,23 @@
 
 optionalStopping <- function(simres, ES, prop_Hacker, prop_H1, nmin, nmax, stepsize, d, het, alpha = 0.05){
 
+  iter <- dim(simres)[2]
+
   # Compile a dataset of p-values with the right proportions of H0 and H1
   if(prop_H1 == 0){
     whichES <- which(ES[,1] == 0 & ES[,2] == 0)
     selectPs <- simres[,,whichES]
   } else if(prop_H1 == 1){
-    whichES <- which(round(ES[,1],5) == d & round(ES[,2],5) == het) #rounding necessary due to floating point issues
+    whichES <- which(round(ES[,1],5) == round(d,5) & round(ES[,2],5) == round(het,5)) #rounding necessary due to floating point issues
     selectPs <- simres[,,whichES]
   } else {
     iterH1 <- round(prop_H1*iter)
     iterH0 <- iter-iterH1
-    whichESH1 <- which(round(ES[,1],5) == d & round(ES[,2],5) == het)
+    whichESH1 <- which(round(ES[,1],5) == round(d,5) & round(ES[,2],5) == round(het, 5))
     whichESH0 <- which(ES[,1] == 0 & ES[,2] == 0)
-    selectPs <- cbind(simres[,1:iterH1,whichESH1], simres[,1:iterH0,whichESH0])
+    simresH1 <- simres[,1:iterH1,whichESH1, drop = TRUE]
+    simresH0 <- simres[,1:iterH0,whichESH0, drop = TRUE]
+    selectPs <- cbind(simresH1, simresH0)
     selectPs <- selectPs[,sample(1:ncol(selectPs), ncol(selectPs), replace = FALSE)] # scramble columns so that H0 and H1 effects are mixed
   }
 
