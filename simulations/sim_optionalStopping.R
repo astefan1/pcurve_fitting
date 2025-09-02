@@ -69,3 +69,16 @@ colnames(conditions) <- c("prop_Hacker", "prop_H1", "nmin", "nmax", "stepsize", 
 conditions <- conditions[conditions$nmin < conditions$nmax,] # nmin > nmax
 conditions <- conditions[conditions$stepsize < (conditions$nmax-conditions$nmin), ] # stepsize > than diff between min and max
 
+for(i in 1:nrow(conditions)){
+
+  optionalStopping <- function(simres=simres, ES=ES,
+                               prop_Hacker=conditions[1,i],
+                               prop_H1=conditions[2,i],
+                               nmin=conditions[3,i],
+                               nmax=conditions[4,i],
+                               stepsize=conditions[5,i],
+                               d=conditions[6,i],
+                               het=conditions[7,i],
+                               alpha = 0.05)
+
+}
