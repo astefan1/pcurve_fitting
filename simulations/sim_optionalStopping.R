@@ -18,6 +18,7 @@ ES <- expand.grid(ds, het)
 set.seed(111092)
 ESlist <- apply(ES, 1, function(x) rnorm(iter, x[1], x[2])) # each row in ES (ES+het combi) is a column with iter elements in ESlist
 
+set.seed(111092)
 simdata0 <- array(rnorm(prod(nMax, groups, iter)), dim=c(nMax, groups, iter)) # draw from standard normal
 simdata <- array(NA, dim=c(nMax, groups, iter)) # placeholder for each effect size
 simres <- array(NA, dim=c(nMax, iter, ncol(ESlist))) # this is where the p-values go
@@ -75,6 +76,7 @@ colnames(conditions)[8:12] <- paste0("p", 1:5)
 
 for(i in 1:nrow(conditions)){
 
+  print(i)
   ps <- optionalStopping(simres=simres, ES=ES,
                          prop_Hacker=conditions[i,1],
                          prop_H1=conditions[i,2],
@@ -97,6 +99,7 @@ conditions$wetzels <- NA
 conditions$simonsohn <- NA
 
 for(i in 1:nrow(conditions)){
+  print(i)
   conditions$sotola[i] <- chi2(pcurves_to_fit[1,3:7], conditions[i, 8:12]/100, 163)
   conditions$wetzels[i] <- chi2(pcurves_to_fit[2,3:7], conditions[i, 8:12]/100, 593)
   conditions$simonsohn[i] <- chi2(pcurves_to_fit[3,3:7], conditions[i, 8:12]/100, 22)
