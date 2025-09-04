@@ -2,7 +2,7 @@ library(ranger)
 library(partykit)
 library(iml)
 
-simres <- import("../simulations/sim-results/sim_worst.csv")
+simres <- import("simulations/sim-results/sim_worst.csv")
 
 # Get variable importance:
 rf_dat <- simres |>

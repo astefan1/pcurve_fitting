@@ -36,7 +36,7 @@ sim_pcurve <- function(sim_name, conditions, n_cores = NA) {
   doFuture::registerDoFuture()
 
   # ── 2. Prep output directories & bookkeeping ─────────────────────────────
-  out_dir <- file.path("..", "simulations", "sim-results", sim_name)
+  out_dir <- file.path("simulations", "sim-results", sim_name)
   dir.create(out_dir, recursive = TRUE, showWarnings = FALSE)
 
   # use one progress file per *worker* to avoid file‑locking headaches

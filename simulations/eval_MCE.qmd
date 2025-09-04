@@ -10,11 +10,11 @@ library(fitPCurve)
 library(rio)
 
 # load reference p-curves
-pcurves <- import("../simulations/pcurves-to-fit.csv")
+pcurves <- import("simulations/pcurves-to-fit.csv")
 
-simres_1000 <- import("../simulations/sim-results/sim_test_MCSE_1000.csv")
-simres_5000 <- import("../simulations/sim-results/sim_test_MCSE_5000.csv")
-simres_10000 <- import("../simulations/sim-results/sim_test_MCSE_10000.csv")
+simres_1000 <- import("simulations/sim-results/sim_test_MCSE_1000.csv")
+simres_5000 <- import("simulations/sim-results/sim_test_MCSE_5000.csv")
+simres_10000 <- import("simulations/sim-results/sim_test_MCSE_10000.csv")
 ```
 
 We investigated the Monte Carlo simulation error (MCE) by computing the same condition 1000x times.

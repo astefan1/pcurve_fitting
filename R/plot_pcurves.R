@@ -11,6 +11,7 @@ alpha_ramp <- function(x, min_alpha=0.05, max_alpha=1, min=5, max=1000) {
 #' @param simdat Result of simulation function
 #' @param poriginal Original p-curve (vector)
 #' @param n_best Show only the n best curves. If NA, all are shown
+#' @param alpha Alpha transparency for the simulated p-curve lines
 #' @import ggplot2
 #' @importFrom tidyr pivot_longer
 #' @importFrom scales percent

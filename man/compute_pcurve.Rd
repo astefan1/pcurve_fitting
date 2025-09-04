@@ -11,10 +11,10 @@ compute_pcurve(ps, alpha = 0.05, total.sig = FALSE, binwidth = 0.01)
 
 \item{alpha}{Significance level}
 
-\item{total.sig}{TRUE/FALSE Should one value be added to the output indicating the overall \% of significant p-values}
+\item{total.sig}{TRUE/FALSE Should one value be added to the output indicating the overall fraction of significant p-values}
 
 \item{binwidth}{How wide are the bins in p-curve (default: 0.01)}
 }
 \description{
-Outputs \% of significant p-values in bins of 0-0.01, ..., 0.04-0.05
+Outputs the fraction of significant p-values in bins of 0-0.01, ..., 0.04-0.05
 }

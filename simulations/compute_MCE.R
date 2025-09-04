@@ -3,7 +3,7 @@ library(doRNG)
 library(foreach)
 library(rio)
 library(dplyr)
-source("../simulations/sim_function.R")
+source("simulations/sim_function.R")
 
 # test the top Simonsohn condition from the iterations=1000 run
 nvar = 2
@@ -36,7 +36,7 @@ cat("Total conditions to process:", nrow(test_conditions), "\n")
 simres <- sim_pcurve("sim_test_MCSE1000", test_conditions, n_cores = 10)
 
 # Save results
-export(simres, paste0("../simulations/sim-results/sim_test_MCSE_1000.csv"))
+export(simres, paste0("simulations/sim-results/sim_test_MCSE_1000.csv"))
 
 # =============================================================================
 # 5000 iterations (repeated 1000 times)
@@ -55,7 +55,7 @@ cat("Total conditions to process:", nrow(test_conditions), "\n")
 simres <- sim_pcurve("sim_test_MCSE5000", test_conditions, n_cores = 10)
 
 # Save results
-export(simres, paste0("../simulations/sim-results/sim_test_MCSE_5000.csv"))
+export(simres, paste0("simulations/sim-results/sim_test_MCSE_5000.csv"))
 
 # =============================================================================
 # 10,000 iterations (repeated 1000 times)
@@ -74,4 +74,4 @@ cat("Total conditions to process:", nrow(test_conditions), "\n")
 simres <- sim_pcurve("sim_test_MCSE10000", test_conditions, n_cores = 10)
 
 # Save results
-export(simres, paste0("../simulations/sim-results/sim_test_MCSE_10000.csv"))
+export(simres, paste0("simulations/sim-results/sim_test_MCSE_10000.csv"))
