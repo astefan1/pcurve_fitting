@@ -37,7 +37,7 @@ colnames(realistic_conditions) <- c("nvar", "r", "d", "prop_Hacker", "prop_H1", 
 
 cat("Total conditions to process:", nrow(realistic_conditions), "\n")
 
-simres <- sim_pcurve("sim_realistic", realistic_conditions, n_cores = 10)
+simres <- sim_pcurve("sim_realistic", realistic_conditions, n_cores = 6)
 
 # Save results
 export(simres, paste0("../simulations/sim-results/sim_realistic.csv"))
@@ -99,7 +99,7 @@ colnames(perfect_conditions) <- c("nvar", "r", "d", "prop_Hacker", "prop_H1", "h
 
 cat("Total conditions to process:", nrow(perfect_conditions), "\n")
 
-simres <- sim_pcurve("sim_perfect", perfect_conditions, n_cores = 10)
+simres <- sim_pcurve("sim_perfect", perfect_conditions, n_cores = 8)
 
 # Save results
 export(simres, paste0("../simulations/sim-results/sim_perfect.csv"))
@@ -136,12 +136,12 @@ colnames(worst_conditions) <- c("nvar", "r", "d", "prop_Hacker", "prop_H1", "het
 
 cat("Total conditions to process:", nrow(worst_conditions), "\n")
 
-simres <- sim_pcurve("sim_worst", worst_conditions, n_cores = 10)
+simres <- sim_pcurve("sim_worst", worst_conditions, n_cores = 8)
 
 # Save results
 export(simres, paste0("../simulations/sim-results/sim_worst.csv"))
 
-
+stop();
 
 
 
