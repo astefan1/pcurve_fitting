@@ -93,7 +93,7 @@ for(i in 1:nrow(conditions)){
 
 # Compare to observed p-curve
 
-pcurves_to_fit <- read.csv("../simulations/pcurves-to-fit.csv")
+pcurves_to_fit <- read.csv("simulations/pcurves-to-fit.csv")
 conditions$sotola <- NA
 conditions$wetzels <- NA
 conditions$simonsohn <- NA

@@ -16,7 +16,7 @@
 #' @param d Effect size
 #' @param het Heterogeneity
 #' @param alpha Significance level
-#' @importFrom TruncExpFamily rtruncinvgamma
+#' @importFrom TruncExpFam rtruncinvgamma
 #' @export
 
 optionalStopping <- function(simres, ES, prop_Hacker, prop_H1, nmin, nmax, stepsize, d, het, alpha = 0.05){

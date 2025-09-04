@@ -4,3 +4,8 @@ Here is the link to the Google doc that we'll use for keeping track of the proje
 
 Note: The **p-value selection strategies** are: 
 1: smallest, 2: smallest significant, 3: first significant
+
+## Running the simulations
+
+All simulation code is in the subfolder `simulations` (which is not copied when the `fitPCurve` package is installed).
+Working directory should be the top directory.

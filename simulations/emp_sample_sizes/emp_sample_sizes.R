@@ -11,7 +11,7 @@
 
 library(rio)
 library(dplyr)
-M.ns <- import("../simulations/emp_sample_sizes/MarszalekSamSizPsy-Excel.xls")
+M.ns <- import("simulations/emp_sample_sizes/MarszalekSamSizPsy-Excel.xls")
 
 n.min <- 5
 
