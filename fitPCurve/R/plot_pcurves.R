@@ -13,11 +13,13 @@ alpha_ramp <- function(x, min_alpha=0.05, max_alpha=1, min=5, max=1000) {
 #' @param n_best Show only the n best curves. If NA, all are shown
 #' @import ggplot2
 #' @importFrom tidyr pivot_longer
+#' @importFrom scales percent
 #' @export
 
 plot_pcurves <- function(simdat, poriginal, n_best=NA, alpha=NA){
 
   # Compute RMSEs between original and simulated
+  # TODO: Allow computation of chi2 goodness of fit measure.
   simdat$rmse <- apply(simdat[, paste0("p", 1:5)], 1, function(x) rmse(x, poriginal))
 
   simdat$condition <- 1:nrow(simdat)
@@ -36,7 +38,7 @@ plot_pcurves <- function(simdat, poriginal, n_best=NA, alpha=NA){
   simdat_sel_long$pval <- simdat_sel_long$pval / 100
 
   plotdat <- data.frame(pval = seq(0.01, 0.05, by = 0.01),
-                        yval = poriginal)
+                        yval = unlist(poriginal))
 
   if (is.na(alpha)) {
     alpha <- alpha_ramp(n_best)
@@ -44,7 +46,10 @@ plot_pcurves <- function(simdat, poriginal, n_best=NA, alpha=NA){
 
   p1 <- ggplot(simdat_sel_long, aes(y = yval, x=pval, group=condition)) +
     theme_bw() +
-    ylim(c(0,100)) +
+    scale_y_continuous(
+      labels = percent,   # show labels as percentages
+      limits = c(0, 1)    # restrict range from 0 to 1
+    ) +
     labs(x = "p-value bin",
          y = "Percentage of p-values") +
     theme(axis.title = element_text(size = 25),

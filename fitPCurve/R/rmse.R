@@ -9,5 +9,7 @@
 #' @export
 
 rmse <- function(v1, v2){
+  v1 <- unlist(v1)
+  v2 <- unlist(v2)
   sqrt(mean((v1-v2)^2))
 }

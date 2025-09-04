@@ -3,5 +3,5 @@ test_that("no p-hacking of H0 leads to a flat p-curve", {
   pcurve <- compute_pcurve(ps[, 1])
 
   # Fuzzy expectation: less than 1 percentage point deviation from a flat distribution
-  expect_lt((pcurve - 20) |> abs() |> max(), 2)
+  expect_lt((pcurve - 0.20) |> abs() |> max(), .01)
 })

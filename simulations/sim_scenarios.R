@@ -7,8 +7,10 @@ source("../simulations/sim_function.R")
 # A (prop_H1 > 0 and prop_Hacker > 0): 6 (nvar) x 4 (r) x 8 (d) x 3 (het) x 5 (prop_phacker) x 5 (prop_H1) = 14400
 # B (prop_H1 = 0 and prop_Hacker = 0): 1 (prop_phacker) x 1 (prop_H1) = 1
 # C (prop_H1 > 0 and prop_Hacker = 0): 8 (d) x 3 (het) x 1 (prop_phacker) x 5 (prop_H1) = 120
-# D (prop_H1 = 0 and prop_Hacker > 0): 6 (nvar) x 4 (r) x 5 (prop_phacker) x 5 (prop_H1) = 600
+# D (prop_H1 = 0 and prop_Hacker > 0): 6 (nvar) x 4 (r) x 5 (prop_phacker) = 120
 
+
+ps <- sim.multDVhack(nvar=1, r=0, d=0, het = 0, prop_H1 = 0, prop_Hacker = 0, iter = 1000, alpha = 0.05)
 
 # =============================================================================
 # Realistic condition (A)
@@ -66,7 +68,7 @@ colnames(H0_conditions) <- c("nvar", "r", "d", "prop_Hacker", "prop_H1", "het", 
 
 cat("Total conditions to process:", nrow(H0_conditions), "\n")
 
-simres <- sim_pcurve("sim_H0", H0_conditions, n_cores = 1)
+simres <- sim_pcurve(sim_name="sim_H0", conditions=H0_conditions, n_cores = 1)
 
 # Save results
 export(simres, paste0("../simulations/sim-results/sim_H0.csv"))

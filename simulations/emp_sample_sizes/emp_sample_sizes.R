@@ -11,7 +11,7 @@
 
 library(rio)
 library(dplyr)
-M.ns <- import("simulations/emp_sample_sizes/MarszalekSamSizPsy-Excel.xls")
+M.ns <- import("../simulations/emp_sample_sizes/MarszalekSamSizPsy-Excel.xls")
 
 n.min <- 5
 
@@ -30,4 +30,4 @@ M.n.all.groups <- M.n.all.groups0[M.n.all.groups0 >= n.min]
 summary(M.n.first.group)
 summary(M.n.all.groups)
 
-quantile(M.n.first.group, prob=c(.01, 0.5, .50, .95, .99))
+quantile(M.n.first.group, prob=c(.05, .50, .75, .90, .95, .99)) |> round()
