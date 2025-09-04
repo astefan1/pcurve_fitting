@@ -50,4 +50,4 @@ rsconnect/
 
 # single simulation files
 /simulations/sim-results/sim_*/**
-/simulations/archive/sim_*/**
+/simulations/archive/*
