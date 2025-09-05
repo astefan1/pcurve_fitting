@@ -1,6 +1,6 @@
 Package: fitPCurve
 Title: Runs simulations and fits a p-curve to them
-Version: 0.0.0.9000
+Version: 0.2.0
 Authors@R: 
     person("Angelika", "Stefan", , "angelika.m.stefan@gmail.com", role = c("aut", "cre"))
     person("Felix", "Schönbrodt", , "felix.schoenbrodt@psy.lmu.de", role = c("aut", "cre"))

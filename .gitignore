@@ -50,4 +50,5 @@ rsconnect/
 
 # single simulation files
 /simulations/sim-results/sim_*/**
+/simulations/sim-results/optionalStopping_simres.rds
 /simulations/archive/*
