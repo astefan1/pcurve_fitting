@@ -9,6 +9,11 @@ source("simulations/sim_function.R")
 # C (prop_H1 > 0 and prop_Hacker = 0): 8 (d) x 3 (het) x 1 (prop_phacker) x 5 (prop_H1) = 120
 # D (prop_H1 = 0 and prop_Hacker > 0): 6 (nvar) x 4 (r) x 5 (prop_phacker) = 120
 
+# Hint: If you want to check how many files already have been simulated,
+# navigate to the simulations/sim-results/sim_realistic (or other) folder and run in the terminal:
+# find . -type f | wc -l
+# Each of the files contains 3 entries, so with 14400 simulated conditions 
+# you would expect 4800 files.
 
 # =============================================================================
 # Realistic condition (A)
@@ -157,5 +162,5 @@ stop();
 # (e.g., if the computation has been interrupted due to an error)
 
 
-simres <- collect_rds(root="/Users/felix/Documents/Github/pcurve_fitting/simulations/sim-results/sim_realistic")
+simres <- collect_rds(root="simulations/sim-results/sim_realistic")
 export(simres, paste0("simulations/sim-results/sim_realistic.csv"))

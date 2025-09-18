@@ -10,7 +10,11 @@
 #' @export
 
 chi2 <- function(v1, v2, n){
-  stopifnot(round(sum(v1), 6) == 1)
-  stopifnot(round(sum(v2), 6) == 1)
+  if (round(sum(v1), 6) != 1) {
+    stop(paste0("Probabilities in v1 do not sum to 1: ", v1))
+  }
+  if (round(sum(v2), 6) != 1) {
+    stop(paste0("Probabilities in v2 do not sum to 1: ", v2))
+  }
   sum((v1-v2)^2/v2)*n
 }

@@ -10,23 +10,36 @@ library(ggplot2)
 # reference p-curves
 pcurves <- import("simulations/pcurves-to-fit.csv")
 
-# load the simulation results here:
-#simres <- import("simulations/sim-results/sim_realistic.csv")
-simres <- import("simulations/sim-results/sim_worst.csv")
-#simres <- import("simulations/sim-results/sim_perfect.csv")
+# load the multiple DV simulation results:
+simres_realistic <- import("simulations/sim-results/sim_realistic.csv")
+simres_worst <- import("simulations/sim-results/sim_worst.csv")
+simres_perfect <- import("simulations/sim-results/sim_perfect.csv")
 simres_H0 <- import("simulations/sim-results/sim_H0.csv")
 
-simres$rmseSotola    <- apply(simres[, paste0("p", 1:5)], 1, function(x) rmse(x, simplify2array(pcurves[1, paste0("p", 1:5)])))
-simres$rmseWetzels   <- apply(simres[, paste0("p", 1:5)], 1, function(x) rmse(x, simplify2array(pcurves[2, paste0("p", 1:5)])))
-simres$rmseSimonsohn <- apply(simres[, paste0("p", 1:5)], 1, function(x) rmse(x, simplify2array(pcurves[3, paste0("p", 1:5)])))
+# load the optional stopping simulation results:
+simres_optStop_worst <- import("simulations/sim-results/sim_optStop_worst.csv")
+simres_optStop_realistic <- import("simulations/sim-results/sim_optStop_realistic.csv")
 
-simres$chi2Sotola    <- apply(simres[, paste0("p", 1:5)], 1, function(x)
+simres_multDV <- rbind(simres_realistic, simres_worst, simres_perfect, simres_H0)
+simres_multDV$binsum <- rowSums(simres_multDV[, paste0("p", 1:5)])
+stopifnot(all(simres_multDV$binsum |> round(6) == 1))
+
+simres_optStop <- rbind(simres_optStop_realistic, simres_optStop_worst)
+simres_optStop$binsum <- rowSums(simres_optStop[, paste0("p", 1:5)])
+stopifnot(all(simres_optStop$binsum |> round(6) == 1))
+
+
+simres_multDV$rmseSotola    <- apply(simres_multDV[, paste0("p", 1:5)], 1, function(x) rmse(x, simplify2array(pcurves[1, paste0("p", 1:5)])))
+simres_multDV$rmseWetzels   <- apply(simres_multDV[, paste0("p", 1:5)], 1, function(x) rmse(x, simplify2array(pcurves[2, paste0("p", 1:5)])))
+simres_multDV$rmseSimonsohn <- apply(simres_multDV[, paste0("p", 1:5)], 1, function(x) rmse(x, simplify2array(pcurves[3, paste0("p", 1:5)])))
+
+simres_multDV$chi2Sotola    <- apply(simres_multDV[, paste0("p", 1:5)], 1, function(x)
     chi2(x, simplify2array(pcurves[1, paste0("p", 1:5)]), n = pcurves$nsig[1])
   )
-simres$chi2Wetzels   <- apply(simres[, paste0("p", 1:5)], 1, function(x)
+simres_multDV$chi2Wetzels   <- apply(simres_multDV[, paste0("p", 1:5)], 1, function(x)
     chi2(x, simplify2array(pcurves[2, paste0("p", 1:5)]), n = pcurves$nsig[2])
   )
-simres$chi2Simonsohn <- apply(simres[, paste0("p", 1:5)], 1, function(x)
+simres_multDV$chi2Simonsohn <- apply(simres_multDV[, paste0("p", 1:5)], 1, function(x)
     chi2(x, simplify2array(pcurves[3, paste0("p", 1:5)]), n = pcurves$nsig[3])
   )
 
