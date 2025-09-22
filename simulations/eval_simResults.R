@@ -23,11 +23,15 @@ simres_optStop_realistic <- import("simulations/sim-results/sim_optStop_realisti
 simres_multDV <- rbind(simres_realistic, simres_worst, simres_perfect, simres_H0)
 simres_multDV$binsum <- rowSums(simres_multDV[, paste0("p", 1:5)])
 stopifnot(all(simres_multDV$binsum |> round(6) == 1))
+simres_multDV$type <- "multDV"
 
 simres_optStop <- rbind(simres_optStop_realistic, simres_optStop_worst)
 simres_optStop$binsum <- rowSums(simres_optStop[, paste0("p", 1:5)])
 stopifnot(all(simres_optStop$binsum |> round(6) == 1))
+simres_optStop$type <- "optStop"
 
+# combine simulations from both p-hacking strategies (they have different parameter columns)
+simres <- bind_rows(simres_multDV, simres_optStop)
 
 simres_multDV$rmseSotola    <- apply(simres_multDV[, paste0("p", 1:5)], 1, function(x) rmse(x, simplify2array(pcurves[1, paste0("p", 1:5)])))
 simres_multDV$rmseWetzels   <- apply(simres_multDV[, paste0("p", 1:5)], 1, function(x) rmse(x, simplify2array(pcurves[2, paste0("p", 1:5)])))

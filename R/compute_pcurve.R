@@ -19,10 +19,12 @@ compute_pcurve <- function(ps, alpha = 0.05, total.sig = FALSE, binwidth = 0.01)
   np <- length(ps)
 
   # How many are significant?
-  nsig <- length(ps[ps < alpha])
+  nsig <- sum(ps < alpha)
 
   # How many % of significant p-values are in each bin?
-  perc <- table(cut(ps[ps < alpha], breaks = seq(0, alpha, by = binwidth)))/nsig
+  perc <- table(cut(ps[ps < alpha], breaks = seq(0, alpha, by = binwidth), right=FALSE))/nsig
+  
+  stopifnot(round(sum(perc), 6)==1)
 
   # Return %s (and total %)
   res <- c(unname(perc), switch(total.sig + 1, NULL, nsig))

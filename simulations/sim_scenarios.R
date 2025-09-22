@@ -49,7 +49,7 @@ export(simres, paste0("simulations/sim-results/sim_realistic.csv"))
 
 
 # =============================================================================
-# Baseline condition (B)
+# Baseline condition - pure H0, no hacking (B)
 # =============================================================================
 
 # Set seed for reproducibility
