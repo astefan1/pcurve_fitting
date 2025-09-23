@@ -52,3 +52,5 @@ rsconnect/
 /simulations/sim-results/sim_*/**
 /simulations/sim-results/optionalStopping_simres.rds
 /simulations/archive/*
+
+/.quarto/

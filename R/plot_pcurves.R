@@ -10,26 +10,37 @@ alpha_ramp <- function(x, min_alpha=0.05, max_alpha=1, min=5, max=1000) {
 #' @description Create a plot displaying the original and a number of fitted p-curves
 #' @param simdat Result of simulation function
 #' @param poriginal Original p-curve (vector)
+#' @param GOF Goodness of fit measure: one of "rmse" or "chi2" (default)
 #' @param n_best Show only the n best curves. If NA, all are shown
 #' @param alpha Alpha transparency for the simulated p-curve lines
+#' @param n_studies Number of studies in the original p-curve (only needed for chi2 GOF)
 #' @import ggplot2
 #' @importFrom tidyr pivot_longer
 #' @importFrom scales percent
 #' @export
 
-plot_pcurves <- function(simdat, poriginal, n_best=NA, alpha=NA){
+plot_pcurves <- function(simdat, poriginal, GOF = "rmse", n_best=NA, alpha=NA, n_studies=NA){
 
-  # Compute RMSEs between original and simulated
-  # TODO: Allow computation of chi2 goodness of fit measure.
-  simdat$rmse <- apply(simdat[, paste0("p", 1:5)], 1, function(x) rmse(x, poriginal))
+  stopifnot(all(poriginal >= 0) & all(poriginal <= 1))
 
+  # Compute GOF between original and simulated
+  if (GOF=="rmse") {
+    simdat$GOF <- apply(simdat[, paste0("p", 1:5)], 1, function(x) rmse(x, poriginal))
+  } else if (GOF=="chi2"){
+    if (is.na(n_studies)) {
+      stop("For chi2 GOF, n_studies must be provided")
+    }
+    simdat$GOF <- apply(simdat[, paste0("p", 1:5)], 1, function(x) chi2(x, poriginal, n=n_studies))
+  } else {
+    stop("GOF must be one of 'rmse' or 'chi2'")
+  }
   simdat$condition <- 1:nrow(simdat)
 
-  # Selection: Order by RMSE and extract the n_best curves (or all of them)
+  # Selection: Order by GOF and extract the n_best curves (or all of them)
   if (is.na(n_best)) {
     n_best <- nrow(simdat)
   }
-  simdat_sel <- simdat[order(simdat$rmse)[1:n_best], c("condition", paste0("p", 1:5))]
+  simdat_sel <- simdat[order(simdat$GOF)[1:n_best], c("condition", paste0("p", 1:5))]
 
 
   simdat_sel_long <- pivot_longer(simdat_sel,
