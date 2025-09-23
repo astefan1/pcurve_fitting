@@ -44,7 +44,7 @@ chi2_old <- function(reference, comparison, n){
 #' @export
 chi2 <- function(reference, comparison, n, tol = 1e-6) {
 
-  comparison <- as.matrix(comparison)  # ensures matrix methods work for vector input
+  if (is.data.frame(comparison)) comparison <- as.matrix(comparison)  # ensures matrix methods work for data.frame input
 
   # Basic validation -----------------------------------------------------------
   if (!is.numeric(reference) || anyNA(reference) || any(reference < 0))
@@ -68,8 +68,8 @@ chi2 <- function(reference, comparison, n, tol = 1e-6) {
                    ncol(comparison), length(reference)))
     }
 
-    if (any(comparison < 0))
-      stop("All entries of `comparison` must be >= 0 for chi-square.")
+    if (any(comparison <= 0))
+      stop("All entries of `comparison` must be strictly positive for chi-square.")
 
     row_sums <- rowSums(comparison)
     bad <- which(abs(row_sums - 1) > tol)

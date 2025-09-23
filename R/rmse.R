@@ -36,7 +36,7 @@ rmse_old <- function(reference, comparison){
 #' @export
 rmse <- function(reference, comparison, na.rm = FALSE) {
   reference <- as.numeric(reference)
-  comparison <- as.matrix(comparison)  # ensures matrix methods work for vector input
+  if (is.data.frame(comparison)) comparison <- as.matrix(comparison)  # ensures matrix methods work for data.frame input
 
   if (is.matrix(comparison)) {
     if (!is.numeric(comparison)) comparison <- data.matrix(comparison)
