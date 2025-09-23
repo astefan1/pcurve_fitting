@@ -112,169 +112,6 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </header>
 
 
-<div class="cell">
-<details class="code-fold">
-<summary>Code</summary>
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># ==============================================================================</span></span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Eval scenarios</span></span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="co"># ==============================================================================</span></span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(fitPCurve)</span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(rio)</span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</details>
-<div class="cell-output cell-output-stderr">
-<pre><code>
-Attaching package: 'dplyr'</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>The following objects are masked from 'package:stats':
-
-    filter, lag</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>The following objects are masked from 'package:base':
-
-    intersect, setdiff, setequal, union</code></pre>
-</div>
-<details class="code-fold">
-<summary>Code</summary>
-<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="co"># The working directory should be the project root</span></span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="fu">setwd</span>(<span class="st">".."</span>)</span>
-<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a><span class="co"># reference p-curves</span></span>
-<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>pcurves <span class="ot">&lt;-</span> <span class="fu">import</span>(<span class="st">"simulations/reference-pcurves.csv"</span>)</span>
-<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a><span class="co"># load the multiple DV simulation results:</span></span>
-<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>simres_realistic <span class="ot">&lt;-</span> <span class="fu">import</span>(<span class="st">"simulations/sim-results/sim_realistic.csv"</span>)</span>
-<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>simres_worst <span class="ot">&lt;-</span> <span class="fu">import</span>(<span class="st">"simulations/sim-results/sim_worst.csv"</span>)</span>
-<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>simres_perfect <span class="ot">&lt;-</span> <span class="fu">import</span>(<span class="st">"simulations/sim-results/sim_perfect.csv"</span>)</span>
-<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>simres_H0 <span class="ot">&lt;-</span> <span class="fu">import</span>(<span class="st">"simulations/sim-results/sim_H0.csv"</span>)</span>
-<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a><span class="co"># load the optional stopping simulation results:</span></span>
-<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a>simres_optStop_worst <span class="ot">&lt;-</span> <span class="fu">import</span>(<span class="st">"simulations/sim-results/sim_optStop_worst.csv"</span>)</span>
-<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a>simres_optStop_realistic <span class="ot">&lt;-</span> <span class="fu">import</span>(<span class="st">"simulations/sim-results/sim_optStop_realistic.csv"</span>)</span>
-<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a>simres_multDV <span class="ot">&lt;-</span> <span class="fu">rbind</span>(simres_realistic, simres_worst, simres_perfect, simres_H0)</span>
-<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a>simres_multDV<span class="sc">$</span>binsum <span class="ot">&lt;-</span> <span class="fu">rowSums</span>(simres_multDV[, <span class="fu">paste0</span>(<span class="st">"p"</span>, <span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>)])</span>
-<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a><span class="fu">stopifnot</span>(<span class="fu">all</span>(simres_multDV<span class="sc">$</span>binsum <span class="sc">|&gt;</span> <span class="fu">round</span>(<span class="dv">6</span>) <span class="sc">==</span> <span class="dv">1</span>))</span>
-<span id="cb5-22"><a href="#cb5-22" aria-hidden="true" tabindex="-1"></a>simres_multDV<span class="sc">$</span>type <span class="ot">&lt;-</span> <span class="st">"multDV"</span></span>
-<span id="cb5-23"><a href="#cb5-23" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-24"><a href="#cb5-24" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-25"><a href="#cb5-25" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-26"><a href="#cb5-26" aria-hidden="true" tabindex="-1"></a>simres_optStop <span class="ot">&lt;-</span> <span class="fu">rbind</span>(simres_optStop_realistic, simres_optStop_worst)</span>
-<span id="cb5-27"><a href="#cb5-27" aria-hidden="true" tabindex="-1"></a>simres_optStop<span class="sc">$</span>binsum <span class="ot">&lt;-</span> <span class="fu">rowSums</span>(simres_optStop[, <span class="fu">paste0</span>(<span class="st">"p"</span>, <span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>)])</span>
-<span id="cb5-28"><a href="#cb5-28" aria-hidden="true" tabindex="-1"></a><span class="fu">stopifnot</span>(<span class="fu">all</span>(simres_optStop<span class="sc">$</span>binsum <span class="sc">|&gt;</span> <span class="fu">round</span>(<span class="dv">6</span>) <span class="sc">==</span> <span class="dv">1</span>))</span>
-<span id="cb5-29"><a href="#cb5-29" aria-hidden="true" tabindex="-1"></a>simres_optStop<span class="sc">$</span>type <span class="ot">&lt;-</span> <span class="st">"optStop"</span></span>
-<span id="cb5-30"><a href="#cb5-30" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-31"><a href="#cb5-31" aria-hidden="true" tabindex="-1"></a><span class="co"># combine simulations from both p-hacking strategies (they have different parameter columns)</span></span>
-<span id="cb5-32"><a href="#cb5-32" aria-hidden="true" tabindex="-1"></a>simres <span class="ot">&lt;-</span> <span class="fu">bind_rows</span>(simres_multDV, simres_optStop)</span>
-<span id="cb5-33"><a href="#cb5-33" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-34"><a href="#cb5-34" aria-hidden="true" tabindex="-1"></a>simres_multDV<span class="sc">$</span>rmseSotola    <span class="ot">&lt;-</span> <span class="fu">apply</span>(simres_multDV[, <span class="fu">paste0</span>(<span class="st">"p"</span>, <span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>)], <span class="dv">1</span>, <span class="cf">function</span>(x) <span class="fu">rmse</span>(x, <span class="fu">simplify2array</span>(pcurves[<span class="dv">1</span>, <span class="fu">paste0</span>(<span class="st">"p"</span>, <span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>)])))</span>
-<span id="cb5-35"><a href="#cb5-35" aria-hidden="true" tabindex="-1"></a>simres_multDV<span class="sc">$</span>rmseWetzels   <span class="ot">&lt;-</span> <span class="fu">apply</span>(simres_multDV[, <span class="fu">paste0</span>(<span class="st">"p"</span>, <span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>)], <span class="dv">1</span>, <span class="cf">function</span>(x) <span class="fu">rmse</span>(x, <span class="fu">simplify2array</span>(pcurves[<span class="dv">2</span>, <span class="fu">paste0</span>(<span class="st">"p"</span>, <span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>)])))</span>
-<span id="cb5-36"><a href="#cb5-36" aria-hidden="true" tabindex="-1"></a>simres_multDV<span class="sc">$</span>rmseSimonsohn <span class="ot">&lt;-</span> <span class="fu">apply</span>(simres_multDV[, <span class="fu">paste0</span>(<span class="st">"p"</span>, <span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>)], <span class="dv">1</span>, <span class="cf">function</span>(x) <span class="fu">rmse</span>(x, <span class="fu">simplify2array</span>(pcurves[<span class="dv">3</span>, <span class="fu">paste0</span>(<span class="st">"p"</span>, <span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>)])))</span>
-<span id="cb5-37"><a href="#cb5-37" aria-hidden="true" tabindex="-1"></a>simres_optStop<span class="sc">$</span>rmseSotola    <span class="ot">&lt;-</span> <span class="fu">apply</span>(simres_optStop[, <span class="fu">paste0</span>(<span class="st">"p"</span>, <span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>)], <span class="dv">1</span>, <span class="cf">function</span>(x) <span class="fu">rmse</span>(x, <span class="fu">simplify2array</span>(pcurves[<span class="dv">1</span>, <span class="fu">paste0</span>(<span class="st">"p"</span>, <span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>)])))</span>
-<span id="cb5-38"><a href="#cb5-38" aria-hidden="true" tabindex="-1"></a>simres_optStop<span class="sc">$</span>rmseWetzels   <span class="ot">&lt;-</span> <span class="fu">apply</span>(simres_optStop[, <span class="fu">paste0</span>(<span class="st">"p"</span>, <span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>)], <span class="dv">1</span>, <span class="cf">function</span>(x) <span class="fu">rmse</span>(x, <span class="fu">simplify2array</span>(pcurves[<span class="dv">2</span>, <span class="fu">paste0</span>(<span class="st">"p"</span>, <span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>)])))</span>
-<span id="cb5-39"><a href="#cb5-39" aria-hidden="true" tabindex="-1"></a>simres_optStop<span class="sc">$</span>rmseSimonsohn <span class="ot">&lt;-</span> <span class="fu">apply</span>(simres_optStop[, <span class="fu">paste0</span>(<span class="st">"p"</span>, <span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>)], <span class="dv">1</span>, <span class="cf">function</span>(x) <span class="fu">rmse</span>(x, <span class="fu">simplify2array</span>(pcurves[<span class="dv">3</span>, <span class="fu">paste0</span>(<span class="st">"p"</span>, <span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>)])))</span>
-<span id="cb5-40"><a href="#cb5-40" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-41"><a href="#cb5-41" aria-hidden="true" tabindex="-1"></a>simres_multDV<span class="sc">$</span>chi2Sotola    <span class="ot">&lt;-</span> <span class="fu">apply</span>(simres_multDV[, <span class="fu">paste0</span>(<span class="st">"p"</span>, <span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>)], <span class="dv">1</span>, <span class="cf">function</span>(x)</span>
-<span id="cb5-42"><a href="#cb5-42" aria-hidden="true" tabindex="-1"></a>    <span class="fu">chi2</span>(x, <span class="fu">simplify2array</span>(pcurves[<span class="dv">1</span>, <span class="fu">paste0</span>(<span class="st">"p"</span>, <span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>)]), <span class="at">n =</span> pcurves<span class="sc">$</span>nsig[<span class="dv">1</span>])</span>
-<span id="cb5-43"><a href="#cb5-43" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb5-44"><a href="#cb5-44" aria-hidden="true" tabindex="-1"></a>simres_multDV<span class="sc">$</span>chi2Wetzels   <span class="ot">&lt;-</span> <span class="fu">apply</span>(simres_multDV[, <span class="fu">paste0</span>(<span class="st">"p"</span>, <span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>)], <span class="dv">1</span>, <span class="cf">function</span>(x)</span>
-<span id="cb5-45"><a href="#cb5-45" aria-hidden="true" tabindex="-1"></a>    <span class="fu">chi2</span>(x, <span class="fu">simplify2array</span>(pcurves[<span class="dv">2</span>, <span class="fu">paste0</span>(<span class="st">"p"</span>, <span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>)]), <span class="at">n =</span> pcurves<span class="sc">$</span>nsig[<span class="dv">2</span>])</span>
-<span id="cb5-46"><a href="#cb5-46" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb5-47"><a href="#cb5-47" aria-hidden="true" tabindex="-1"></a>simres_multDV<span class="sc">$</span>chi2Simonsohn <span class="ot">&lt;-</span> <span class="fu">apply</span>(simres_multDV[, <span class="fu">paste0</span>(<span class="st">"p"</span>, <span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>)], <span class="dv">1</span>, <span class="cf">function</span>(x)</span>
-<span id="cb5-48"><a href="#cb5-48" aria-hidden="true" tabindex="-1"></a>    <span class="fu">chi2</span>(x, <span class="fu">simplify2array</span>(pcurves[<span class="dv">3</span>, <span class="fu">paste0</span>(<span class="st">"p"</span>, <span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>)]), <span class="at">n =</span> pcurves<span class="sc">$</span>nsig[<span class="dv">3</span>])</span>
-<span id="cb5-49"><a href="#cb5-49" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb5-50"><a href="#cb5-50" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-51"><a href="#cb5-51" aria-hidden="true" tabindex="-1"></a>simres_optStop<span class="sc">$</span>chi2Sotola    <span class="ot">&lt;-</span> <span class="fu">apply</span>(simres_optStop[, <span class="fu">paste0</span>(<span class="st">"p"</span>, <span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>)], <span class="dv">1</span>, <span class="cf">function</span>(x)</span>
-<span id="cb5-52"><a href="#cb5-52" aria-hidden="true" tabindex="-1"></a>    <span class="fu">chi2</span>(x, <span class="fu">simplify2array</span>(pcurves[<span class="dv">1</span>, <span class="fu">paste0</span>(<span class="st">"p"</span>, <span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>)]), <span class="at">n =</span> pcurves<span class="sc">$</span>nsig[<span class="dv">1</span>])</span>
-<span id="cb5-53"><a href="#cb5-53" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb5-54"><a href="#cb5-54" aria-hidden="true" tabindex="-1"></a>simres_optStop<span class="sc">$</span>chi2Wetzels   <span class="ot">&lt;-</span> <span class="fu">apply</span>(simres_optStop[, <span class="fu">paste0</span>(<span class="st">"p"</span>, <span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>)], <span class="dv">1</span>, <span class="cf">function</span>(x)</span>
-<span id="cb5-55"><a href="#cb5-55" aria-hidden="true" tabindex="-1"></a>    <span class="fu">chi2</span>(x, <span class="fu">simplify2array</span>(pcurves[<span class="dv">2</span>, <span class="fu">paste0</span>(<span class="st">"p"</span>, <span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>)]), <span class="at">n =</span> pcurves<span class="sc">$</span>nsig[<span class="dv">2</span>])</span>
-<span id="cb5-56"><a href="#cb5-56" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb5-57"><a href="#cb5-57" aria-hidden="true" tabindex="-1"></a>simres_optStop<span class="sc">$</span>chi2Simonsohn <span class="ot">&lt;-</span> <span class="fu">apply</span>(simres_optStop[, <span class="fu">paste0</span>(<span class="st">"p"</span>, <span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>)], <span class="dv">1</span>, <span class="cf">function</span>(x)</span>
-<span id="cb5-58"><a href="#cb5-58" aria-hidden="true" tabindex="-1"></a>    <span class="fu">chi2</span>(x, <span class="fu">simplify2array</span>(pcurves[<span class="dv">3</span>, <span class="fu">paste0</span>(<span class="st">"p"</span>, <span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>)]), <span class="at">n =</span> pcurves<span class="sc">$</span>nsig[<span class="dv">3</span>])</span>
-<span id="cb5-59"><a href="#cb5-59" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb5-60"><a href="#cb5-60" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-61"><a href="#cb5-61" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-62"><a href="#cb5-62" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-63"><a href="#cb5-63" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-64"><a href="#cb5-64" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-65"><a href="#cb5-65" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-66"><a href="#cb5-66" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-67"><a href="#cb5-67" aria-hidden="true" tabindex="-1"></a><span class="co"># # A heatmap with all conditions (no averaging; each condition is one tile)</span></span>
-<span id="cb5-68"><a href="#cb5-68" aria-hidden="true" tabindex="-1"></a><span class="co"># ggplot(simres, aes(x = d, y = prop_H1, fill = rmseSimonsohn)) +</span></span>
-<span id="cb5-69"><a href="#cb5-69" aria-hidden="true" tabindex="-1"></a><span class="co">#   geom_tile() +</span></span>
-<span id="cb5-70"><a href="#cb5-70" aria-hidden="true" tabindex="-1"></a><span class="co">#   facet_grid(</span></span>
-<span id="cb5-71"><a href="#cb5-71" aria-hidden="true" tabindex="-1"></a><span class="co">#     rows = vars(het, nvar, strategy),      # two stacked facet rows</span></span>
-<span id="cb5-72"><a href="#cb5-72" aria-hidden="true" tabindex="-1"></a><span class="co">#     cols = vars(r, prop_Hacker)  # two stacked facet columns</span></span>
-<span id="cb5-73"><a href="#cb5-73" aria-hidden="true" tabindex="-1"></a><span class="co">#   ) +</span></span>
-<span id="cb5-74"><a href="#cb5-74" aria-hidden="true" tabindex="-1"></a><span class="co">#   scale_fill_viridis_c(</span></span>
-<span id="cb5-75"><a href="#cb5-75" aria-hidden="true" tabindex="-1"></a><span class="co">#     option = "inferno",</span></span>
-<span id="cb5-76"><a href="#cb5-76" aria-hidden="true" tabindex="-1"></a><span class="co">#     direction = -1,</span></span>
-<span id="cb5-77"><a href="#cb5-77" aria-hidden="true" tabindex="-1"></a><span class="co">#     values = c(0, 0.1, 1),</span></span>
-<span id="cb5-78"><a href="#cb5-78" aria-hidden="true" tabindex="-1"></a><span class="co">#     limits=c(</span></span>
-<span id="cb5-79"><a href="#cb5-79" aria-hidden="true" tabindex="-1"></a><span class="co">#       min(simres |&gt; select(contains("rmse"))),</span></span>
-<span id="cb5-80"><a href="#cb5-80" aria-hidden="true" tabindex="-1"></a><span class="co">#       max(simres |&gt; select(contains("rmse")))</span></span>
-<span id="cb5-81"><a href="#cb5-81" aria-hidden="true" tabindex="-1"></a><span class="co">#     )</span></span>
-<span id="cb5-82"><a href="#cb5-82" aria-hidden="true" tabindex="-1"></a><span class="co">#   ) +</span></span>
-<span id="cb5-83"><a href="#cb5-83" aria-hidden="true" tabindex="-1"></a><span class="co">#   scale_y_continuous(breaks = sort(unique(simres$r))) +</span></span>
-<span id="cb5-84"><a href="#cb5-84" aria-hidden="true" tabindex="-1"></a><span class="co">#   theme_minimal(base_size = 9) +</span></span>
-<span id="cb5-85"><a href="#cb5-85" aria-hidden="true" tabindex="-1"></a><span class="co">#   theme(</span></span>
-<span id="cb5-86"><a href="#cb5-86" aria-hidden="true" tabindex="-1"></a><span class="co">#     panel.spacing.x = unit(0.01, "lines"),</span></span>
-<span id="cb5-87"><a href="#cb5-87" aria-hidden="true" tabindex="-1"></a><span class="co">#     panel.spacing.y = unit(0.01, "lines")</span></span>
-<span id="cb5-88"><a href="#cb5-88" aria-hidden="true" tabindex="-1"></a><span class="co">#   )</span></span>
-<span id="cb5-89"><a href="#cb5-89" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-90"><a href="#cb5-90" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-91"><a href="#cb5-91" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-92"><a href="#cb5-92" aria-hidden="true" tabindex="-1"></a><span class="co">#--------------------------------------------------------------------------------</span></span>
-<span id="cb5-93"><a href="#cb5-93" aria-hidden="true" tabindex="-1"></a><span class="co"># Some sanity checks</span></span>
-<span id="cb5-94"><a href="#cb5-94" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-95"><a href="#cb5-95" aria-hidden="true" tabindex="-1"></a><span class="co"># Correlation between our two GOF measures (rmse and chi2)</span></span>
-<span id="cb5-96"><a href="#cb5-96" aria-hidden="true" tabindex="-1"></a><span class="fu">cor</span>(simres_multDV<span class="sc">$</span>rmseSotola, simres_multDV<span class="sc">$</span>chi2Sotola)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</details>
-<div class="cell-output cell-output-stdout">
-<pre><code>[1] 0.9600674</code></pre>
-</div>
-<details class="code-fold">
-<summary>Code</summary>
-<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cor</span>(simres_multDV<span class="sc">$</span>rmseWetzels, simres_multDV<span class="sc">$</span>chi2Wetzels)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</details>
-<div class="cell-output cell-output-stdout">
-<pre><code>[1] 0.9211928</code></pre>
-</div>
-<details class="code-fold">
-<summary>Code</summary>
-<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cor</span>(simres_multDV<span class="sc">$</span>rmseSimonsohn, simres_multDV<span class="sc">$</span>chi2Simonsohn)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</details>
-<div class="cell-output cell-output-stdout">
-<pre><code>[1] 0.7072613</code></pre>
-</div>
-<details class="code-fold">
-<summary>Code</summary>
-<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cor</span>(simres_optStop<span class="sc">$</span>rmseSotola, simres_optStop<span class="sc">$</span>chi2Sotola)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</details>
-<div class="cell-output cell-output-stdout">
-<pre><code>[1] 0.9443455</code></pre>
-</div>
-<details class="code-fold">
-<summary>Code</summary>
-<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cor</span>(simres_optStop<span class="sc">$</span>rmseWetzels, simres_optStop<span class="sc">$</span>chi2Wetzels)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</details>
-<div class="cell-output cell-output-stdout">
-<pre><code>[1] 0.8512569</code></pre>
-</div>
-<details class="code-fold">
-<summary>Code</summary>
-<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cor</span>(simres_optStop<span class="sc">$</span>rmseSimonsohn, simres_optStop<span class="sc">$</span>chi2Simonsohn)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</details>
-<div class="cell-output cell-output-stdout">
-<pre><code>[1] 0.9168207</code></pre>
-</div>
-</div>
 <section id="some-synthetic-p-curves-testing-specific-scenarios" class="level1">
 <h1>Some synthetic p-curves: Testing specific scenarios</h1>
 <section id="test-a-pure-bump" class="level2">
@@ -294,27 +131,21 @@ Attaching package: 'dplyr'</code></pre>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>simres_multDV <span class="sc">|&gt;</span> <span class="fu">arrange</span>(rmseBump) <span class="sc">|&gt;</span> <span class="fu">slice</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>) <span class="sc">|&gt;</span> <span class="fu">print</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>simres_multDV <span class="sc">|&gt;</span> <span class="fu">arrange</span>(rmseBump) <span class="sc">|&gt;</span> <span class="fu">slice</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>) <span class="sc">|&gt;</span> <span class="fu">select</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">14</span>) <span class="sc">|&gt;</span> <span class="fu">round</span>(<span class="dv">2</span>) <span class="sc">|&gt;</span> <span class="fu">print</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-stdout">
-<pre><code>  nvar   r   d prop_Hacker prop_H1 het  iter alpha strategy         p1
-1  150 0.9 0.0        0.75     0.0 0.0 10000  0.05        3 0.05175781
-2  150 0.9 0.1        1.00     0.1 0.0 10000  0.05        3 0.05680934
-3  150 0.9 0.0        1.00     0.0 0.0 10000  0.05        3 0.05342303
-4  150 0.9 0.1        0.50     0.1 0.0 10000  0.05        3 0.09027336
-5  150 0.9 0.1        1.00     0.1 0.2 10000  0.05        3 0.07048124
-          p2        p3        p4        p5 binsum   type rmseSotola rmseWetzels
-1 0.09570312 0.1586914 0.2792969 0.4145508      1 multDV  0.3254085   0.3419727
-2 0.09961089 0.1715953 0.2661479 0.4058366      1 multDV  0.3202030   0.3373624
-3 0.09814009 0.1658093 0.2774040 0.4052236      1 multDV  0.3228399   0.3395019
-4 0.11379530 0.1538462 0.2422123 0.3998729      1 multDV  0.3029560   0.3199586
-5 0.10420614 0.1667298 0.2588102 0.3997726      1 multDV  0.3127665   0.3298375
-  rmseSimonsohn chi2Sotola chi2Wetzels chi2Simonsohn rmseBump
-1     0.2498469   536.7316    2295.764      48.55989 1.605294
-2     0.2437433   499.2866    2193.129      44.72326 1.608925
-3     0.2467905   522.3843    2218.770      47.24313 1.609405
-4     0.2254008   436.5530    2013.302      37.65813 1.610858
-5     0.2359990   473.7034    2098.273      41.98008 1.611346</code></pre>
+<pre><code>  nvar   r   d prop_Hacker prop_H1 het  iter alpha strategy   p1   p2   p3   p4
+1  150 0.9 0.0        0.75     0.0 0.0 10000  0.05        3 0.05 0.10 0.16 0.28
+2  150 0.9 0.1        1.00     0.1 0.0 10000  0.05        3 0.06 0.10 0.17 0.27
+3  150 0.9 0.0        1.00     0.0 0.0 10000  0.05        3 0.05 0.10 0.17 0.28
+4  150 0.9 0.1        0.50     0.1 0.0 10000  0.05        3 0.09 0.11 0.15 0.24
+5  150 0.9 0.1        1.00     0.1 0.2 10000  0.05        3 0.07 0.10 0.17 0.26
+    p5
+1 0.41
+2 0.41
+3 0.41
+4 0.40
+5 0.40</code></pre>
 </div>
 </div>
 </section>
@@ -323,9 +154,9 @@ Attaching package: 'dplyr'</code></pre>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="co"># all optStop scenarios:</span></span>
-<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>simres_optStop<span class="sc">$</span>rmseBump <span class="ot">&lt;-</span> <span class="fu">apply</span>(simres_optStop[, <span class="fu">paste0</span>(<span class="st">"p"</span>, <span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>)], <span class="dv">1</span>, <span class="cf">function</span>(x) <span class="fu">rmse</span>(x, <span class="fu">c</span>(.<span class="dv">15</span>, .<span class="dv">15</span>, .<span class="dv">15</span>, .<span class="dv">15</span>, <span class="fl">4.0</span>)))</span>
-<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a><span class="fu">plot_pcurves</span>(simres_optStop, <span class="at">poriginal =</span> <span class="fu">c</span>(.<span class="dv">15</span>, .<span class="dv">15</span>, .<span class="dv">15</span>, .<span class="dv">15</span>, .<span class="dv">40</span>), <span class="at">n_best =</span> <span class="dv">10</span>) <span class="sc">+</span> <span class="fu">ggtitle</span>(<span class="st">"Optional Stopping"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># all optStop scenarios:</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>simres_optStop<span class="sc">$</span>rmseBump <span class="ot">&lt;-</span> <span class="fu">rmse</span>(<span class="fu">c</span>(.<span class="dv">15</span>, .<span class="dv">15</span>, .<span class="dv">15</span>, .<span class="dv">15</span>, <span class="fl">4.0</span>), simres_optStop[, <span class="fu">paste0</span>(<span class="st">"p"</span>, <span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>)])</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="fu">plot_pcurves</span>(simres_optStop, <span class="at">poriginal =</span> <span class="fu">c</span>(.<span class="dv">15</span>, .<span class="dv">15</span>, .<span class="dv">15</span>, .<span class="dv">15</span>, .<span class="dv">40</span>), <span class="at">n_best =</span> <span class="dv">10</span>) <span class="sc">+</span> <span class="fu">ggtitle</span>(<span class="st">"Optional Stopping"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
 <div>
@@ -339,34 +170,32 @@ Attaching package: 'dplyr'</code></pre>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>simres_optStop <span class="sc">|&gt;</span> <span class="fu">arrange</span>(rmseBump) <span class="sc">|&gt;</span> <span class="fu">slice</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>) <span class="sc">|&gt;</span> <span class="fu">select</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">12</span>) <span class="sc">|&gt;</span> <span class="fu">print</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>simres_optStop <span class="sc">|&gt;</span> <span class="fu">arrange</span>(rmseBump) <span class="sc">|&gt;</span> <span class="fu">slice</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>) <span class="sc">|&gt;</span> <span class="fu">select</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">12</span>) <span class="sc">|&gt;</span> <span class="fu">round</span>(<span class="dv">2</span>) <span class="sc">|&gt;</span> <span class="fu">print</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-stdout">
-<pre><code>  prop_Hacker prop_H1 nmin nmax stepsize   d het         p1         p2
-1        1.00     0.7   50 1063        1 0.1   0 0.02125788 0.02081806
-2        1.00     0.5   50 1063        1 0.1   0 0.01904922 0.02090357
-3        1.00     0.3   50 1063        1 0.1   0 0.02152252 0.02431248
-4        1.00     0.0  177 1063        1 0.0   0 0.04191617 0.03255988
-5        0.75     0.7   50 1063        1 0.1   0 0.03173113 0.02741269
-          p3         p4        p5
-1 0.02067146 0.09133558 0.8459170
-2 0.02292650 0.09811194 0.8390088
-3 0.02331606 0.10482264 0.8260263
-4 0.04079341 0.06324850 0.8214820
-5 0.02647390 0.09387908 0.8205032</code></pre>
+<pre><code>  prop_Hacker prop_H1 nmin nmax stepsize   d het   p1   p2   p3   p4   p5
+1        1.00     0.7   50 1063        1 0.1   0 0.02 0.02 0.02 0.09 0.85
+2        1.00     0.5   50 1063        1 0.1   0 0.02 0.02 0.02 0.10 0.84
+3        1.00     0.3   50 1063        1 0.1   0 0.02 0.02 0.02 0.10 0.83
+4        1.00     0.0  177 1063        1 0.0   0 0.04 0.03 0.04 0.06 0.82
+5        0.75     0.7   50 1063        1 0.1   0 0.03 0.03 0.03 0.09 0.82</code></pre>
 </div>
 </div>
+</section>
+</section>
+<section id="test-a-true-signal-bump-pattern" class="level2">
+<h2 class="anchored" data-anchor-id="test-a-true-signal-bump-pattern">Test a “true signal + bump” pattern</h2>
+<section id="multiple-dvs-1" class="level3">
+<h3 class="anchored" data-anchor-id="multiple-dvs-1">Multiple DVs</h3>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="do">## Test a "true signal + bump" pattern with a custom p-curve</span></span>
-<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>reference <span class="ot">&lt;-</span> <span class="fu">c</span>(.<span class="dv">40</span>, .<span class="dv">20</span>, .<span class="dv">10</span>, .<span class="dv">05</span>, .<span class="dv">25</span>)</span>
-<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a>reference <span class="ot">&lt;-</span> <span class="fu">c</span>(.<span class="dv">45</span>, .<span class="dv">22</span>, .<span class="dv">14</span>, .<span class="dv">05</span>, .<span class="dv">14</span>)</span>
-<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a><span class="co"># all multDV scenarios:</span></span>
-<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a>simres_multDV<span class="sc">$</span>rmseBump2 <span class="ot">&lt;-</span> <span class="fu">apply</span>(simres_multDV[, <span class="fu">paste0</span>(<span class="st">"p"</span>, <span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>)], <span class="dv">1</span>, <span class="cf">function</span>(x) <span class="fu">rmse</span>(x, reference))</span>
-<span id="cb22-8"><a href="#cb22-8" aria-hidden="true" tabindex="-1"></a><span class="fu">plot_pcurves</span>(simres_multDV, <span class="at">poriginal =</span> reference, <span class="at">n_best =</span> <span class="dv">10</span>, <span class="at">GOF=</span><span class="st">"rmse"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>reference <span class="ot">&lt;-</span> <span class="fu">c</span>(.<span class="dv">40</span>, .<span class="dv">20</span>, .<span class="dv">10</span>, .<span class="dv">05</span>, .<span class="dv">25</span>)</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="co">#reference &lt;- c(.45, .22, .14, .05, .14)</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="co"># all multDV scenarios:</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>simres_multDV<span class="sc">$</span>rmseBump2 <span class="ot">&lt;-</span> <span class="fu">rmse</span>(reference, simres_multDV[, <span class="fu">paste0</span>(<span class="st">"p"</span>, <span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>)])</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a><span class="fu">plot_pcurves</span>(simres_multDV, <span class="at">poriginal =</span> reference, <span class="at">n_best =</span> <span class="dv">10</span>, <span class="at">GOF=</span><span class="st">"rmse"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
 <div>
@@ -379,7 +208,7 @@ Attaching package: 'dplyr'</code></pre>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>simres_multDV <span class="sc">|&gt;</span> <span class="fu">arrange</span>(rmseBump2) <span class="sc">|&gt;</span> <span class="fu">slice</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>simres_multDV <span class="sc">|&gt;</span> <span class="fu">arrange</span>(rmseBump2) <span class="sc">|&gt;</span> <span class="fu">slice</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>  nvar   r   d prop_Hacker prop_H1 het  iter alpha strategy        p1        p2
@@ -402,12 +231,15 @@ Attaching package: 'dplyr'</code></pre>
 5    0.03258715   47.38387    149.1472      1.664931 1.748170 0.03060305</code></pre>
 </div>
 </div>
+</section>
+<section id="optional-stopping-1" class="level3">
+<h3 class="anchored" data-anchor-id="optional-stopping-1">Optional Stopping</h3>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="co"># all optStop scenarios:</span></span>
-<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>simres_optStop<span class="sc">$</span>rmseBump2 <span class="ot">&lt;-</span> <span class="fu">apply</span>(simres_optStop[, <span class="fu">paste0</span>(<span class="st">"p"</span>, <span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>)], <span class="dv">1</span>, <span class="cf">function</span>(x) <span class="fu">rmse</span>(x, reference))</span>
-<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a><span class="fu">plot_pcurves</span>(simres_optStop, <span class="at">poriginal =</span> reference, <span class="at">n_best =</span> <span class="dv">10</span>, <span class="at">GOF=</span><span class="st">"rmse"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co"># all optStop scenarios:</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>simres_optStop<span class="sc">$</span>rmseBump2 <span class="ot">&lt;-</span> <span class="fu">rmse</span>(reference, simres_optStop[, <span class="fu">paste0</span>(<span class="st">"p"</span>, <span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>)])</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="fu">plot_pcurves</span>(simres_optStop, <span class="at">poriginal =</span> reference, <span class="at">n_best =</span> <span class="dv">10</span>, <span class="at">GOF=</span><span class="st">"rmse"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
 <div>
@@ -420,7 +252,7 @@ Attaching package: 'dplyr'</code></pre>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>simres_optStop <span class="sc">|&gt;</span> <span class="fu">arrange</span>(rmseBump2) <span class="sc">|&gt;</span> <span class="fu">slice</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>simres_optStop <span class="sc">|&gt;</span> <span class="fu">arrange</span>(rmseBump2) <span class="sc">|&gt;</span> <span class="fu">slice</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>  prop_Hacker prop_H1 nmin nmax stepsize   d het        p1        p2        p3
@@ -443,10 +275,15 @@ Attaching package: 'dplyr'</code></pre>
 5   47.15790    144.1320      1.900789 1.746971 0.03279534</code></pre>
 </div>
 </div>
+</section>
+</section>
+</section>
+<section id="three-empirical-p-curves" class="level1">
+<h1>Three empirical p-curves</h1>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a>simres_multDV[<span class="fu">order</span>(simres_multDV<span class="sc">$</span>chi2Sotola)[<span class="dv">1</span><span class="sc">:</span><span class="dv">10</span>], ]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>simres_multDV[<span class="fu">order</span>(simres_multDV<span class="sc">$</span>chi2Sotola)[<span class="dv">1</span><span class="sc">:</span><span class="dv">10</span>], ]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>      nvar   r   d prop_Hacker prop_H1 het  iter alpha strategy        p1
@@ -454,149 +291,149 @@ Attaching package: 'dplyr'</code></pre>
 20540    5 0.3 0.6        0.10     0.3 0.2 10000  0.05        2 0.6347359
 18991    5 0.9 0.8        0.50     0.2 0.2 10000  0.05        1 0.6434741
 18992    5 0.9 0.8        0.50     0.2 0.2 10000  0.05        2 0.6434741
-43726    1 0.0 0.8        0.00     0.2 0.2 10000  0.05        1 0.6661220
-43727    1 0.0 0.8        0.00     0.2 0.2 10000  0.05        2 0.6661220
-43728    1 0.0 0.8        0.00     0.2 0.2 10000  0.05        3 0.6661220
-23571   30 0.3 0.8        0.10     0.5 0.2 10000  0.05        3 0.6943221
-38335    2 0.6 0.5        0.25     0.5 0.4 10000  0.05        1 0.6895119
-38336    2 0.6 0.5        0.25     0.5 0.4 10000  0.05        2 0.6895119
-              p2         p3         p4         p5 binsum   type rmseSotola
-20539 0.11280215 0.10698299 0.06490600 0.08057296      1 multDV 0.02277475
-20540 0.11280215 0.10698299 0.06490600 0.08057296      1 multDV 0.02277475
-18991 0.10748560 0.09884837 0.06621881 0.08397313      1 multDV 0.02219649
-18992 0.10748560 0.09884837 0.06621881 0.08397313      1 multDV 0.02219649
-43726 0.10457516 0.09204793 0.06372549 0.07352941      1 multDV 0.02392749
-43727 0.10457516 0.09204793 0.06372549 0.07352941      1 multDV 0.02392749
-43728 0.10457516 0.09204793 0.06372549 0.07352941      1 multDV 0.02392749
-23571 0.10150637 0.08644264 0.05585168 0.06187717      1 multDV 0.03081339
-38335 0.09484251 0.08965040 0.06230530 0.06368986      1 multDV 0.02885152
-38336 0.09484251 0.08965040 0.06230530 0.06368986      1 multDV 0.02885152
+20541    5 0.3 0.6        0.10     0.3 0.2 10000  0.05        3 0.6181737
+21094    2 0.0 0.6        0.25     0.3 0.2 10000  0.05        1 0.6298587
+21095    2 0.0 0.6        0.25     0.3 0.2 10000  0.05        2 0.6298587
+35512    5 0.3 0.6        0.25     0.3 0.4 10000  0.05        1 0.6391412
+35513    5 0.3 0.6        0.25     0.3 0.4 10000  0.05        2 0.6391412
+17764    2 0.9 0.7        0.10     0.2 0.2 10000  0.05        1 0.6204584
+             p2         p3         p4         p5 binsum   type rmseSotola
+20539 0.1128021 0.10698299 0.06490600 0.08057296      1 multDV 0.02277475
+20540 0.1128021 0.10698299 0.06490600 0.08057296      1 multDV 0.02277475
+18991 0.1074856 0.09884837 0.06621881 0.08397313      1 multDV 0.02219649
+18992 0.1074856 0.09884837 0.06621881 0.08397313      1 multDV 0.02219649
+20541 0.1105640 0.11101164 0.07341092 0.08683975      1 multDV 0.02741329
+21094 0.1148410 0.10424028 0.07155477 0.07950530      1 multDV 0.02650908
+21095 0.1148410 0.10424028 0.07155477 0.07950530      1 multDV 0.02650908
+35512 0.1098266 0.10652353 0.07225434 0.07225434      1 multDV 0.02456516
+35513 0.1098266 0.10652353 0.07225434 0.07225434      1 multDV 0.02456516
+17764 0.1140302 0.10564561 0.07434321 0.08552264      1 multDV 0.02854976
       rmseWetzels rmseSimonsohn chi2Sotola chi2Wetzels chi2Simonsohn rmseBump
-20539  0.03074624    0.09992626   5.823492   22.136222      3.664458 1.766768
-20540  0.03074624    0.09992626   5.823492   22.136222      3.664458 1.766768
-18991  0.02711039    0.10452397   6.009164   20.282298      3.995131 1.765799
-18992  0.02711039    0.10452397   6.009164   20.282298      3.995131 1.765799
-43726  0.01711846    0.11494797   6.211888   10.471120      4.739281 1.771802
-43727  0.01711846    0.11494797   6.211888   10.471120      4.739281 1.771802
-43728  0.01711846    0.11494797   6.211888   10.471120      4.739281 1.771802
-23571  0.01304563    0.12763892   6.308225    6.332935      5.663252 1.778783
-38335  0.01382056    0.12688149   6.666692    7.091974      5.711342 1.777638
-38336  0.01382056    0.12688149   6.666692    7.091974      5.711342 1.777638
+20539  0.03074624    0.09992626   4.142808    4.361969      35.83482 1.766768
+20540  0.03074624    0.09992626   4.142808    4.361969      35.83482 1.766768
+18991  0.02711039    0.10452397   4.487360    3.865638      39.51162 1.765799
+18992  0.02711039    0.10452397   4.487360    3.865638      39.51162 1.765799
+20541  0.03829732    0.09409784   4.775091    5.707774      34.42328 1.763006
+21094  0.03141909    0.09830729   5.389712    3.966877      35.68904 1.766920
+21095  0.03141909    0.09830729   5.389712    3.966877      35.68904 1.766920
+35512  0.02745632    0.10352570   5.404303    3.269142      41.41678 1.770649
+35513  0.02745632    0.10352570   5.404303    3.269142      41.41678 1.770649
+17764  0.03619412    0.09456630   5.471085    4.992422      33.77477 1.763715
       rmseBump2
-20539 0.1004616
-20540 0.1004616
-18991 0.1050592
-18992 0.1050592
-43726 0.1157046
-43727 0.1157046
-43728 0.1157046
-23571 0.1286389
-38335 0.1277029
-38336 0.1277029</code></pre>
+20539 0.1354111
+20540 0.1354111
+18991 0.1383241
+18992 0.1383241
+20541 0.1287549
+21094 0.1338941
+21095 0.1338941
+35512 0.1396074
+35513 0.1396074
+17764 0.1293599</code></pre>
 </div>
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a>simres_multDV[<span class="fu">order</span>(simres_multDV<span class="sc">$</span>chi2Wetzels)[<span class="dv">1</span><span class="sc">:</span><span class="dv">10</span>], ]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>simres_multDV[<span class="fu">order</span>(simres_multDV<span class="sc">$</span>chi2Wetzels)[<span class="dv">1</span><span class="sc">:</span><span class="dv">10</span>], ]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>      nvar   r   d prop_Hacker prop_H1 het  iter alpha strategy        p1
 10224    2 0.0 0.7        0.50     0.5 0.0 10000  0.05        3 0.6895537
 24028    2 0.9 0.6        0.25     0.5 0.2 10000  0.05        1 0.6835564
 24029    2 0.9 0.6        0.25     0.5 0.2 10000  0.05        2 0.6835564
-25132   10 0.0 0.6        0.75     0.5 0.2 10000  0.05        1 0.6883833
-25133   10 0.0 0.6        0.75     0.5 0.2 10000  0.05        2 0.6883833
 10747    5 0.3 0.6        0.75     0.5 0.0 10000  0.05        1 0.6781063
 10748    5 0.3 0.6        0.75     0.5 0.0 10000  0.05        2 0.6781063
-24642    2 0.3 0.7        0.50     0.5 0.2 10000  0.05        3 0.6907559
+25132   10 0.0 0.6        0.75     0.5 0.2 10000  0.05        1 0.6883833
+25133   10 0.0 0.6        0.75     0.5 0.2 10000  0.05        2 0.6883833
 26260    2 0.9 0.5        0.10     0.7 0.2 10000  0.05        1 0.6776111
 26261    2 0.9 0.5        0.10     0.7 0.2 10000  0.05        2 0.6776111
+12406   10 0.3 0.5        0.25     0.7 0.0 10000  0.05        1 0.6812161
              p2         p3         p4         p5 binsum   type rmseSotola
 10224 0.1123100 0.07381069 0.07184895 0.05247670      1 multDV 0.03902260
 24028 0.1169535 0.07361377 0.07233907 0.05353728      1 multDV 0.03871197
 24029 0.1169535 0.07361377 0.07233907 0.05353728      1 multDV 0.03871197
-25132 0.1158221 0.07635298 0.07032058 0.04912099      1 multDV 0.03907481
-25133 0.1158221 0.07635298 0.07032058 0.04912099      1 multDV 0.03907481
 10747 0.1168079 0.07566674 0.07711391 0.05230515      1 multDV 0.03861125
 10748 0.1168079 0.07566674 0.07711391 0.05230515      1 multDV 0.03861125
-24642 0.1138917 0.07763023 0.06945863 0.04826353      1 multDV 0.03889580
+25132 0.1158221 0.07635298 0.07032058 0.04912099      1 multDV 0.03907481
+25133 0.1158221 0.07635298 0.07032058 0.04912099      1 multDV 0.03907481
 26260 0.1151995 0.07698840 0.07529012 0.05491084      1 multDV 0.03702265
 26261 0.1151995 0.07698840 0.07529012 0.05491084      1 multDV 0.03702265
+12406 0.1176982 0.07839305 0.07035831 0.05233442      1 multDV 0.03706936
       rmseWetzels rmseSimonsohn chi2Sotola chi2Wetzels chi2Simonsohn rmseBump
-10224 0.002241935     0.1265637   13.63442   0.1248091      6.056196 1.782548
-24028 0.002256010     0.1233993   14.08534   0.1658235      5.808337 1.781696
-24029 0.002256010     0.1233993   14.08534   0.1658235      5.808337 1.781696
-25132 0.002338275     0.1256441   13.67148   0.1930553      5.957121 1.783942
-25133 0.002338275     0.1256441   13.67148   0.1930553      5.957121 1.783942
-10747 0.004146391     0.1216011   15.49477   0.2017915      5.819649 1.781860
-10748 0.004146391     0.1216011   15.49477   0.2017915      5.819649 1.781860
-24642 0.003457158     0.1268369   13.20983   0.3571218      6.032510 1.784470
-26260 0.004563403     0.1211353   14.13918   0.3578009      5.694128 1.780687
-26261 0.004563403     0.1211353   14.13918   0.3578009      5.694128 1.780687
+10224 0.002241935     0.1265637   15.60169  0.03444827      64.31627 1.782548
+24028 0.002256010     0.1233993   15.62643  0.04410445      60.70221 1.781696
+24029 0.002256010     0.1233993   15.62643  0.04410445      60.70221 1.781696
+10747 0.004146391     0.1216011   15.88628  0.05443590      61.11614 1.781860
+10748 0.004146391     0.1216011   15.88628  0.05443590      61.11614 1.781860
+25132 0.002338275     0.1256441   16.09353  0.05478714      64.80642 1.783942
+25133 0.002338275     0.1256441   16.09353  0.05478714      64.80642 1.783942
+26260 0.004563403     0.1211353   14.30893  0.09319152      58.82709 1.780687
+26261 0.004563403     0.1211353   14.30893  0.09319152      58.82709 1.780687
+12406 0.003763167     0.1220064   14.35230  0.09919650      59.33808 1.782064
       rmseBump2
-10224 0.1276729
-24028 0.1245385
-24029 0.1245385
-25132 0.1268089
-25133 0.1268089
-10747 0.1226747
-10748 0.1226747
-24642 0.1279895
-26260 0.1221803
-26261 0.1221803</code></pre>
+10224 0.1623019
+24028 0.1594326
+24029 0.1594326
+10747 0.1579079
+10748 0.1579079
+25132 0.1622192
+25133 0.1622192
+26260 0.1571547
+26261 0.1571547
+12406 0.1586248</code></pre>
 </div>
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a>simres_multDV[<span class="fu">order</span>(simres_multDV<span class="sc">$</span>chi2Simonsohn)[<span class="dv">1</span><span class="sc">:</span><span class="dv">10</span>], ]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>simres_multDV[<span class="fu">order</span>(simres_multDV<span class="sc">$</span>chi2Simonsohn)[<span class="dv">1</span><span class="sc">:</span><span class="dv">10</span>], ]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>      nvar   r   d prop_Hacker prop_H1 het  iter alpha strategy        p1
-12124   70 0.3 0.1        0.25     0.7 0.0 10000  0.05        1 0.4746060
-12125   70 0.3 0.1        0.25     0.7 0.0 10000  0.05        2 0.4746060
-5842    70 0.0 0.2        0.10     0.3 0.0 10000  0.05        1 0.5033408
-5843    70 0.0 0.2        0.10     0.3 0.0 10000  0.05        2 0.5033408
-5863   150 0.3 0.2        0.10     0.3 0.0 10000  0.05        1 0.5056117
-5864   150 0.3 0.2        0.10     0.3 0.0 10000  0.05        2 0.5056117
-28954   70 0.0 0.3        0.10     0.1 0.4 10000  0.05        1 0.5023923
-28955   70 0.0 0.3        0.10     0.1 0.4 10000  0.05        2 0.5023923
-14410   70 0.0 0.1        0.10     0.1 0.2 10000  0.05        1 0.4616883
-14411   70 0.0 0.1        0.10     0.1 0.2 10000  0.05        2 0.4616883
-             p2        p3         p4         p5 binsum   type rmseSotola
-12124 0.2094571 0.1485114 0.08266200 0.08476357      1 multDV 0.10087171
-12125 0.2094571 0.1485114 0.08266200 0.08476357      1 multDV 0.10087171
-5842  0.1993318 0.1247216 0.08240535 0.09020045      1 multDV 0.08764502
-5843  0.1993318 0.1247216 0.08240535 0.09020045      1 multDV 0.08764502
-5863  0.1969697 0.1285073 0.08249158 0.08641975      1 multDV 0.08626337
-5864  0.1969697 0.1285073 0.08249158 0.08641975      1 multDV 0.08626337
-28954 0.2099282 0.1291866 0.08133971 0.07715311      1 multDV 0.09090764
-28955 0.2099282 0.1291866 0.08133971 0.07715311      1 multDV 0.09090764
-14410 0.2259740 0.1422078 0.08831169 0.08181818      1 multDV 0.10998910
-14411 0.2259740 0.1422078 0.08831169 0.08181818      1 multDV 0.10998910
+15316    2 0.9 0.5        0.25     0.1 0.2 10000  0.05        1 0.4496047
+15317    2 0.9 0.5        0.25     0.1 0.2 10000  0.05        2 0.4496047
+20260   70 0.3 0.2        0.10     0.3 0.2 10000  0.05        1 0.4505194
+20261   70 0.3 0.2        0.10     0.3 0.2 10000  0.05        2 0.4505194
+23665  150 0.6 0.1        0.25     0.5 0.2 10000  0.05        1 0.4635548
+23666  150 0.6 0.1        0.25     0.5 0.2 10000  0.05        2 0.4635548
+15318    2 0.9 0.5        0.25     0.1 0.2 10000  0.05        3 0.4298419
+12805   30 0.9 0.2        0.50     0.7 0.0 10000  0.05        1 0.4393472
+12806   30 0.9 0.2        0.50     0.7 0.0 10000  0.05        2 0.4393472
+28258    2 0.6 0.1        1.00     0.7 0.2 10000  0.05        1 0.4642147
+             p2        p3        p4        p5 binsum   type rmseSotola
+15316 0.1837945 0.1363636 0.1037549 0.1264822      1 multDV  0.1077892
+15317 0.1837945 0.1363636 0.1037549 0.1264822      1 multDV  0.1077892
+20260 0.2072171 0.1361400 0.1027884 0.1033352      1 multDV  0.1110485
+20261 0.2072171 0.1361400 0.1027884 0.1033352      1 multDV  0.1110485
+23665 0.1906643 0.1432675 0.0983842 0.1041293      1 multDV  0.1023028
+23666 0.1906643 0.1432675 0.0983842 0.1041293      1 multDV  0.1023028
+15318 0.1857708 0.1413043 0.1077075 0.1353755      1 multDV  0.1169487
+12805 0.1932069 0.1371857 0.1107190 0.1195412      1 multDV  0.1139619
+12806 0.1932069 0.1371857 0.1107190 0.1195412      1 multDV  0.1139619
+28258 0.1814115 0.1262425 0.1058648 0.1222664      1 multDV  0.1017502
       rmseWetzels rmseSimonsohn chi2Sotola chi2Wetzels chi2Simonsohn rmseBump
-12124  0.11007063    0.03135076   47.08042    143.5913      1.173617 1.757414
-12125  0.11007063    0.03135076   47.08042    143.5913      1.173617 1.757414
-5842   0.09470506    0.03686085   39.47646    105.3286      1.217320 1.756077
-5843   0.09470506    0.03686085   39.47646    105.3286      1.217320 1.756077
-5863   0.09352852    0.03861059   38.36191    102.4153      1.291414 1.757828
-5864   0.09352852    0.03861059   38.36191    102.4153      1.291414 1.757828
-28954  0.09663447    0.03856241   44.26376    109.0023      1.337119 1.761911
-28955  0.09663447    0.03856241   44.26376    109.0023      1.337119 1.761911
-14410  0.11718067    0.03130113   58.81580    157.6561      1.377122 1.758348
-14411  0.11718067    0.03130113   58.81580    157.6561      1.377122 1.758348
+15316   0.1194316    0.03289787   32.64954    37.96979      7.150929 1.737663
+15317   0.1194316    0.03289787   32.64954    37.96979      7.150929 1.737663
+20260   0.1196766    0.03097270   34.09010    37.13585      7.255808 1.748142
+20261   0.1196766    0.03097270   34.09010    37.13585      7.255808 1.748142
+23665   0.1128099    0.03258715   29.21534    33.27330      7.496514 1.748170
+23666   0.1128099    0.03258715   29.21534    33.27330      7.496514 1.748170
+15318   0.1293532    0.03530863   38.27389    44.93349      7.636957 1.733019
+12805   0.1242811    0.03445167   36.35914    40.99697      7.722164 1.740417
+12806   0.1242811    0.03445167   36.35914    40.99697      7.722164 1.740417
+28258   0.1119312    0.03506369   29.74324    33.21707      7.938801 1.740060
        rmseBump2
-12124 0.03132704
-12125 0.03132704
-5842  0.03751251
-5843  0.03751251
-5863  0.03919612
-5864  0.03919612
-28954 0.03973723
-28955 0.03973723
-14410 0.03171778
-14411 0.03171778</code></pre>
+15316 0.06662102
+15317 0.06662102
+20260 0.07511003
+20261 0.07511003
+23665 0.07696459
+23666 0.07696459
+15318 0.06207736
+12805 0.06882355
+12806 0.06882355
+28258 0.07013484</code></pre>
 </div>
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb34"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot_pcurves</span>(<span class="at">simdat =</span> simres_multDV, <span class="at">poriginal =</span> pcurves[pcurves<span class="sc">$</span>dataset <span class="sc">==</span> <span class="st">"sotola"</span>, <span class="fu">paste0</span>(<span class="st">"p"</span>, <span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>)], <span class="at">n_best=</span><span class="dv">10</span>, <span class="at">GOF=</span><span class="st">"chi2"</span>, <span class="at">n =</span> pcurves<span class="sc">$</span>nsig[<span class="dv">1</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot_pcurves</span>(<span class="at">simdat =</span> simres_multDV, <span class="at">poriginal =</span> pcurves[pcurves<span class="sc">$</span>dataset <span class="sc">==</span> <span class="st">"sotola"</span>, <span class="fu">paste0</span>(<span class="st">"p"</span>, <span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>)], <span class="at">n_best=</span><span class="dv">10</span>, <span class="at">GOF=</span><span class="st">"rmse"</span>, <span class="at">n =</span> pcurves<span class="sc">$</span>nsig[<span class="dv">1</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
 <div>
@@ -607,7 +444,7 @@ Attaching package: 'dplyr'</code></pre>
 </div>
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb35"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot_pcurves</span>(<span class="at">simdat =</span> simres_multDV, <span class="at">poriginal =</span> pcurves[pcurves<span class="sc">$</span>dataset <span class="sc">==</span> <span class="st">"wetzels"</span>, <span class="fu">paste0</span>(<span class="st">"p"</span>, <span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>)], <span class="at">n_best=</span><span class="dv">10</span>, <span class="at">GOF=</span><span class="st">"chi2"</span>, <span class="at">n =</span> pcurves<span class="sc">$</span>nsig[<span class="dv">2</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot_pcurves</span>(<span class="at">simdat =</span> simres_multDV, <span class="at">poriginal =</span> pcurves[pcurves<span class="sc">$</span>dataset <span class="sc">==</span> <span class="st">"wetzels"</span>, <span class="fu">paste0</span>(<span class="st">"p"</span>, <span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>)], <span class="at">n_best=</span><span class="dv">10</span>, <span class="at">GOF=</span><span class="st">"rmse"</span>, <span class="at">n =</span> pcurves<span class="sc">$</span>nsig[<span class="dv">2</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
 <div>
@@ -618,7 +455,7 @@ Attaching package: 'dplyr'</code></pre>
 </div>
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb36"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot_pcurves</span>(<span class="at">simdat =</span> simres_multDV, <span class="at">poriginal =</span> pcurves[pcurves<span class="sc">$</span>dataset <span class="sc">==</span> <span class="st">"simonsohn"</span>, <span class="fu">paste0</span>(<span class="st">"p"</span>, <span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>)], <span class="at">n_best=</span><span class="dv">10</span>, <span class="at">GOF=</span><span class="st">"chi2"</span>, <span class="at">n =</span> pcurves<span class="sc">$</span>nsig[<span class="dv">3</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot_pcurves</span>(<span class="at">simdat =</span> simres_multDV, <span class="at">poriginal =</span> pcurves[pcurves<span class="sc">$</span>dataset <span class="sc">==</span> <span class="st">"simonsohn"</span>, <span class="fu">paste0</span>(<span class="st">"p"</span>, <span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>)], <span class="at">n_best=</span><span class="dv">10</span>, <span class="at">GOF=</span><span class="st">"rmse"</span>, <span class="at">n =</span> pcurves<span class="sc">$</span>nsig[<span class="dv">3</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
 <div>
@@ -629,7 +466,7 @@ Attaching package: 'dplyr'</code></pre>
 </div>
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb37"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot_pcurves</span>(<span class="at">simdat =</span> simres_optStop, <span class="at">poriginal =</span> pcurves[pcurves<span class="sc">$</span>dataset <span class="sc">==</span> <span class="st">"sotola"</span>, <span class="fu">paste0</span>(<span class="st">"p"</span>, <span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>)], <span class="at">n_best=</span><span class="dv">10</span>, <span class="at">GOF=</span><span class="st">"chi2"</span>, <span class="at">n =</span> pcurves<span class="sc">$</span>nsig[<span class="dv">1</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot_pcurves</span>(<span class="at">simdat =</span> simres_optStop, <span class="at">poriginal =</span> pcurves[pcurves<span class="sc">$</span>dataset <span class="sc">==</span> <span class="st">"sotola"</span>, <span class="fu">paste0</span>(<span class="st">"p"</span>, <span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>)], <span class="at">n_best=</span><span class="dv">10</span>, <span class="at">GOF=</span><span class="st">"rmse"</span>, <span class="at">n =</span> pcurves<span class="sc">$</span>nsig[<span class="dv">1</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
 <div>
@@ -640,7 +477,7 @@ Attaching package: 'dplyr'</code></pre>
 </div>
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb38"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot_pcurves</span>(<span class="at">simdat =</span> simres_optStop, <span class="at">poriginal =</span> pcurves[pcurves<span class="sc">$</span>dataset <span class="sc">==</span> <span class="st">"wetzels"</span>, <span class="fu">paste0</span>(<span class="st">"p"</span>, <span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>)], <span class="at">n_best=</span><span class="dv">10</span>, <span class="at">GOF=</span><span class="st">"chi2"</span>, <span class="at">n =</span> pcurves<span class="sc">$</span>nsig[<span class="dv">2</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot_pcurves</span>(<span class="at">simdat =</span> simres_optStop, <span class="at">poriginal =</span> pcurves[pcurves<span class="sc">$</span>dataset <span class="sc">==</span> <span class="st">"wetzels"</span>, <span class="fu">paste0</span>(<span class="st">"p"</span>, <span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>)], <span class="at">n_best=</span><span class="dv">10</span>, <span class="at">GOF=</span><span class="st">"rmse"</span>, <span class="at">n =</span> pcurves<span class="sc">$</span>nsig[<span class="dv">2</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
 <div>
@@ -651,7 +488,7 @@ Attaching package: 'dplyr'</code></pre>
 </div>
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb39"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot_pcurves</span>(<span class="at">simdat =</span> simres_optStop, <span class="at">poriginal =</span> pcurves[pcurves<span class="sc">$</span>dataset <span class="sc">==</span> <span class="st">"simonsohn"</span>, <span class="fu">paste0</span>(<span class="st">"p"</span>, <span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>)], <span class="at">n_best=</span><span class="dv">10</span>, <span class="at">GOF=</span><span class="st">"chi2"</span>, <span class="at">n =</span> pcurves<span class="sc">$</span>nsig[<span class="dv">3</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot_pcurves</span>(<span class="at">simdat =</span> simres_optStop, <span class="at">poriginal =</span> pcurves[pcurves<span class="sc">$</span>dataset <span class="sc">==</span> <span class="st">"simonsohn"</span>, <span class="fu">paste0</span>(<span class="st">"p"</span>, <span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>)], <span class="at">n_best=</span><span class="dv">10</span>, <span class="at">GOF=</span><span class="st">"rmse"</span>, <span class="at">n =</span> pcurves<span class="sc">$</span>nsig[<span class="dv">3</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
 <div>
@@ -661,8 +498,6 @@ Attaching package: 'dplyr'</code></pre>
 </div>
 </div>
 </div>
-</section>
-</section>
 </section>
 
 </main>

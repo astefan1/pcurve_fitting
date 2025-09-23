@@ -2,15 +2,26 @@
 % Please edit documentation in R/rmse.R
 \name{rmse}
 \alias{rmse}
-\title{Compute RMSE between two p-curves}
+\title{Compute RMSE between one reference and one or many comparison p-curves}
 \usage{
-rmse(v1, v2)
+rmse(reference, comparison, na.rm = FALSE)
 }
 \arguments{
-\item{v1}{First vector (original)}
+\item{reference}{Numeric vector.}
 
-\item{v2}{Second vector (fitted values)}
+\item{comparison}{Numeric vector of same length as \code{reference}, or a
+numeric matrix with \code{ncol(comparison) == length(reference)} where
+each row is compared to \code{reference}.}
+
+\item{na.rm}{Logical; if \code{TRUE}, ignore NA values in the computation.}
+}
+\value{
+If \code{comparison} is a vector, a single numeric value.
+If \code{comparison} is a matrix, a numeric vector of length
+\code{nrow(comparison)} (row names preserved if present).
 }
 \description{
-Calculates square root of mean of squared differences between two vectors
+Calculates the root mean squared error between a single
+reference vector and either a single comparison vector or a matrix of
+comparisons (each row is a comparison).
 }

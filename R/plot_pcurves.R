@@ -25,12 +25,12 @@ plot_pcurves <- function(simdat, poriginal, GOF = "rmse", n_best=NA, alpha=NA, n
 
   # Compute GOF between original and simulated
   if (GOF=="rmse") {
-    simdat$GOF <- apply(simdat[, paste0("p", 1:5)], 1, function(x) rmse(x, poriginal))
+    simdat$GOF <- rmse(poriginal, simdat[, paste0("p", 1:5)])
   } else if (GOF=="chi2"){
     if (is.na(n_studies)) {
       stop("For chi2 GOF, n_studies must be provided")
     }
-    simdat$GOF <- apply(simdat[, paste0("p", 1:5)], 1, function(x) chi2(x, poriginal, n=n_studies))
+    simdat$GOF <- chi2(poriginal, simdat[, paste0("p", 1:5)], n=n_studies)
   } else {
     stop("GOF must be one of 'rmse' or 'chi2'")
   }

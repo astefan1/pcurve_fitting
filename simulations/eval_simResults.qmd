@@ -57,36 +57,37 @@ simres_optStop$type <- "optStop"
 # combine simulations from both p-hacking strategies (they have different parameter columns)
 simres <- bind_rows(simres_multDV, simres_optStop)
 
-simres_multDV$rmseSotola    <- apply(simres_multDV[, paste0("p", 1:5)], 1, function(x) rmse(x, simplify2array(pcurves[1, paste0("p", 1:5)])))
-simres_multDV$rmseWetzels   <- apply(simres_multDV[, paste0("p", 1:5)], 1, function(x) rmse(x, simplify2array(pcurves[2, paste0("p", 1:5)])))
-simres_multDV$rmseSimonsohn <- apply(simres_multDV[, paste0("p", 1:5)], 1, function(x) rmse(x, simplify2array(pcurves[3, paste0("p", 1:5)])))
-simres_optStop$rmseSotola    <- apply(simres_optStop[, paste0("p", 1:5)], 1, function(x) rmse(x, simplify2array(pcurves[1, paste0("p", 1:5)])))
-simres_optStop$rmseWetzels   <- apply(simres_optStop[, paste0("p", 1:5)], 1, function(x) rmse(x, simplify2array(pcurves[2, paste0("p", 1:5)])))
-simres_optStop$rmseSimonsohn <- apply(simres_optStop[, paste0("p", 1:5)], 1, function(x) rmse(x, simplify2array(pcurves[3, paste0("p", 1:5)])))
+simres_multDV$rmseSotola     <- rmse(reference=simplify2array(pcurves[1, paste0("p", 1:5)]), comparison=simres_multDV[, paste0("p", 1:5)])
+simres_multDV$rmseWetzels    <- rmse(reference=simplify2array(pcurves[2, paste0("p", 1:5)]), comparison=simres_multDV[, paste0("p", 1:5)])
+simres_multDV$rmseSimonsohn  <- rmse(reference=simplify2array(pcurves[3, paste0("p", 1:5)]), comparison=simres_multDV[, paste0("p", 1:5)])
+simres_optStop$rmseSotola    <- rmse(reference=simplify2array(pcurves[1, paste0("p", 1:5)]), comparison=simres_optStop[, paste0("p", 1:5)])
+simres_optStop$rmseWetzels   <- rmse(reference=simplify2array(pcurves[2, paste0("p", 1:5)]), comparison=simres_optStop[, paste0("p", 1:5)])
+simres_optStop$rmseSimonsohn <- rmse(reference=simplify2array(pcurves[3, paste0("p", 1:5)]), comparison=simres_optStop[, paste0("p", 1:5)])
 
-simres_multDV$chi2Sotola    <- apply(simres_multDV[, paste0("p", 1:5)], 1, function(x)
-    chi2(x, simplify2array(pcurves[1, paste0("p", 1:5)]), n = pcurves$nsig[1])
-  )
-simres_multDV$chi2Wetzels   <- apply(simres_multDV[, paste0("p", 1:5)], 1, function(x)
-    chi2(x, simplify2array(pcurves[2, paste0("p", 1:5)]), n = pcurves$nsig[2])
-  )
-simres_multDV$chi2Simonsohn <- apply(simres_multDV[, paste0("p", 1:5)], 1, function(x)
-    chi2(x, simplify2array(pcurves[3, paste0("p", 1:5)]), n = pcurves$nsig[3])
-  )
+simres_multDV$chi2Sotola <- chi2(
+  reference = simplify2array(pcurves[1, paste0("p", 1:5)]), 
+  comparison = simres_multDV[, paste0("p", 1:5)], n = pcurves$nsig[1])
 
-simres_optStop$chi2Sotola    <- apply(simres_optStop[, paste0("p", 1:5)], 1, function(x)
-    chi2(x, simplify2array(pcurves[1, paste0("p", 1:5)]), n = pcurves$nsig[1])
-  )
-simres_optStop$chi2Wetzels   <- apply(simres_optStop[, paste0("p", 1:5)], 1, function(x)
-    chi2(x, simplify2array(pcurves[2, paste0("p", 1:5)]), n = pcurves$nsig[2])
-  )
-simres_optStop$chi2Simonsohn <- apply(simres_optStop[, paste0("p", 1:5)], 1, function(x)
-    chi2(x, simplify2array(pcurves[3, paste0("p", 1:5)]), n = pcurves$nsig[3])
-  )
+simres_multDV$chi2Wetzels <- chi2(
+  reference = simplify2array(pcurves[2, paste0("p", 1:5)]), 
+  comparison = simres_multDV[, paste0("p", 1:5)], n = pcurves$nsig[1])
+
+simres_multDV$chi2Simonsohn <- chi2(
+  reference = simplify2array(pcurves[3, paste0("p", 1:5)]), 
+  comparison = simres_multDV[, paste0("p", 1:5)], n = pcurves$nsig[1])
 
 
+simres_optStop$chi2Sotola <- chi2(
+  reference = simplify2array(pcurves[1, paste0("p", 1:5)]), 
+  comparison = simres_optStop[, paste0("p", 1:5)], n = pcurves$nsig[1])
 
+simres_optStop$chi2Wetzels <- chi2(
+  reference = simplify2array(pcurves[2, paste0("p", 1:5)]), 
+  comparison = simres_optStop[, paste0("p", 1:5)], n = pcurves$nsig[1])
 
+simres_optStop$chi2Simonsohn <- chi2(
+  reference = simplify2array(pcurves[3, paste0("p", 1:5)]), 
+  comparison = simres_optStop[, paste0("p", 1:5)], n = pcurves$nsig[1])
 
 
 
@@ -120,6 +121,7 @@ simres_optStop$chi2Simonsohn <- apply(simres_optStop[, paste0("p", 1:5)], 1, fun
 
 # Correlation between our two GOF measures (rmse and chi2)
 cor(simres_multDV$rmseSotola, simres_multDV$chi2Sotola)
+plot(simres_multDV$rmseSotola, simres_multDV$chi2Sotola)
 cor(simres_multDV$rmseWetzels, simres_multDV$chi2Wetzels)
 cor(simres_multDV$rmseSimonsohn, simres_multDV$chi2Simonsohn)
 
@@ -139,7 +141,7 @@ cor(simres_optStop$rmseSimonsohn, simres_optStop$chi2Simonsohn)
 #| echo: false
 
 # all multDV scenarios:
-simres_multDV$rmseBump <- apply(simres_multDV[, paste0("p", 1:5)], 1, function(x) rmse(x, c(.15, .15, .15, .15, 4.0)))
+simres_multDV$rmseBump <- rmse(c(.15, .15, .15, .15, 4.0), simres_multDV[, paste0("p", 1:5)])
 plot_pcurves(simres_multDV, poriginal = c(.15, .15, .15, .15, .40), n_best = 10) + ggtitle("Multiple DVs")
 ```
 
@@ -151,7 +153,7 @@ simres_multDV |> arrange(rmseBump) |> slice(1:5) |> select(1:14) |> round(2) |> 
 ### Optional Stopping
 ```{r}
 # all optStop scenarios:
-simres_optStop$rmseBump <- apply(simres_optStop[, paste0("p", 1:5)], 1, function(x) rmse(x, c(.15, .15, .15, .15, 4.0)))
+simres_optStop$rmseBump <- rmse(c(.15, .15, .15, .15, 4.0), simres_optStop[, paste0("p", 1:5)])
 plot_pcurves(simres_optStop, poriginal = c(.15, .15, .15, .15, .40), n_best = 10) + ggtitle("Optional Stopping")
 ```
 
@@ -160,48 +162,64 @@ The best fitting scenarios from the "optional stopping" simulations are:
 simres_optStop |> arrange(rmseBump) |> slice(1:5) |> select(1:12) |> round(2) |> print()
 ```
 
+## Test a "true signal + bump" pattern
+
+### Multiple DVs
 ```{r}
-
-## Test a "true signal + bump" pattern with a custom p-curve
-
 reference <- c(.40, .20, .10, .05, .25)
-reference <- c(.45, .22, .14, .05, .14)
+#reference <- c(.45, .22, .14, .05, .14)
 
 # all multDV scenarios:
-simres_multDV$rmseBump2 <- apply(simres_multDV[, paste0("p", 1:5)], 1, function(x) rmse(x, reference))
+simres_multDV$rmseBump2 <- rmse(reference, simres_multDV[, paste0("p", 1:5)])
 plot_pcurves(simres_multDV, poriginal = reference, n_best = 10, GOF="rmse")
 ```
 
+The best fitting scenarios from the "multiple DVs" simulations are:
 ```{r}
 simres_multDV |> arrange(rmseBump2) |> slice(1:5)
 ```
 
-```{r}
+### Optional Stopping
 
+```{r}
 # all optStop scenarios:
-simres_optStop$rmseBump2 <- apply(simres_optStop[, paste0("p", 1:5)], 1, function(x) rmse(x, reference))
+simres_optStop$rmseBump2 <- rmse(reference, simres_optStop[, paste0("p", 1:5)])
 plot_pcurves(simres_optStop, poriginal = reference, n_best = 10, GOF="rmse")
 ```
 
+The best fitting scenarios from the "optional stopping" simulations are:
 ```{r}
 simres_optStop |> arrange(rmseBump2) |> slice(1:5)
 ```
 
 
 
+# Three empirical p-curves
 
+## "Sotola"
+
+```{r}
+plot_pcurves(simdat = simres_multDV, poriginal = pcurves[pcurves$dataset == "sotola", paste0("p", 1:5)], n_best=10) + ggtitle("Sotola, Multiple DVs")
+plot_pcurves(simdat = simres_optStop, poriginal = pcurves[pcurves$dataset == "sotola", paste0("p", 1:5)], n_best=10) + ggtitle("Sotola, ptional Stopping")
+```
+
+
+## "Wetzels"
+
+```{r}
+plot_pcurves(simdat = simres_multDV, poriginal = pcurves[pcurves$dataset == "wetzels", paste0("p", 1:5)], n_best=10) + ggtitle("Wetzels, Multiple DVs")
+plot_pcurves(simdat = simres_optStop, poriginal = pcurves[pcurves$dataset == "wetzels", paste0("p", 1:5)], n_best=10) + ggtitle("Wetzels, Optional Stopping")
+```
+
+## "Simonsohn"
+
+```{r}
+plot_pcurves(simdat = simres_multDV, poriginal = pcurves[pcurves$dataset == "simonsohn", paste0("p", 1:5)], n_best=10) + ggtitle("Multiple DVs")
+plot_pcurves(simdat = simres_optStop, poriginal = pcurves[pcurves$dataset == "simonsohn", paste0("p", 1:5)], n_best=10) + ggtitle("Optional Stopping")
+```
 
 ```{r}
 simres_multDV[order(simres_multDV$chi2Sotola)[1:10], ]
 simres_multDV[order(simres_multDV$chi2Wetzels)[1:10], ]
 simres_multDV[order(simres_multDV$chi2Simonsohn)[1:10], ]
-
-plot_pcurves(simdat = simres_multDV, poriginal = pcurves[pcurves$dataset == "sotola", paste0("p", 1:5)], n_best=10, GOF="chi2", n = pcurves$nsig[1])
-plot_pcurves(simdat = simres_multDV, poriginal = pcurves[pcurves$dataset == "wetzels", paste0("p", 1:5)], n_best=10, GOF="chi2", n = pcurves$nsig[2])
-plot_pcurves(simdat = simres_multDV, poriginal = pcurves[pcurves$dataset == "simonsohn", paste0("p", 1:5)], n_best=10, GOF="chi2", n = pcurves$nsig[3])
-
-plot_pcurves(simdat = simres_optStop, poriginal = pcurves[pcurves$dataset == "sotola", paste0("p", 1:5)], n_best=10, GOF="chi2", n = pcurves$nsig[1])
-plot_pcurves(simdat = simres_optStop, poriginal = pcurves[pcurves$dataset == "wetzels", paste0("p", 1:5)], n_best=10, GOF="chi2", n = pcurves$nsig[2])
-plot_pcurves(simdat = simres_optStop, poriginal = pcurves[pcurves$dataset == "simonsohn", paste0("p", 1:5)], n_best=10, GOF="chi2", n = pcurves$nsig[3])
-
 ```

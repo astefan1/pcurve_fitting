@@ -4,16 +4,27 @@
 \alias{plot_pcurves}
 \title{Plot original and fitted p-curves}
 \usage{
-plot_pcurves(simdat, poriginal, n_best = NA, alpha = NA)
+plot_pcurves(
+  simdat,
+  poriginal,
+  GOF = "rmse",
+  n_best = NA,
+  alpha = NA,
+  n_studies = NA
+)
 }
 \arguments{
 \item{simdat}{Result of simulation function}
 
 \item{poriginal}{Original p-curve (vector)}
 
+\item{GOF}{Goodness of fit measure: one of "rmse" or "chi2" (default)}
+
 \item{n_best}{Show only the n best curves. If NA, all are shown}
 
 \item{alpha}{Alpha transparency for the simulated p-curve lines}
+
+\item{n_studies}{Number of studies in the original p-curve (only needed for chi2 GOF)}
 }
 \description{
 Create a plot displaying the original and a number of fitted p-curves

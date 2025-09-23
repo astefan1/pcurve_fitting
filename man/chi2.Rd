@@ -2,17 +2,29 @@
 % Please edit documentation in R/chi2.R
 \name{chi2}
 \alias{chi2}
-\title{Compute Chi2 goodness of fit statistic between two p-curves}
+\title{Compute Chi2 goodness of fit statistic between one reference p-curve and
+one or many comparison p-curves.}
 \usage{
-chi2(v1, v2, n)
+chi2(reference, comparison, n, tol = 1e-06)
 }
 \arguments{
-\item{v1}{First vector of probabilities (original)}
+\item{reference}{Numeric vector of probabilities (must sum to 1 within tolerance).}
 
-\item{v2}{Second vector of probabilities (fitted values)}
+\item{comparison}{Numeric vector of probabilities (length = length(reference)),
+or a numeric matrix with \code{ncol(comparison) == length(reference)} and
+each row summing to 1 within tolerance.}
 
-\item{n}{Total sample size}
+\item{n}{Positive scalar total sample size used to scale the statistic.}
+
+\item{tol}{Numeric tolerance for probability sum checks (default 1e-6).}
+}
+\value{
+If \code{comparison} is a vector, a single numeric value.
+If \code{comparison} is a matrix, a numeric vector of length \code{nrow(comparison)}
+(names taken from \code{rownames(comparison)} if present).
 }
 \description{
-Calculates Chi squared statistic between two vectors
+Calculates the Chi-squared statistic between a single reference
+vector of probabilities and either a single comparison vector or a matrix of
+comparisons (each row is a comparison).
 }
