@@ -5,6 +5,13 @@ Here is the link to the Google doc that we'll use for keeping track of the proje
 Note: The **p-value selection strategies** are: 
 1: smallest, 2: smallest significant, 3: first significant
 
+## Installing the package
+
+```r
+install.packages("devtools") # if not already installed
+devtools::install_github("astefan1/pcurve_fitting")
+```
+
 ## Running the simulations
 
 All simulation code is in the subfolder `simulations` (which is not copied when the `fitPCurve` package is installed).
@@ -17,6 +24,9 @@ Once the computation has finished, the results are stored in the `sim_realistic.
 
 ## Start the Shiny App
 
+The simulation results (which are already included in the repository) can be explored with a Shiny App. To start the app, run:
+
 ```r
+library(fitPCurve)
 source("simulations/ShinyApp.R", echo=TRUE)
 ```

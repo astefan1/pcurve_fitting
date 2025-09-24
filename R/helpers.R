@@ -80,3 +80,5 @@ cumvar <- function (x) {
   n <- seq_along(x)
   (cumsum(x ^ 2) - cumsum(x) ^ 2 / n) / (n - 1)
 }
+
+

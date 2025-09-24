@@ -17,6 +17,7 @@
 #' @param het Heterogeneity
 #' @param alpha Significance level
 #' @importFrom TruncExpFam rtruncinvgamma
+#' @importFrom utils tail
 #' @export
 
 optionalStopping <- function(simres, ES, prop_Hacker, prop_H1, nmin, nmax, stepsize, d, het, alpha = 0.05){
