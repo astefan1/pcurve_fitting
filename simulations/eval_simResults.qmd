@@ -84,8 +84,8 @@ save(simres, file="simulations/sim-results/simres_all.RData")
 #   comparison = simres[, paste0("p", 1:5)], n = pcurves$nsig[1])
 
 
-# # A heatmap with all conditions (no averaging; each condition is one tile)
-# ggplot(simres, aes(x = d, y = prop_H1, fill = rmseSimonsohn)) +
+# # A heatmap with all conditions of the multDV strategy (no averaging; each condition is one tile)
+# ggplot(simres |> filter(type=="multDV"), aes(x = d, y = prop_H1, fill = rmseSimonsohn)) +
 #   geom_tile() +
 #   facet_grid(
 #     rows = vars(het, nvar, strategy),      # two stacked facet rows
@@ -107,6 +107,27 @@ save(simres, file="simulations/sim-results/simres_all.RData")
 #     panel.spacing.y = unit(0.01, "lines")
 #   )
 
+# simres$prop_H1_factor <- as.factor(simres$prop_H1)
+# ggplot(simres |> filter(condition=="multDV_realistic", strategy==1, r==0), aes(x = d, y = prop_H1_factor, fill = rmseSimonsohn)) +
+#   geom_tile() +
+#   facet_grid(
+#     rows = vars(het, nvar, strategy),      # two stacked facet rows
+#     cols = vars(r, prop_Hacker)  # two stacked facet columns
+#   ) +
+#   scale_fill_viridis_c(
+#     option = "inferno",
+#     direction = -1,
+#     values = c(0, 0.1, 1),
+#     limits=c(
+#       min(simres |> select(contains("rmse"))),
+#       max(simres |> select(contains("rmse")))
+#     )
+#   ) +
+#   theme_minimal(base_size = 9) +
+#   theme(
+#     panel.spacing.x = unit(0.01, "lines"),
+#     panel.spacing.y = unit(0.01, "lines")
+#   )
 
 
 #--------------------------------------------------------------------------------

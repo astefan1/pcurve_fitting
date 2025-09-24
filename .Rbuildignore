@@ -2,3 +2,4 @@
 pcurve_fitting.code-workspace
 ^.*\.Rproj$
 ^\.Rproj\.user$
+.quarto
