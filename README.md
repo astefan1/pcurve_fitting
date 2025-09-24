@@ -14,3 +14,9 @@ Each simulation gets a name, e.g. `"sim_realistic"`. The simulations of the mult
 The simulation function checks whether a condition already has been simulated and is stored on the drive; in this case it skips this condition. Hence, if you want to recompute a simulation, you need to delete the respective subfolder `sim_realistic` (or whatever it is called).
 
 Once the computation has finished, the results are stored in the `sim_realistic.csv` file in the `/simulations` folder and the subfolder can be deleted.
+
+## Start the Shiny App
+
+```r
+source("simulations/ShinyApp.R", echo=TRUE)
+```
