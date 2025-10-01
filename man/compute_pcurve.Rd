@@ -4,14 +4,14 @@
 \alias{compute_pcurve}
 \title{Compute p-curve statistics}
 \usage{
-compute_pcurve(ps, alpha = 0.05, total.sig = FALSE, binwidth = 0.01)
+compute_pcurve(ps, alpha = 0.05, k_sig = FALSE, binwidth = 0.01)
 }
 \arguments{
 \item{ps}{Vector of p-values}
 
 \item{alpha}{Significance level}
 
-\item{total.sig}{TRUE/FALSE Should one value be added to the output indicating the overall fraction of significant p-values}
+\item{k_sig}{TRUE/FALSE Should one value be added to the output indicating the overall fraction of significant p-values}
 
 \item{binwidth}{How wide are the bins in p-curve (default: 0.01)}
 }

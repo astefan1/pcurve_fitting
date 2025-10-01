@@ -72,17 +72,17 @@ save(simres, file="simulations/ShinyApp/simres_all.RData")
 
 # TODO: Some chi2 could not be computed, as some p-curve bins were exactly zero.
 
-# simres$chi2Sotola <- chi2(
-#   reference = simplify2array(pcurves[1, paste0("p", 1:5)]), 
-#   comparison = simres[, paste0("p", 1:5)], n = pcurves$nsig[1])
+simres$chi2Sotola <- chi2(
+  reference = simplify2array(pcurves[1, paste0("p", 1:5)]), 
+  comparison = simres[, paste0("p", 1:5)], n = pcurves$nsig[1])
 
-# simres$chi2Wetzels <- chi2(
-#   reference = simplify2array(pcurves[2, paste0("p", 1:5)]), 
-#   comparison = simres[, paste0("p", 1:5)], n = pcurves$nsig[1])
+simres$chi2Wetzels <- chi2(
+  reference = simplify2array(pcurves[2, paste0("p", 1:5)]), 
+  comparison = simres[, paste0("p", 1:5)], n = pcurves$nsig[1])
 
-# simres$chi2Simonsohn <- chi2(
-#   reference = simplify2array(pcurves[3, paste0("p", 1:5)]), 
-#   comparison = simres[, paste0("p", 1:5)], n = pcurves$nsig[1])
+simres$chi2Simonsohn <- chi2(
+  reference = simplify2array(pcurves[3, paste0("p", 1:5)]), 
+  comparison = simres[, paste0("p", 1:5)], n = pcurves$nsig[1])
 
 
 # # A heatmap with all conditions of the multDV strategy (no averaging; each condition is one tile)
@@ -135,10 +135,10 @@ save(simres, file="simulations/ShinyApp/simres_all.RData")
 # Some sanity checks
 
 # Correlation between our two GOF measures (rmse and chi2)
-# cor(simres$rmseSotola, simres$chi2Sotola, use="p")
+cor(simres$rmseSotola, simres$chi2Sotola, use="p", method="spearman")
 # plot(simres$rmseSotola, simres$chi2Sotola)
-# cor(simres$rmseWetzels, simres$chi2Wetzels, use="p")
-# cor(simres$rmseSimonsohn, simres$chi2Simonsohn, use="p")
+cor(simres$rmseWetzels, simres$chi2Wetzels, use="p", method="spearman")
+cor(simres$rmseSimonsohn, simres$chi2Simonsohn, use="p", method="spearman")
 
 ```
 

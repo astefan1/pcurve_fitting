@@ -69,7 +69,7 @@ sim_pcurve <- function(sim_name, conditions, n_cores = NA) {
     # run the simulation ----------------------------------------
     
     # initialize result storage
-    res_pcurve <- matrix(rep(NA, 15), byrow = TRUE, ncol = 5)
+    res_pcurve <- matrix(rep(NA, 21), byrow = TRUE, ncol = 7)
     
     while (any(is.na(res_pcurve))) {
       
@@ -89,10 +89,10 @@ sim_pcurve <- function(sim_name, conditions, n_cores = NA) {
         })
 
       # p‑curve stats for the three strategies -------------------------------
-      res_pcurve <- matrix(c(compute_pcurve(ps[, 1]),
-                            compute_pcurve(ps[, 2]),
-                            compute_pcurve(ps[, 3])),
-                          byrow = TRUE, ncol = 5)
+      res_pcurve <- matrix(c(compute_pcurve(ps[, 1], k_sig = TRUE),
+                             compute_pcurve(ps[, 2], k_sig = TRUE),
+                             compute_pcurve(ps[, 3], k_sig = TRUE)),
+                          byrow = TRUE, ncol = 7)
 
       if (all(!is.na(res_pcurve))) {
         break;
@@ -105,7 +105,7 @@ sim_pcurve <- function(sim_name, conditions, n_cores = NA) {
     res_i <- cbind(
       cbind(matrix(rep(conditions[i, ], each = 3), nrow = 3, byrow = FALSE), 1:3),
       res_pcurve)
-    colnames(res_i) <- c(colnames(conditions), "strategy", paste0("p", 1:5))
+    colnames(res_i) <- c(colnames(conditions), "strategy", paste0("p", 1:5), "k_sig", "k")
 
     # intermediate cache & progress note -----------------------------------
     save_cached_file(res_i, file = intermediate_fn)

@@ -6,17 +6,17 @@
 #' @description Outputs the fraction of significant p-values in bins of 0-0.01, ..., 0.04-0.05
 #' @param ps Vector of p-values
 #' @param alpha Significance level
-#' @param total.sig TRUE/FALSE Should one value be added to the output indicating the overall fraction of significant p-values
+#' @param k_sig TRUE/FALSE Should one value be added to the output indicating the overall fraction of significant p-values
 #' @param binwidth How wide are the bins in p-curve (default: 0.01)
 #' @export
 
-compute_pcurve <- function(ps, alpha = 0.05, total.sig = FALSE, binwidth = 0.01){
+compute_pcurve <- function(ps, alpha = 0.05, k_sig = FALSE, binwidth = 0.01){
 
   # Catch errors (if any of the p values are missing, return missing)
   if(all(is.na(ps))) return(rep(NA, 5))
 
   # Count p-values
-  np <- length(ps)
+  np <- sum(!is.na(ps))
 
   # How many are significant?
   nsig <- sum(ps < alpha)
@@ -27,7 +27,15 @@ compute_pcurve <- function(ps, alpha = 0.05, total.sig = FALSE, binwidth = 0.01)
   stopifnot(round(sum(perc), 6)==1)
 
   # Return %s (and total %)
-  res <- c(unname(perc), switch(total.sig + 1, NULL, nsig))
+  res <- c(
+    unname(perc), 
+    switch(k_sig + 1, NULL, nsig), 
+    switch(k_sig + 1, NULL, np))
+
+  names(res) <- c(
+    paste0("p", 1:5), 
+    switch(k_sig + 1, NULL, "k_sig"), 
+    switch(k_sig + 1, NULL, "k"))
 
   return(res)
 }

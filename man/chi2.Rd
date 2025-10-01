@@ -12,7 +12,7 @@ chi2(reference, comparison, n, tol = 1e-06)
 
 \item{comparison}{Numeric vector of probabilities (length = length(reference)),
 or a numeric matrix with \code{ncol(comparison) == length(reference)} and
-each row summing to 1 within tolerance.}
+each row summing to 1 within tolerance. If comparison contains zeros, then these will be replaced by an arbitrary small number (1e-8).}
 
 \item{n}{Positive scalar total sample size used to scale the statistic.}
 
@@ -25,6 +25,6 @@ If \code{comparison} is a matrix, a numeric vector of length \code{nrow(comparis
 }
 \description{
 Calculates the Chi-squared statistic between a single reference
-vector of probabilities and either a single comparison vector or a matrix of
-comparisons (each row is a comparison).
+vector of probabilities (empirical distribution, observed values) and either a single comparison vector or a matrix of
+comparisons (each row is a comparison; theoretical/simulated distribution, expected values).
 }

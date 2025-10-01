@@ -88,8 +88,8 @@ conditions <- conditions[conditions$nmin < conditions$nmax,] # nmin > nmax
 conditions <- conditions[conditions$stepsize < (conditions$nmax-conditions$nmin), ] # stepsize > than diff between min and max
 
 # Compute p-curves
-conditions[,8:12] <- NA
-colnames(conditions)[8:12] <- paste0("p", 1:5)
+conditions[, 8:14] <- NA
+colnames(conditions)[8:14] <- c(paste0("p", 1:5), "k_sig", "k")
 
 
 
@@ -137,7 +137,7 @@ sim_optionalStopping <- function(conditions, n_cores = NA) {
                           alpha = 0.05)
     
     # Compute p-curve for this condition
-    pcurve_results <- compute_pcurve(ps)
+    pcurve_results <- compute_pcurve(ps, k_sig = TRUE)
     
     # Return row with condition parameters and results
     c(unlist(conditions[i, 1:7]), pcurve_results)
@@ -150,7 +150,7 @@ sim_optionalStopping <- function(conditions, n_cores = NA) {
   
   # Convert back to data frame format
   results_df <- as.data.frame(results)
-  colnames(results_df) <- c(colnames(conditions)[1:7], paste0("p", 1:5))
+  colnames(results_df) <- c(colnames(conditions)[1:7], paste0("p", 1:5), "k_sig", "k")
   
   return(results_df)
 }
