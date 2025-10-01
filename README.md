@@ -32,10 +32,11 @@ devtools::install_github("astefan1/pcurve_fitting")
 All simulation code is in the subfolder `simulations` (which is not copied when the `fitPCurve` package is installed).
 Working directory should be the top directory.
 
-Each simulation gets a name, e.g. `"sim_realistic"`. The simulations of the multDV condition create a subfolder `sim_realistic` that contains a hash tree. The reason is that thousands of intermediate files are created, and the computer gets unresponsive when thousands of files are stored in one folder. Each simulation condition gets a unique hash value that is used to build a tree with two hierarchical levels. This way only a few files are in each subfolder.
-The simulation function checks whether a condition already has been simulated and is stored on the drive; in this case it skips this condition. Hence, if you want to recompute a simulation, you need to delete the respective subfolder `sim_realistic` (or whatever it is called).
+Each simulation gets a name, e.g. `"sim_realistic"`. The simulations of the multDV condition create a subfolder `/simulationssim-results/sim_realistic` that itself contains a hash tree. The reason is that thousands of intermediate files are created, and the computer gets unresponsive when thousands of files are stored in one folder. Each simulation condition gets a unique hash value that is used to build a tree with two hierarchical levels. This way only a few files are in each subfolder.
+The simulation function checks whether a condition already has been simulated and is stored on the drive; in this case it skips this condition. Hence, if you want to recompute a simulation, you need to delete the respective subfolder `/simulationssim-results/sim_realistic` (or whatever it is called).
+For a completely fresh run of the simulations, delete everything in the `sim-results` folder.
 
-Once the computation has finished, the results are stored in the `sim_realistic.csv` file in the `/simulations` folder and the subfolder can be deleted.
+Once the computation has finished, the results are stored in the `sim_realistic.csv` file in the `/simulations/sim-results` folder and the subfolder can be deleted.
 
 ## Start the Shiny App
 
