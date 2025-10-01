@@ -68,6 +68,7 @@ simres$rmseWetzels    <- rmse(reference=simplify2array(pcurves[2, paste0("p", 1:
 simres$rmseSimonsohn  <- rmse(reference=simplify2array(pcurves[3, paste0("p", 1:5)]), comparison=simres[, paste0("p", 1:5)])
 
 save(simres, file="simulations/sim-results/simres_all.RData")
+save(simres, file="simulations/ShinyApp/simres_all.RData")
 
 # TODO: Some chi2 could not be computed, as some p-curve bins were exactly zero.
 
