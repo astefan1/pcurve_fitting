@@ -30,12 +30,12 @@ chi2_old <- function(reference, comparison, n){
 #' one or many comparison p-curves.
 #'
 #' @description Calculates the Chi-squared statistic between a single reference
-#' vector of probabilities and either a single comparison vector or a matrix of
-#' comparisons (each row is a comparison).
+#' vector of probabilities (empirical distribution, observed values) and either a single comparison vector or a matrix of
+#' comparisons (each row is a comparison; theoretical/simulated distribution, expected values). 
 #' @param reference Numeric vector of probabilities (must sum to 1 within tolerance).
 #' @param comparison Numeric vector of probabilities (length = length(reference)),
 #'   or a numeric matrix with \code{ncol(comparison) == length(reference)} and
-#'   each row summing to 1 within tolerance.
+#'   each row summing to 1 within tolerance. If comparison contains zeros, then these will be replaced by an arbitrary small number (1e-8). 
 #' @param n Positive scalar total sample size used to scale the statistic.
 #' @param tol Numeric tolerance for probability sum checks (default 1e-6).
 #' @return If \code{comparison} is a vector, a single numeric value.
@@ -59,6 +59,9 @@ chi2 <- function(reference, comparison, n, tol = 1e-6) {
   ref_sum <- sum(reference)
   if (abs(ref_sum - 1) > tol)
     stop(sprintf("Probabilities in `reference` must sum to 1 (got %.10f).", ref_sum))
+  
+  if (0 %in% comparison)
+    comparison[which(comparison == 0, arr.ind = TRUE)] <- 1e-8 # replace zeros in comparison with arbitrary small number
 
   # Handle vector vs matrix cases ---------------------------------------------
   if (is.matrix(comparison)) {
