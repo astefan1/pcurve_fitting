@@ -44,17 +44,6 @@ cat("Total conditions to process:", nrow(realistic_conditions), "\n")
 
 simres <- sim_pcurve("sim_realistic", realistic_conditions, n_cores = 6)
 
-## TODO: Remove? The sim_pcurve function should now handle this internally.
-# check some NA values - simulations failed there?
-NAs <- which(is.na(simres_realistic$p1))
-repeated <- simres_realistic[NAs, ][c(1, 4), 1:8]
-
-simres2 <- sim_pcurve("sim_realistic", repeated, n_cores = 2)
-
-simres <- rbind(simres_realistic[-NAs, ], simres2)
-## /TODO
-
-
 # Save results
 export(simres, paste0("simulations/sim-results/sim_realistic.csv"))
 
