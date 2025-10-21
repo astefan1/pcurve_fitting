@@ -70,7 +70,7 @@ simres$rmseSimonsohn  <- rmse(reference=simplify2array(pcurves[3, paste0("p", 1:
 save(simres, file="simulations/sim-results/simres_all.RData")
 save(simres, file="simulations/ShinyApp/simres_all.RData")
 
-# TODO: Some chi2 could not be computed, as some p-curve bins were exactly zero.
+# Compute chi2 fit statistic
 
 simres$chi2Sotola <- chi2(
   reference = simplify2array(pcurves[1, paste0("p", 1:5)]), 
@@ -78,11 +78,11 @@ simres$chi2Sotola <- chi2(
 
 simres$chi2Wetzels <- chi2(
   reference = simplify2array(pcurves[2, paste0("p", 1:5)]), 
-  comparison = simres[, paste0("p", 1:5)], n = pcurves$nsig[1])
+  comparison = simres[, paste0("p", 1:5)], n = pcurves$nsig[2])
 
 simres$chi2Simonsohn <- chi2(
   reference = simplify2array(pcurves[3, paste0("p", 1:5)]), 
-  comparison = simres[, paste0("p", 1:5)], n = pcurves$nsig[1])
+  comparison = simres[, paste0("p", 1:5)], n = pcurves$nsig[3])
 
 
 # # A heatmap with all conditions of the multDV strategy (no averaging; each condition is one tile)

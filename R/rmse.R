@@ -23,8 +23,8 @@ rmse_old <- function(reference, comparison){
 #' Compute RMSE between one reference and one or many comparison p-curves
 #'
 #' @description Calculates the root mean squared error between a single
-#' reference vector and either a single comparison vector or a matrix of
-#' comparisons (each row is a comparison).
+#' reference vector (empirical distribution, observed values) and either a single comparison vector or a matrix of
+#' comparisons (each row is a comparison; theoretical/simulated distribution, expected values).
 #' @param reference Numeric vector.
 #' @param comparison Numeric vector of same length as \code{reference}, or a
 #'   numeric matrix with \code{ncol(comparison) == length(reference)} where
