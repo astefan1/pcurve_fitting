@@ -211,9 +211,20 @@ simres$BIC <- simres$fit_pcurve1_g2 + simres$free_parameters * log(pcurves$nsig[
 simres |> group_by(condition) |> arrange(fit_pcurve1_g2) |> slice(1) |> select(BIC, fit_pcurve1_g2) |> ungroup() |> print()
 
 ```
+
 Visualisation
 
 ```{r}
-plot_pcurves(simres |> filter(condition == "multDV_realistic"), poriginal = simplify2array(pcurves[1, paste0("p", 1:5)]), n_best = 5, GOF="g2", n_studies = pcurves$nsig[1], tol = 1e-6, title = "Realistic World: Multiple DV")
+plot_pcurves(simres |> filter(condition == "multDV_realistic"), poriginal = simplify2array(pcurves[1, paste0("p", 1:5)]), n_best = 5, GOF="g2", n_studies = pcurves$nsig[1], tol = 1e-6, title = "Realistic World: Multiple DVs")
+
+plot_pcurves(simres |> filter(condition == "optStop_realistic"), poriginal = simplify2array(pcurves[1, paste0("p", 1:5)]), n_best = 1, GOF="g2", n_studies = pcurves$nsig[1], tol = 1e-6, title = "Realistic World: Optional Stopping")
+
+plot_pcurves(simres |> filter(condition == "multDV_worst"), poriginal = simplify2array(pcurves[1, paste0("p", 1:5)]), n_best = 5, GOF="g2", n_studies = pcurves$nsig[1], tol = 1e-6, title = "Worst Possible World: Multiple DVs")
+
+plot_pcurves(simres |> filter(condition == "optStop_worst"), poriginal = simplify2array(pcurves[1, paste0("p", 1:5)]), n_best = 1, GOF="g2", n_studies = pcurves$nsig[1], tol = 1e-6, title = "Worst Possible World: Optional Stopping")
+
+plot_pcurves(simres |> filter(condition == "multDV_perfect"), poriginal = simplify2array(pcurves[1, paste0("p", 1:5)]), n_best = 5, GOF="g2", n_studies = pcurves$nsig[1], tol = 1e-6, title = "Perfect World")
+
+plot_pcurves(simres |> filter(condition == "multDV_H0"), poriginal = simplify2array(pcurves[1, paste0("p", 1:5)]), n_best = 1, GOF="g2", n_studies = pcurves$nsig[1], tol = 1e-6, title = "Flat World")
 ```
 

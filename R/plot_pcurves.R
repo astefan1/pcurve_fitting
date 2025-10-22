@@ -69,8 +69,9 @@ plot_pcurves <- function(simdat, poriginal, GOF = "g2", n_best=NA, alpha=NA, n_s
     ) +
     labs(x = "p-value bin",
          y = "Percentage of p-values") +
-    theme(#axis.title = element_text(size = 25),
-          axis.text = element_text(size = 15)) +
+    theme(axis.title = element_text(size = 18),
+          axis.text = element_text(size = 15),
+          plot.title = element_text(size = 20)) +
     geom_line(color = "steelblue", alpha=alpha) +
     geom_line(data=plotdat, aes(y = yval, x=pval, group=1), linewidth=1) +
     ggtitle(title)
