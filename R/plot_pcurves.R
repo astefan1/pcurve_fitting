@@ -14,12 +14,13 @@ alpha_ramp <- function(x, min_alpha=0.05, max_alpha=1, min=5, max=1000) {
 #' @param n_best Show only the n best curves. If NA, all are shown
 #' @param alpha Alpha transparency for the simulated p-curve lines
 #' @param n_studies Number of studies in the original p-curve (only needed for chi2 GOF)
+#' @param tol Numeric tolerance for probability sum checks (default 1e-10).
 #' @import ggplot2
 #' @importFrom tidyr pivot_longer
 #' @importFrom scales percent
 #' @export
 
-plot_pcurves <- function(simdat, poriginal, GOF = "g2", n_best=NA, alpha=NA, n_studies=NA){
+plot_pcurves <- function(simdat, poriginal, GOF = "g2", n_best=NA, alpha=NA, n_studies=NA, tol=1e-10, title = ""){
 
   stopifnot(all(poriginal >= 0) & all(poriginal <= 1))
 
@@ -30,14 +31,14 @@ plot_pcurves <- function(simdat, poriginal, GOF = "g2", n_best=NA, alpha=NA, n_s
     if (is.na(n_studies)) {
       stop("For chi2 GOF, n_studies must be provided")
     }
-    simdat$GOF <- chi2(observed=poriginal, expected=simdat[, paste0("p", 1:5)], n=n_studies)
+    simdat$GOF <- chi2(observed=poriginal, expected=simdat[, paste0("p", 1:5)], n=n_studies, tol = tol)
   } else if (GOF=="g2"){
     if (is.na(n_studies)) {
-      stop("For g2 GOF, n_studies must be provided")
+      stop("For G2 GOF, n_studies must be provided")
     }
-    simdat$GOF <- g2(observed=poriginal, expected=simdat[, paste0("p", 1:5)], n=n_studies)
+    simdat$GOF <- g2(observed=poriginal, expected=simdat[, paste0("p", 1:5)], n=n_studies, tol = tol)
   } else {
-    stop("GOF must be one of 'rmse' or 'chi2'")
+    stop("GOF must be one of 'rmse', 'chi2', or ")
   }
   simdat$condition <- 1:nrow(simdat)
 
@@ -68,10 +69,11 @@ plot_pcurves <- function(simdat, poriginal, GOF = "g2", n_best=NA, alpha=NA, n_s
     ) +
     labs(x = "p-value bin",
          y = "Percentage of p-values") +
-    theme(axis.title = element_text(size = 25),
+    theme(#axis.title = element_text(size = 25),
           axis.text = element_text(size = 15)) +
     geom_line(color = "steelblue", alpha=alpha) +
-    geom_line(data=plotdat, aes(y = yval, x=pval, group=1), linewidth=1)
+    geom_line(data=plotdat, aes(y = yval, x=pval, group=1), linewidth=1) +
+    ggtitle(title)
 
   p1
 }

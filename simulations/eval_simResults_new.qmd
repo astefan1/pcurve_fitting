@@ -22,7 +22,6 @@ library(fitPCurve)
 library(rio)
 library(dplyr)
 library(ggplot2)
-library(knitr)
 
 # The working directory should be the project root
 # if quarto:render is called
@@ -213,3 +212,8 @@ simres |> group_by(condition) |> arrange(fit_pcurve1_g2) |> slice(1) |> select(B
 
 ```
 Visualisation
+
+```{r}
+plot_pcurves(simres |> filter(condition == "multDV_realistic"), poriginal = simplify2array(pcurves[1, paste0("p", 1:5)]), n_best = 5, GOF="g2", n_studies = pcurves$nsig[1], tol = 1e-6, title = "Realistic World: Multiple DV")
+```
+
