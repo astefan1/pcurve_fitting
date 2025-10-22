@@ -2,26 +2,26 @@
 % Please edit documentation in R/rmse.R
 \name{rmse}
 \alias{rmse}
-\title{Compute RMSE between one reference and one or many comparison p-curves}
+\title{Compute RMSE between one observed and one or many expected p-curves}
 \usage{
-rmse(reference, comparison, na.rm = FALSE)
+rmse(observed, expected, na.rm = FALSE)
 }
 \arguments{
-\item{reference}{Numeric vector.}
+\item{observed}{Numeric vector.}
 
-\item{comparison}{Numeric vector of same length as \code{reference}, or a
-numeric matrix with \code{ncol(comparison) == length(reference)} where
-each row is compared to \code{reference}.}
+\item{expected}{Numeric vector of same length as \code{observed}, or a
+numeric matrix with \code{ncol(expected) == length(observed)} where
+each row is compared to \code{observed}.}
 
 \item{na.rm}{Logical; if \code{TRUE}, ignore NA values in the computation.}
 }
 \value{
-If \code{comparison} is a vector, a single numeric value.
-If \code{comparison} is a matrix, a numeric vector of length
-\code{nrow(comparison)} (row names preserved if present).
+If \code{expected} is a vector, a single numeric value.
+If \code{expected} is a matrix, a numeric vector of length
+\code{nrow(expected)} (row names preserved if present).
 }
 \description{
 Calculates the root mean squared error between a single
-reference vector and either a single comparison vector or a matrix of
-comparisons (each row is a comparison).
+vector of probabilities (empirical distribution, observed values) and either a single expected vector or a matrix of
+expected probabilities (each row is an expected probability; theoretical/simulated distribution).
 }

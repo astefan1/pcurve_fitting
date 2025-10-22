@@ -7,7 +7,7 @@
 plot_pcurves(
   simdat,
   poriginal,
-  GOF = "rmse",
+  GOF = "g2",
   n_best = NA,
   alpha = NA,
   n_studies = NA
@@ -18,7 +18,7 @@ plot_pcurves(
 
 \item{poriginal}{Original p-curve (vector)}
 
-\item{GOF}{Goodness of fit measure: one of "rmse" or "chi2" (default)}
+\item{GOF}{Goodness of fit measure: one of "rmse", "chi2", "g2" (default)}
 
 \item{n_best}{Show only the n best curves. If NA, all are shown}
 
