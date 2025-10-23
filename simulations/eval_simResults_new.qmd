@@ -106,27 +106,27 @@ Extract best fits in each world using G-squared statistic
 
 ```{r}
 # Worst case, multiple DVs
-simres |> filter(condition == "multDV_worst") |> arrange(fit_pcurve1_g2) |> slice(1:5) |> select(c(1:9, 10:14), fit_pcurve1_g2) |> round(2) |> print()
+simres |> filter(condition == "multDV_worst") |> arrange(fit_pcurve1_g2) |> slice(1:10) |> select(c(1:9, 10:15), fit_pcurve1_g2) |> round(2) |> print()
 ```
 
 ```{r}
 # Worst case, optional stopping
-simres |> filter(condition == "optStop_worst") |> arrange(fit_pcurve1_g2) |> slice(1:5) |> select(c(1:9, 10:14), fit_pcurve1_g2) |> round(2) |> print()
+simres |> filter(condition == "optStop_worst") |> arrange(fit_pcurve1_g2) |> slice(1:10) |> select(c(1:9, 10:15), fit_pcurve1_g2) |> round(2) |> print()
 ```
 
 ```{r}
 # Realistic, multiple DVs
-simres |> filter(condition == "multDV_realistic") |> arrange(fit_pcurve1_g2) |> slice(1:5) |> select(c(1:9, 10:14), fit_pcurve1_g2) |> round(2) |> print()
+simres |> filter(condition == "multDV_realistic") |> arrange(fit_pcurve1_g2) |> slice(1:10) |> select(c(1:9, 10:15), fit_pcurve1_g2) |> round(2) |> print()
 ```
 
 ```{r}
 # Realistic, optional stopping
-simres |> filter(condition == "optStop_realistic") |> arrange(fit_pcurve1_g2) |> slice(1:5) |> select(c(1:9, 10:14), fit_pcurve1_g2) |> round(2) |> print()
+simres |> filter(condition == "optStop_realistic") |> arrange(fit_pcurve1_g2) |> slice(1:10) |> select(c(1:9, 10:15), fit_pcurve1_g2) |> round(2) |> print()
 ```
 
 ```{r}
 # Perfect
-simres |> filter(condition == "multDV_perfect") |> arrange(fit_pcurve1_g2) |> slice(1:5) |> select(c(1:9, 10:14), fit_pcurve1_g2) |> round(2) |> print()
+simres |> filter(condition == "multDV_perfect") |> arrange(fit_pcurve1_g2) |> slice(1:10) |> select(c(1:9, 10:15), fit_pcurve1_g2) |> round(2) |> print()
 ```
 
 Robustness checks: Check if results change depending on the Goodness of fit statistic
@@ -192,6 +192,7 @@ colnames(perfect_fits) <- c("G2_best_sims", "G2", "Chi2_best_sims", "Chi2", "RMS
 
 perfect_fits
 ```
+
 Compute BICs for between-world comparisons (accounting for model complexity)
 
 ```{r}
@@ -320,6 +321,7 @@ colnames(perfect_fits) <- c("G2_best_sims", "G2", "Chi2_best_sims", "Chi2", "RMS
 
 perfect_fits
 ```
+
 Compute BICs for between-world comparisons (accounting for model complexity)
 
 ```{r}
