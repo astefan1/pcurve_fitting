@@ -2,29 +2,29 @@
 % Please edit documentation in R/chi2.R
 \name{chi2}
 \alias{chi2}
-\title{Compute Chi2 goodness of fit statistic between one reference p-curve and
-one or many comparison p-curves.}
+\title{Compute Chi2 goodness of fit statistic between one observed p-curve and
+one or many expected p-curves.}
 \usage{
-chi2(reference, comparison, n, tol = 1e-06)
+chi2(observed, expected, n, tol = 1e-10)
 }
 \arguments{
-\item{reference}{Numeric vector of probabilities (must sum to 1 within tolerance).}
+\item{observed}{Numeric vector of probabilities (must sum to 1 within tolerance).}
 
-\item{comparison}{Numeric vector of probabilities (length = length(reference)),
-or a numeric matrix with \code{ncol(comparison) == length(reference)} and
-each row summing to 1 within tolerance. If comparison contains zeros, then these will be replaced by an arbitrary small number (1e-8).}
+\item{expected}{Numeric vector of probabilities (length = length(observed)),
+or a numeric matrix with \code{ncol(expected) == length(observed)} and
+each row summing to 1 within tolerance. If expected contains zeros, then these will be replaced by an arbitrary small number (tol).}
 
 \item{n}{Positive scalar total sample size used to scale the statistic.}
 
-\item{tol}{Numeric tolerance for probability sum checks (default 1e-6).}
+\item{tol}{Numeric tolerance for probability sum checks (default 1e-10).}
 }
 \value{
-If \code{comparison} is a vector, a single numeric value.
-If \code{comparison} is a matrix, a numeric vector of length \code{nrow(comparison)}
-(names taken from \code{rownames(comparison)} if present).
+If \code{expected} is a vector, a single numeric value.
+If \code{expected} is a matrix, a numeric vector of length \code{nrow(expected)}
+(names taken from \code{rownames(expected)} if present).
 }
 \description{
-Calculates the Chi-squared statistic between a single reference
-vector of probabilities (empirical distribution, observed values) and either a single comparison vector or a matrix of
-comparisons (each row is a comparison; theoretical/simulated distribution, expected values).
+Calculates the Chi-squared statistic between a single observed
+vector of probabilities (empirical distribution, observed values) and either a single expected vector or a matrix of
+expected probabilities (each row is an expected probability; theoretical/simulated distribution).
 }

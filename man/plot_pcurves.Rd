@@ -7,10 +7,12 @@
 plot_pcurves(
   simdat,
   poriginal,
-  GOF = "rmse",
+  GOF = "g2",
   n_best = NA,
   alpha = NA,
-  n_studies = NA
+  n_studies = NA,
+  tol = 1e-10,
+  title = ""
 )
 }
 \arguments{
@@ -18,13 +20,15 @@ plot_pcurves(
 
 \item{poriginal}{Original p-curve (vector)}
 
-\item{GOF}{Goodness of fit measure: one of "rmse" or "chi2" (default)}
+\item{GOF}{Goodness of fit measure: one of "rmse", "chi2", "g2" (default)}
 
 \item{n_best}{Show only the n best curves. If NA, all are shown}
 
 \item{alpha}{Alpha transparency for the simulated p-curve lines}
 
 \item{n_studies}{Number of studies in the original p-curve (only needed for chi2 GOF)}
+
+\item{tol}{Numeric tolerance for probability sum checks (default 1e-10).}
 }
 \description{
 Create a plot displaying the original and a number of fitted p-curves

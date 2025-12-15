@@ -10,29 +10,35 @@ alpha_ramp <- function(x, min_alpha=0.05, max_alpha=1, min=5, max=1000) {
 #' @description Create a plot displaying the original and a number of fitted p-curves
 #' @param simdat Result of simulation function
 #' @param poriginal Original p-curve (vector)
-#' @param GOF Goodness of fit measure: one of "rmse" or "chi2" (default)
+#' @param GOF Goodness of fit measure: one of "rmse", "chi2", "g2" (default)
 #' @param n_best Show only the n best curves. If NA, all are shown
 #' @param alpha Alpha transparency for the simulated p-curve lines
 #' @param n_studies Number of studies in the original p-curve (only needed for chi2 GOF)
+#' @param tol Numeric tolerance for probability sum checks (default 1e-10).
 #' @import ggplot2
 #' @importFrom tidyr pivot_longer
 #' @importFrom scales percent
 #' @export
 
-plot_pcurves <- function(simdat, poriginal, GOF = "rmse", n_best=NA, alpha=NA, n_studies=NA){
+plot_pcurves <- function(simdat, poriginal, GOF = "g2", n_best=NA, alpha=NA, n_studies=NA, tol=1e-10, title = ""){
 
   stopifnot(all(poriginal >= 0) & all(poriginal <= 1))
 
   # Compute GOF between original and simulated
   if (GOF=="rmse") {
-    simdat$GOF <- rmse(reference=poriginal, comparison=simdat[, paste0("p", 1:5)])
+    simdat$GOF <- rmse(observed=poriginal, expected=simdat[, paste0("p", 1:5)])
   } else if (GOF=="chi2"){
     if (is.na(n_studies)) {
       stop("For chi2 GOF, n_studies must be provided")
     }
-    simdat$GOF <- chi2(poriginal, simdat[, paste0("p", 1:5)], n=n_studies)
+    simdat$GOF <- chi2(observed=poriginal, expected=simdat[, paste0("p", 1:5)], n=n_studies, tol = tol)
+  } else if (GOF=="g2"){
+    if (is.na(n_studies)) {
+      stop("For G2 GOF, n_studies must be provided")
+    }
+    simdat$GOF <- g2(observed=poriginal, expected=simdat[, paste0("p", 1:5)], n=n_studies, tol = tol)
   } else {
-    stop("GOF must be one of 'rmse' or 'chi2'")
+    stop("GOF must be one of 'rmse', 'chi2', or ")
   }
   simdat$condition <- 1:nrow(simdat)
 
@@ -63,10 +69,12 @@ plot_pcurves <- function(simdat, poriginal, GOF = "rmse", n_best=NA, alpha=NA, n
     ) +
     labs(x = "p-value bin",
          y = "Percentage of p-values") +
-    theme(axis.title = element_text(size = 25),
-          axis.text = element_text(size = 15)) +
+    theme(axis.title = element_text(size = 18),
+          axis.text = element_text(size = 15),
+          plot.title = element_text(size = 20)) +
     geom_line(color = "steelblue", alpha=alpha) +
-    geom_line(data=plotdat, aes(y = yval, x=pval, group=1), linewidth=1)
+    geom_line(data=plotdat, aes(y = yval, x=pval, group=1), linewidth=1) +
+    ggtitle(title)
 
   p1
 }

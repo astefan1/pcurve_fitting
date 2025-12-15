@@ -4,12 +4,12 @@
 \alias{rmse_old}
 \title{Compute RMSE between two p-curves}
 \usage{
-rmse_old(reference, comparison)
+rmse_old(observed, expected)
 }
 \arguments{
-\item{reference}{First vector (original)}
+\item{observed}{First vector (original)}
 
-\item{comparison}{Second vector (fitted values)}
+\item{expected}{Second vector (fitted values)}
 }
 \description{
 Calculates square root of mean of squared differences between two vectors

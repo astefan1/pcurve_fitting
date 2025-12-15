@@ -4,12 +4,12 @@
 \alias{chi2_old}
 \title{Compute Chi2 goodness of fit statistic between two p-curves}
 \usage{
-chi2_old(reference, comparison, n)
+chi2_old(observed, expected, n)
 }
 \arguments{
-\item{reference}{First vector of probabilities (original)}
+\item{observed}{First vector of probabilities (original)}
 
-\item{comparison}{Second vector of probabilities (fitted values), can also be a matrix with each row being a different comparison}
+\item{expected}{Second vector of probabilities (fitted values), can also be a matrix with each row being a different expected}
 
 \item{n}{Total sample size}
 }
