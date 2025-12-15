@@ -1,3 +1,5 @@
+[![DOI](https://zenodo.org/badge/956470504.svg)](https://doi.org/10.5281/zenodo.17940878)
+
 This repository contains the code to fit a p-curve to the results of Clarke et al. (2025)
 
 Here is the link to the Google doc that we'll use for keeping track of the project organization: https://docs.google.com/document/d/1clkeVn67dqRXtTqbZvx74JBFI9EQF0QWn0f4JlxoaLc/edit?usp=sharing
