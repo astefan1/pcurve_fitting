@@ -1,0 +1,359 @@
+---
+title: "avg_pcurves"
+author: "Beth Clarke"
+date: "2025-07-30"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+library(tidyverse)
+library(grid)
+
+combined_data <- read_rds("combined_analysisdata_clean.rds")
+```
+
+# RANDOMLY SELECT P VALUES FROM REAL DATA OVER 500 ITERATIONS
+  
+```{r}
+# Randomly select one STUDY from each paper (but like 500 times)
+
+# create sampling dataset with pval weights
+df_pcurve <- combined_data %>%
+  filter(all.significant == "Yes") %>% 
+  select(journal, doi, study, p.value.recalculated, year.bin) %>% 
+  group_by(journal, doi, study) %>% 
+  mutate(pval_wt = 1/n()) %>% 
+  ungroup()
+  
+
+iter = 500
+pval_samples <- tibble(journal=character(),
+                       doi = character(),
+                       study = character(),
+                       p.value.recalculated = numeric(),
+                       year.bin = factor(levels = c("2006-2009","2010-2012","2013-2015","2016-2019")),
+                       sample.num = numeric())
+set.seed(123)
+
+for (i in 1:iter) {
+  
+  df_pcurve %>%   
+    group_by(journal, doi) %>% 
+    slice_sample(n=1, weight_by = pval_wt) %>% #select one study/pvalue at random, weighted by "study"
+    mutate(sample.num =  i) -> temp
+  
+  pval_samples = bind_rows(pval_samples, temp)
+  
+  print(paste("Iter =", i))
+  
+}
+
+#count papers per facet for plotting
+ns_per_facet <- df_pcurve %>% 
+  distinct(year.bin, journal, doi) %>% 
+  group_by(journal, year.bin) %>% 
+  count() %>% 
+  ungroup() %>% 
+  mutate(label = paste0("n = ",n)) %>% 
+  mutate(x = .04,
+         y = 57)
+```
+
+
+df_pcurve contains the 500 randomly selected iterations - for each year.bin, we want to take the average p-curve
+### Compute "average" p-curve
+```{r}
+bin_width <- 0.05 / 5  #unlike the original paper (which had 15 bins), we will use 5 bins for the simulation paper
+breaks <- seq(0, 0.05, length.out = 6)
+
+pval_samples <- pval_samples %>%
+  mutate(
+    p_bin_centred = cut(p.value.recalculated,
+                breaks = breaks,
+                include.lowest = TRUE,
+                labels = FALSE),
+    p_bin_centred = breaks[p_bin_centred] + bin_width/2, #convert to bin value rather than bin number, then add half the bin width to center the value.
+    bin_interval = paste0("(", p_bin_centred - bin_width/2, ", ", p_bin_centred + bin_width/2, ")"))
+
+#calculate avg p curve by calculating percent avg p values in each bin
+# Count how many p-values fall into each bin for each iteration
+binned_counts <- pval_samples %>%
+  group_by(year.bin, p_bin_centred, bin_interval, journal, sample.num) %>%
+  summarise(count = n(), .groups = "drop") %>%
+  group_by(year.bin, journal, sample.num) %>%
+  mutate(percent = 100 * count / sum(count))  # normalize to percentages
+
+avg_pcurve <- binned_counts %>%
+  group_by(year.bin, p_bin_centred, bin_interval, journal) %>%
+  summarise(mean_percent = mean(percent), .groups = "drop")
+
+#Do the bins add to roughly 100%?
+avg_pcurve %>% 
+  group_by(year.bin, journal) %>% 
+  summarise(total_percent = sum(mean_percent), .groups = "drop")
+```
+
+# Select only the p-curves we planned to examine for the simulation study (SPPS years 2010 -- 2012 and SPPS years 2016 -- 2019)
+```{r}
+avg_pcurve_for_sim <- avg_pcurve %>% 
+  filter(journal == "SPPS" & (year.bin == "2010-2012" | year.bin == "2016-2019"))
+```
+
+
+# PLOT AVG P-CURVE
+```{r}
+  ggplot()+
+  geom_line(
+    data = avg_pcurve_for_sim,
+    aes(x = p_bin_centred,
+                y = mean_percent,
+                color = journal),
+            linewidth = 2
+  ) +
+  #add ns to each facet
+  geom_text(data = ns_per_facet %>% 
+              filter(journal == "SPPS" & (year.bin == "2010-2012" | year.bin == "2016-2019")),
+            mapping = aes(x = x, y = y, label = label, color = journal), 
+            fontface = "bold", size = 8, show.legend = FALSE) +
+  # make facets
+  facet_grid(journal~year.bin, scales = "free_y") +
+  ylab("Avg % of significant p-values") +
+  xlab("p-value") +
+  # Customize theme
+  theme_linedraw() +
+  theme(
+    plot.title = element_text(hjust = 0.5), # Center title
+    text = element_text(size = 40), 
+    legend.position = "bottom",
+    legend.title=element_blank(),
+    axis.text.x = element_text(angle = 90, hjust = 1, size =20)  # Rotate x-axis text by 45 degrees and make it smaller
+  ) +
+  # Adjust x and y scales
+  scale_x_continuous(breaks = seq(0, 0.05, by = 0.01), limits = c(0, 0.05)) +
+  scale_y_continuous(breaks = seq(0, 100, by = 10), limits = c(0, 100)) +
+  # tinker with the legend 
+  guides(color = guide_legend(override.aes = list(size=15, linewidth = 2, alpha = .9), order = 1)) -> avg_pcurve_plot
+
+avg_pcurve_plot
+
+
+ggsave("avg_pcurve.png", plot=g, path = "./simulations_study", width = 23, height = 12, units = "in", dpi = 300) #saves the p curve as a png
+```
+
+
+## ORIGINAL P CURVE PLOT BUT REBINNED
+```{r}
+  ggplot()+
+  geom_line(
+    data = good.curve.binned.counts,
+    mapping = aes(
+      x = p_bin_centred,
+      y = percent, 
+      linetype = "80% power"
+    ),
+    linewidth = 1.5, color = "grey57",
+  ) +
+  # Add bad.curve geom_line
+  geom_line(
+    data = bad.curve.binned.counts,
+    mapping = aes(
+      x = p_bin_centred,
+      y = percent, 
+      color = "50% power",
+      linetype = "50% power"
+    ),
+    linewidth = 1.5, color = "black",
+  ) +
+  geom_line(
+    data = binned_counts,
+    aes(x = p_bin_centred,
+                y = percent,
+                group = sample.num,
+                color = journal),
+            linewidth = .5,
+    alpha = .05
+  ) +
+  #add ns to each facet
+  geom_text(data = ns_per_facet,
+            mapping = aes(x = x, y = y, label = label, color = journal), 
+            fontface = "bold", size = 8, show.legend = FALSE) +
+  # make facets
+  facet_grid(journal~year.bin, scales = "free_y") +
+  scale_linetype_manual(
+    values = c("80% power" = "6161", "50% power" = "1111", "Data" = "solid")) +
+  ylab("% of significant p-values") +
+  xlab("p-value") +
+  # Customize theme
+  theme_linedraw() +
+  theme(
+    plot.title = element_text(hjust = 0.5), # Center title
+    text = element_text(size = 40), 
+    legend.position = "bottom",
+    legend.title=element_blank(),
+    axis.text.x = element_text(angle = 90, hjust = 1, size =20)  # Rotate x-axis text by 45 degrees and make it smaller
+  ) +
+  # Adjust x and y scales
+  #scale_x_continuous(breaks = seq(0, 0.05, by = 0.01), limits = c(0, 0.05)) +
+  scale_y_continuous(breaks = seq(0, 60, by = 10), limits = c(0, 60)) +
+  # tinker with the legend 
+  guides(color = guide_legend(override.aes = list(size=15, linewidth = 2, alpha = .9), order = 1)) -> rebinned_pcurve
+
+rebinned_pcurve
+
+# remove unused facets
+
+# replace the grobs with the nullGrob
+g = ggplotGrob(rebinned_pcurve)
+pos <- grep(pattern = "panel-1-4", g$layout$name)
+g$grobs[[pos]] <- nullGrob()
+pos <- grep(pattern = "panel-2-1", g$layout$name)
+g$grobs[[pos]] <- nullGrob()
+
+grid.draw(g)
+
+ggsave("rebinned_pcurve.png", plot=g, path = "./simulations_study", width = 23, height = 12, units = "in", dpi = 300) #saves the p curve as a png
+
+# ggsave("rebinned_pcurve.png", plot=g, path = "./simulations_study", width = 23, height = 12, units = "in", dpi = 300) #saves the p curve as a png
+```
+
+#TROUBLE SHOOTING - WHY ARE THE LINES DIFFERENT?
+#1 - manual bin
+```{r}
+ ggplot()+
+  geom_line(
+    data = good.curve.binned.counts,
+    mapping = aes(
+      x = p_bin_centred,
+      y = percent
+    ),
+    linewidth = 1.5, color = "red",
+  ) +
+  ylab("% of significant p-values") +
+  xlab("p-value") +
+  # Customize theme
+  theme_linedraw() +
+  theme(
+    plot.title = element_text(hjust = 0.5), # Center title
+    text = element_text(size = 40), 
+    legend.position = "bottom",
+    legend.title=element_blank(),
+    axis.text.x = element_text(angle = 90, hjust = 1, size =20)  # Rotate x-axis text by 45 degrees and make it smaller
+  ) +
+  # Adjust x and y scales
+  scale_x_continuous(breaks = seq(0, 0.05, by = 0.01), limits = c(0, 0.05)) +
+  scale_y_continuous(breaks = seq(0, 60, by = 10), limits = c(0, 60)) +
+  # tinker with the legend 
+  guides(color = guide_legend(override.aes = list(size=15, linewidth = 2, alpha = .9), order = 1))
+```
+
+#2 - ggplot bin
+```{r}
+ ggplot()+
+   geom_line(
+    data = good.curve,
+    mapping = aes(
+      x = p,
+      y = (after_stat(count) / sum(after_stat(count))* 100) 
+    ),
+    stat = "bin", bins = NBINS, linewidth = 1.5, color = "black",
+    #boundary = c(0:0.05),
+    binwidth = bin_width,
+    position = "identity"
+  ) +
+  ylab("% of significant p-values") +
+  xlab("p-value") +
+  # Customize theme
+  theme_linedraw() +
+  theme(
+    plot.title = element_text(hjust = 0.5), # Center title
+    text = element_text(size = 40), 
+    legend.position = "bottom",
+    legend.title=element_blank(),
+    axis.text.x = element_text(angle = 90, hjust = 1, size =20)  # Rotate x-axis text by 45 degrees and make it smaller
+  ) +
+  # Adjust x and y scales
+  scale_x_continuous(breaks = seq(0, 0.05, by = 0.01), limits = c(0, 0.05)) +
+  scale_y_continuous(breaks = seq(0, 60, by = 10), limits = c(0, 60)) +
+  # tinker with the legend 
+  guides(color = guide_legend(override.aes = list(size=15, linewidth = 2, alpha = .9), order = 1))
+```
+
+
+##OLD CODE
+```{r}
+pval_samples %>% 
+  ggplot() +
+  geom_line(aes(x = p.value.recalculated,
+                y = after_stat(count) / tapply(after_stat(count), PANEL, sum)[PANEL] * 100 * iter, # Normalize within facets
+                group = sample.num,
+                color = journal),
+            stat = "bin", bins = NBINS, linewidth = .5, 
+            #binwidth = bin_width,
+            breaks = breaks,
+            alpha = .05,
+  ) +
+  # Add good.curve geom_line
+  geom_line(
+    data = good.curve,
+    mapping = aes(
+      x = p,
+      y = after_stat(count) / tapply(after_stat(count), PANEL, sum)[PANEL] * 100, # Normalize within facets
+      linetype = "80% power"
+    ),
+    stat = "bin", bins = NBINS, linewidth = 1.5,
+    #binwidth = bin_width,
+    breaks = breaks,
+    color = "grey57",
+  ) +
+  # Add bad.curve geom_line
+  geom_line(
+    data = bad.curve,
+    mapping = aes(
+      x = p,
+      y = after_stat(count) / tapply(after_stat(count), PANEL, sum)[PANEL] * 100, # Normalize within facets
+      color = "50% power",
+      linetype = "50% power"
+    ),
+    stat = "bin", bins = NBINS, linewidth = 1.5,
+    #binwidth = bin_width,
+    breaks = breaks,
+    color = "black",
+  ) +
+  #add ns to each facet
+  geom_text(data = ns_per_facet,
+            mapping = aes(x = .045, y = 47, label = label, color = journal), 
+            fontface = "bold", size = 8, show.legend = FALSE) +
+  # make facets
+  facet_grid(journal~year.bin, scales = "free_y") +
+  scale_linetype_manual(
+    values = c("80% power" = "6161", "50% power" = "1111", "Data" = "solid")) +
+  ylab("% of significant p-values") +
+  xlab("p-value") +
+  # Customize theme
+  theme_linedraw() +
+  theme(
+    plot.title = element_text(hjust = 0.5), # Center title
+    text = element_text(size = 40), 
+    legend.position = "bottom",
+    legend.title=element_blank(),
+    axis.text.x = element_text(angle = 90, hjust = 1, size =20)  # Rotate x-axis text by 45 degrees and make it smaller
+  ) +
+  # Adjust x and y scales
+  scale_x_continuous(breaks = seq(0, 0.05, by = 0.01), limits = c(0, 0.05)) +
+  scale_y_continuous(breaks = seq(0, 60, by = 10), limits = c(0, 60)) +
+  # tinker with the legend 
+  guides(color = guide_legend(override.aes = list(size=15, linewidth = 2, alpha = .9), order = 1)) -> pcurve_plot
+
+pcurve_plot
+
+# remove unused facets
+
+# replace the grobs with the nullGrob
+g = ggplotGrob(pcurve_plot)
+pos <- grep(pattern = "panel-1-4", g$layout$name)
+g$grobs[[pos]] <- nullGrob()
+pos <- grep(pattern = "panel-2-1", g$layout$name)
+g$grobs[[pos]] <- nullGrob()
+
+grid.draw(g)
+```
