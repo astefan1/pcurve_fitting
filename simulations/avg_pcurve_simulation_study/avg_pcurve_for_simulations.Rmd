@@ -385,6 +385,8 @@ all.sig <- all.sig %>%
    rename(dataset = year.bin)
  
  avg_pcurve_for_sim <- left_join(avg_pcurve_for_sim, all.sig, by = "dataset")  
+ 
+ write_csv(avg_pcurve_for_sim, file = "avg_pcurve.csv")
 
 ```
 
