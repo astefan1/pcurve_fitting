@@ -357,3 +357,34 @@ g$grobs[[pos]] <- nullGrob()
 
 grid.draw(g)
 ```
+
+```{r format for simulations}
+avg_pcurve_for_sim <- avg_pcurve %>%
+  select(-c(bin_interval, journal)) %>% 
+  mutate(mean_percent = mean_percent/100) %>% 
+  pivot_wider(names_from = p_bin_centred, values_from = mean_percent)
+
+#rename for consistency
+avg_pcurve_for_sim <- rename(avg_pcurve_for_sim, dataset = year.bin)  
+avg_pcurve_for_sim <- rename(avg_pcurve_for_sim, p1 = `0.005`) 
+avg_pcurve_for_sim <- rename(avg_pcurve_for_sim, p2 = `0.015`)
+avg_pcurve_for_sim <- rename(avg_pcurve_for_sim, p3 = `0.025`) 
+avg_pcurve_for_sim <- rename(avg_pcurve_for_sim, p4 = `0.035`)
+avg_pcurve_for_sim <- rename(avg_pcurve_for_sim, p5 = `0.045`)
+
+#need to calculate n significant for these time periods at SPPS
+
+
+ all.sig <- combined_data %>% 
+   filter(all.significant == "Yes", journal == "SPPS") 
+ 
+all.sig <- all.sig %>% 
+   group_by(year.bin) %>% 
+   summarise(nsig = length(unique(doi))) %>% 
+   filter(year.bin != "2013-2015" ) %>% 
+   rename(dataset = year.bin)
+ 
+ avg_pcurve_for_sim <- left_join(avg_pcurve_for_sim, all.sig, by = "dataset")  
+
+```
+

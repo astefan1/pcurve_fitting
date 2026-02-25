@@ -31,7 +31,7 @@ if (!interactive()) {
 }
 
 # reference p-curves (THIS WILL BE EXCHANGED WITH P-CURVES FROM CLARKE ET AL.)
-pcurves <- import("simulations/reference-pcurves.csv")
+pcurves <- import("avg_pcurve_simulation_study/avg_pcurve.csv")
 
 # load the multiple DV simulation results:
 simres_realistic <- import("simulations/sim-results/sim_realistic.csv")
