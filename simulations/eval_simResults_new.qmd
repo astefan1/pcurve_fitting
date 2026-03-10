@@ -1,6 +1,6 @@
 ---
 title: "Evaluation of p-curve simulation results"
-author: "Felix Schönbrodt & Angelika Stefan"
+author: "Beth Clarke, Felix Schönbrodt, Angelika Stefan"
 date: today
 execute:
   cache: true
@@ -15,8 +15,6 @@ format:
 Combine simulation results from all conditions into one big dataset
 
 ```{r}
-#| include: false
-
 
 library(fitPCurve)
 library(rio)
@@ -30,7 +28,7 @@ if (!interactive()) {
   setwd("..")
 }
 
-# reference p-curves (THIS WILL BE EXCHANGED WITH P-CURVES FROM CLARKE ET AL.)
+# reference p-curves
 pcurves <- import("simulations/avg_pcurve_simulation_study/avg_pcurve.csv")
 
 # load the multiple DV simulation results:
@@ -111,7 +109,7 @@ simres |> filter(condition == "multDV_worst") |> arrange(fit_pcurve1_g2) |> slic
 
 ```{r}
 # Worst case, optional stopping
-simres |> filter(condition == "optStop_worst") |> arrange(fit_pcurve1_g2) |> slice(1:10) |> select(c(1:9, 10:15), fit_pcurve1_g2) |> round(2) |> print()
+simres |> filter(condition == "optStop_worst") |> arrange(fit_pcurve1_g2) |> slice(1:10) |> select(c(3:8, 10:15, 20:23), fit_pcurve1_g2) |> round(2) |> print()
 ```
 
 ```{r}
@@ -121,7 +119,7 @@ simres |> filter(condition == "multDV_realistic") |> arrange(fit_pcurve1_g2) |> 
 
 ```{r}
 # Realistic, optional stopping
-simres |> filter(condition == "optStop_realistic") |> arrange(fit_pcurve1_g2) |> slice(1:10) |> select(c(1:9, 10:15), fit_pcurve1_g2) |> round(2) |> print()
+simres |> filter(condition == "optStop_realistic") |> arrange(fit_pcurve1_g2) |> slice(1:10) |> select(c(3:8, 10:15, 20:23), fit_pcurve1_g2) |> round(2) |> print()
 ```
 
 ```{r}
