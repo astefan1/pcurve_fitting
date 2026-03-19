@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="Beth Clarke, Felix Schönbrodt, Angelika Stefan">
-<meta name="dcterms.date" content="2026-03-10">
+<meta name="dcterms.date" content="2026-03-19">
 
 <title>Evaluation of p-curve simulation results</title>
 <style>
@@ -3094,7 +3094,7 @@ vertical-align: -.125em;
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">March 10, 2026</p>
+      <p class="date">March 19, 2026</p>
     </div>
   </div>
   
@@ -3628,21 +3628,21 @@ Attaching package: &#39;dplyr&#39;</code></pre>
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb43"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Worst case, optional stopping</span></span>
-<span id="cb43-2"><a href="#cb43-2" aria-hidden="true" tabindex="-1"></a>simres <span class="sc">|&gt;</span> <span class="fu">filter</span>(condition <span class="sc">==</span> <span class="st">&quot;optStop_worst&quot;</span>) <span class="sc">|&gt;</span> <span class="fu">arrange</span>(fit_pcurve2_g2) <span class="sc">|&gt;</span> <span class="fu">slice</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>) <span class="sc">|&gt;</span> <span class="fu">select</span>(<span class="fu">c</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">9</span>, <span class="dv">10</span><span class="sc">:</span><span class="dv">14</span>), fit_pcurve2_g2) <span class="sc">|&gt;</span> <span class="fu">round</span>(<span class="dv">2</span>) <span class="sc">|&gt;</span> <span class="fu">print</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb43-2"><a href="#cb43-2" aria-hidden="true" tabindex="-1"></a>simres <span class="sc">|&gt;</span> <span class="fu">filter</span>(condition <span class="sc">==</span> <span class="st">&quot;optStop_worst&quot;</span>) <span class="sc">|&gt;</span> <span class="fu">arrange</span>(fit_pcurve2_g2) <span class="sc">|&gt;</span> <span class="fu">slice</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>) <span class="sc">|&gt;</span> <span class="fu">select</span>(<span class="fu">c</span>(<span class="dv">3</span><span class="sc">:</span><span class="dv">8</span>, <span class="dv">10</span><span class="sc">:</span><span class="dv">15</span>, <span class="dv">20</span><span class="sc">:</span><span class="dv">23</span>), fit_pcurve2_g2) <span class="sc">|&gt;</span> <span class="fu">round</span>(<span class="dv">2</span>) <span class="sc">|&gt;</span> <span class="fu">print</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-stdout">
-<pre><code>  nvar  r d prop_Hacker prop_H1 het iter alpha strategy   p1   p2   p3   p4
-1   NA NA 0        0.10       0   0   NA    NA       NA 0.21 0.21 0.19 0.20
-2   NA NA 0        0.50       0   0   NA    NA       NA 0.21 0.21 0.17 0.20
-3   NA NA 0        0.10       0   0   NA    NA       NA 0.20 0.22 0.20 0.18
-4   NA NA 0        0.10       0   0   NA    NA       NA 0.20 0.19 0.21 0.20
-5   NA NA 0        0.25       0   0   NA    NA       NA 0.20 0.22 0.20 0.18
-    p5 fit_pcurve2_g2
-1 0.19          90.30
-2 0.21          90.77
-3 0.20          94.10
-4 0.20          95.54
-5 0.20          95.55</code></pre>
+<pre><code>  d prop_Hacker prop_H1 het iter alpha   p1   p2   p3   p4   p5 k_sig nmin nmax
+1 0        0.10       0   0   NA    NA 0.21 0.21 0.19 0.20 0.19   563   50  177
+2 0        0.50       0   0   NA    NA 0.21 0.21 0.17 0.20 0.21   866    8  177
+3 0        0.10       0   0   NA    NA 0.20 0.22 0.20 0.18 0.20   553  177  444
+4 0        0.10       0   0   NA    NA 0.20 0.19 0.21 0.20 0.20   578   22  177
+5 0        0.25       0   0   NA    NA 0.20 0.22 0.20 0.18 0.20   644    8  177
+  stepsize fit_pcurve1_g2 fit_pcurve2_g2
+1      100          18.05          90.30
+2      100          18.92          90.77
+3      100          19.62          94.10
+4       50          17.85          95.54
+5      100          20.07          95.55</code></pre>
 </div>
 </div>
 <div class="cell">
@@ -3670,21 +3670,21 @@ Attaching package: &#39;dplyr&#39;</code></pre>
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb47"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb47-1"><a href="#cb47-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Realistic, optional stopping</span></span>
-<span id="cb47-2"><a href="#cb47-2" aria-hidden="true" tabindex="-1"></a>simres <span class="sc">|&gt;</span> <span class="fu">filter</span>(condition <span class="sc">==</span> <span class="st">&quot;optStop_realistic&quot;</span>) <span class="sc">|&gt;</span> <span class="fu">arrange</span>(fit_pcurve2_g2) <span class="sc">|&gt;</span> <span class="fu">slice</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>) <span class="sc">|&gt;</span> <span class="fu">select</span>(<span class="fu">c</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">9</span>, <span class="dv">10</span><span class="sc">:</span><span class="dv">14</span>), fit_pcurve2_g2) <span class="sc">|&gt;</span> <span class="fu">round</span>(<span class="dv">2</span>) <span class="sc">|&gt;</span> <span class="fu">print</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb47-2"><a href="#cb47-2" aria-hidden="true" tabindex="-1"></a>simres <span class="sc">|&gt;</span> <span class="fu">filter</span>(condition <span class="sc">==</span> <span class="st">&quot;optStop_realistic&quot;</span>) <span class="sc">|&gt;</span> <span class="fu">arrange</span>(fit_pcurve2_g2) <span class="sc">|&gt;</span> <span class="fu">slice</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>) <span class="sc">|&gt;</span> <span class="fu">select</span>(<span class="fu">c</span>(<span class="dv">3</span><span class="sc">:</span><span class="dv">8</span>, <span class="dv">10</span><span class="sc">:</span><span class="dv">15</span>, <span class="dv">20</span><span class="sc">:</span><span class="dv">23</span>), fit_pcurve2_g2) <span class="sc">|&gt;</span> <span class="fu">round</span>(<span class="dv">2</span>) <span class="sc">|&gt;</span> <span class="fu">print</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-stdout">
-<pre><code>  nvar  r   d prop_Hacker prop_H1 het iter alpha strategy   p1   p2  p3   p4
-1   NA NA 0.4         0.1     0.7 0.0   NA    NA       NA 0.59 0.14 0.1 0.09
-2   NA NA 0.6         0.1     0.3 0.0   NA    NA       NA 0.60 0.14 0.1 0.09
-3   NA NA 0.3         0.1     0.7 0.4   NA    NA       NA 0.60 0.13 0.1 0.09
-4   NA NA 0.6         0.1     0.3 0.2   NA    NA       NA 0.59 0.14 0.1 0.09
-5   NA NA 0.3         1.0     0.7 0.4   NA    NA       NA 0.59 0.14 0.1 0.09
-    p5 fit_pcurve2_g2
-1 0.07           0.02
-2 0.07           0.04
-3 0.07           0.05
-4 0.08           0.05
-5 0.07           0.06</code></pre>
+<pre><code>    d prop_Hacker prop_H1 het iter alpha   p1   p2  p3   p4   p5 k_sig nmin
+1 0.4         0.1     0.7 0.0   NA    NA 0.59 0.14 0.1 0.09 0.07  3394   50
+2 0.6         0.1     0.3 0.0   NA    NA 0.60 0.14 0.1 0.09 0.07  2288    8
+3 0.3         0.1     0.7 0.4   NA    NA 0.60 0.13 0.1 0.09 0.07  3229   22
+4 0.6         0.1     0.3 0.2   NA    NA 0.59 0.14 0.1 0.09 0.08  2181   50
+5 0.3         1.0     0.7 0.4   NA    NA 0.59 0.14 0.1 0.09 0.07  5445   22
+  nmax stepsize fit_pcurve1_g2 fit_pcurve2_g2
+1 1063      100          37.42           0.02
+2  177       50          39.37           0.04
+3 1063       50          37.43           0.05
+4  177       10          36.65           0.05
+5  177      100          36.50           0.06</code></pre>
 </div>
 </div>
 <div class="cell">
