@@ -1,0 +1,160 @@
+---
+title: "plots_for_paper"
+author: "Beth Clarke"
+output: html_document
+date: "2026-03-20"
+---
+
+```{r setup, include=FALSE}
+
+library(fitPCurve)
+library(rio)
+library(dplyr)
+library(ggplot2)
+library(scales)
+library(patchwork)
+
+# The working directory should be the project root
+# if quarto:render is called
+if (!interactive()) {
+  print("Switching working directory to project root")
+  setwd("..")
+}
+
+# reference p-curves
+pcurves <- import("simulations/avg_pcurve_simulation_study/avg_pcurve.csv")
+
+# p-curves with 500 iterations
+pcurves500 <- import("simulations/avg_pcurve_simulation_study/avg_pcurve_500.csv") %>% 
+  filter(sample.num != 00) #these are the average p-curves computed above
+
+# load the multiple DV simulation results:
+simres <- import("simulations/sim-results/simres_full.RData")
+
+```
+
+Re-shape pcurves500 into long form
+```{r}
+pcurves500_long <- pcurves500 %>% 
+  pivot_longer(cols = c(p1:p5), names_to = "pval", values_to = "yval")
+
+  pcurves500_long$pval <- substr(pcurves500_long$pval, 2, 2) |> as.numeric()
+  pcurves500_long$pval <- pcurves500_long$pval / 100
+```
+
+Define p-curving function
+```{r}
+alpha_ramp <- function(x, min_alpha=0.05, max_alpha=1, min=5, max=1000) {
+  # raw ramp
+  a <- max_alpha + (min_alpha-1) * (x - min) / (max - min)
+  # clamp between 0.2 and 1
+  pmin(max_alpha, pmax(min_alpha, a))
+}
+
+
+#' Plot original and fitted p-curves
+#' @description Create a plot displaying the original and a number of fitted p-curves
+#' @param simdat Result of simulation function
+#' @param poriginal Original p-curve (vector)
+#' @param GOF Goodness of fit measure: one of "rmse", "chi2", "g2" (default)
+#' @param n_best Show only the n best curves. If NA, all are shown
+#' @param alpha Alpha transparency for the simulated p-curve lines
+#' @param n_studies Number of studies in the original p-curve (only needed for chi2 GOF)
+#' @param tol Numeric tolerance for probability sum checks (default 1e-10).
+#' @import ggplot2
+#' @importFrom tidyr pivot_longer
+#' @importFrom scales percent
+#' @export
+
+plot_pcurves_new <- function(simdat, poriginal, GOF = "g2", n_best=NA, alpha=NA, n_studies=NA, tol=1e-10, title = "", background_dat = NULL){
+  stopifnot(all(poriginal >= 0) & all(poriginal <= 1))
+  # Compute GOF between original and simulated
+  if (GOF=="rmse") {
+    simdat$GOF <- rmse(observed=poriginal, expected=simdat[, paste0("p", 1:5)])
+  } else if (GOF=="chi2"){
+    if (is.na(n_studies)) {
+      stop("For chi2 GOF, n_studies must be provided")
+    }
+    simdat$GOF <- chi2(observed=poriginal, expected=simdat[, paste0("p", 1:5)], n=n_studies, tol = tol)
+  } else if (GOF=="g2"){
+    if (is.na(n_studies)) {
+      stop("For G2 GOF, n_studies must be provided")
+    }
+    simdat$GOF <- g2(observed=poriginal, expected=simdat[, paste0("p", 1:5)], n=n_studies, tol = tol)
+  } else {
+    stop("GOF must be one of 'rmse', 'chi2', or 'g2'")
+  }
+  simdat$condition <- 1:nrow(simdat)
+  # Selection: Order by GOF and extract the n_best curves (or all of them)
+  if (is.na(n_best)) {
+    n_best <- nrow(simdat)
+  }
+  simdat_sel <- simdat[order(simdat$GOF)[1:n_best], c("condition", paste0("p", 1:5))]
+  simdat_sel_long <- pivot_longer(simdat_sel,
+                                  cols = matches("p\\d"),
+                                  values_to = "yval")
+  simdat_sel_long$pval <- substr(simdat_sel_long$name, 2, 2) |> as.numeric()
+  simdat_sel_long$pval <- simdat_sel_long$pval / 100
+  plotdat <- data.frame(pval = seq(0.01, 0.05, by = 0.01),
+                        yval = unlist(poriginal))
+  if (is.na(alpha)) {
+    alpha <- alpha_ramp(n_best)
+  }
+  
+  p1 <- ggplot() +
+    theme_bw() +
+    scale_y_continuous(
+      labels = percent,
+      limits = c(0, 1)
+    ) +
+    labs(x = "p-value bin",
+         y = "Percentage of p-values") +
+    theme(axis.title = element_text(size = 18),
+          axis.text = element_text(size = 15),
+          plot.title = element_text(size = 20))
+  
+  # Optionally add background lines first (so they render behind everything)
+  if (!is.null(background_dat)) {
+    p1 <- p1 + geom_line(data = background_dat, 
+                         aes(y = yval, x = pval, group = sample.num),
+                         color = "grey80", alpha = 0.4)
+  }
+  
+  p1 <- p1 +
+    geom_line(data = simdat_sel_long, aes(y = yval, x = pval, group = condition),
+              color = "steelblue", alpha = 1, linewidth = 1) +
+    geom_line(data = plotdat, aes(y = yval, x = pval, group = 1), linewidth = 1, alpha = .8) +
+    ggtitle(title)
+  
+  p1
+}
+```
+
+
+
+P-curve 1
+```{r}
+plot_1 <-  plot_pcurves_new(simres |> filter(condition == "multDV_realistic"), poriginal = simplify2array(pcurves[1, paste0("p", 1:5)]), n_best = 5, GOF="g2", n_studies = pcurves$nsig[1], tol = 1e-6, title = "Realistic World: Multiple DVs", background_dat = pcurves500_long |> filter(dataset == "2010-2012"))
+
+plot_2 <- plot_pcurves_new(simres |> filter(condition == "optStop_realistic"), poriginal = simplify2array(pcurves[1, paste0("p", 1:5)]), n_best = 1, GOF="g2", n_studies = pcurves$nsig[1], tol = 1e-6, title = "Realistic World: Optional Stopping", background_dat = pcurves500_long |> filter(dataset == "2010-2012"))
+
+plot_3 <- plot_pcurves_new(simres |> filter(condition == "multDV_worst"), poriginal = simplify2array(pcurves[1, paste0("p", 1:5)]), n_best = 5, GOF="g2", n_studies = pcurves$nsig[1], tol = 1e-6, title = "Worst World: Multiple DVs", background_dat = pcurves500_long |> filter(dataset == "2010-2012"))
+
+plot_4 <- plot_pcurves_new(simres |> filter(condition == "optStop_worst"), poriginal = simplify2array(pcurves[1, paste0("p", 1:5)]), n_best = 5, GOF="g2", n_studies = pcurves$nsig[1], tol = 1e-6, title = "Worst World: Optional Stopping", background_dat = pcurves500_long |> filter(dataset == "2010-2012"))
+
+plot_5 <- plot_pcurves_new(simres |> filter(condition == "multDV_perfect"), poriginal = simplify2array(pcurves[1, paste0("p", 1:5)]), n_best = 5, GOF="g2", n_studies = pcurves$nsig[1], tol = 1e-6, title = "Perfect World", background_dat = pcurves500_long |> filter(dataset == "2010-2012"))
+
+plot_6 <- plot_pcurves_new(simres |> filter(condition == "multDV_H0"), poriginal = simplify2array(pcurves[1, paste0("p", 1:5)]), n_best = 1, GOF="g2", n_studies = pcurves$nsig[1], tol = 1e-6, title = "Flat World", background_dat = pcurves500_long |> filter(dataset == "2010-2012"))
+
+plot_1 + plot_2 + plot_3 + plot_4 + plot_5 + plot_6
+
+no_y <- theme(
+  axis.title.y = element_blank(),
+  axis.text.y = element_blank(),
+  axis.ticks.y = element_blank()
+)
+
+(plot_1 | plot_2 + no_y | plot_3 + no_y) / (plot_4 | plot_5 + no_y | plot_6 + no_y)
+```
+
+
