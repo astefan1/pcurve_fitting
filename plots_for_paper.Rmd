@@ -13,6 +13,7 @@ library(dplyr)
 library(ggplot2)
 library(scales)
 library(patchwork)
+library(GGally)
 
 # The working directory should be the project root
 # if quarto:render is called
@@ -157,4 +158,65 @@ no_y <- theme(
 (plot_1 | plot_2 + no_y | plot_3 + no_y) / (plot_4 | plot_5 + no_y | plot_6 + no_y)
 ```
 
+Profile coordinates plot
+```{r}
+# For the paper, we will only show the profile plot for the world with the simulation that has the highest g^2.
+
+top_condition <- simres$condition[which.min(simres$fit_pcurve1_g2)] # which condition had the simulation with the highest g^2
+
+level_lookup <- simres |> # create a reference point of the variables and their values (note: some of these variables only apply to the optional stopping condition, the multiDV variables are not included here)
+  pivot_longer(cols = c(d, prop_Hacker, prop_H1, het, nmin, nmax, stepsize),
+               names_to = "variable", values_to = "value") |>
+  group_by(variable) |>
+  summarise(levels = list(sort(unique(value))), .groups = "drop") 
+
+# Set the order
+var_levels <- c("d", "prop_Hacker", "prop_H1", "het", "nmin", "nmax",  "stepsize")
+var_numeric <- setNames(seq_along(var_levels), var_levels)
+
+# Prepare the data for plotting
+plotdat <- simres |>
+  filter(condition == top_condition) |>
+  slice_min(fit_pcurve1_g2, n = 5) |>
+  pivot_longer(cols = c(d, prop_Hacker, prop_H1, het, nmin, nmax, stepsize),
+               names_to = "variable", values_to = "value") |>
+  filter(!is.na(value)) |>
+  left_join(level_lookup, by = "variable") |>
+  mutate(value_norm = map2_int(value, levels, ~ match(.x, .y)), 
+         y = var_numeric[variable] ) |>   # numeric y position
+  group_by(sim_ID) |>
+  mutate(jitter = runif(1, -0.2, 0.2),
+         value_norm_j = value_norm + jitter) |>
+  ungroup()
+
+# Create the data frame for the background of the profile plot
+background_dat <- level_lookup |>
+  filter(!variable %in% c("nvar", "r")) |>
+  mutate(y = var_numeric[variable] ) |>
+  rowwise() |>
+  mutate(value_norm = list(seq_along(levels)),
+         label = list(as.character(levels))) |>
+  unnest(c(value_norm, label))
+```
+
+```{r }
+# Plot!
+plotdat |>
+  ggplot(aes(x = value_norm_j, y = y, group = sim_ID, color = as.factor(sim_ID))) +
+  geom_tile(data = background_dat,
+            aes(x = value_norm, y = y, group = NULL),
+            fill = "white", color = "grey70", width = 1, height = 0.9) +
+  geom_path(alpha = 0.5, size = 2.3) +
+  geom_point(alpha = 0.5, size = 2) +
+  geom_text(data = background_dat,
+            aes(x = value_norm, y = y, label = label, group = NULL),
+            size = 3, color = "grey30") +
+  scale_y_continuous(breaks = seq_along(var_levels), labels = var_levels) +
+  theme_minimal() +
+  theme(panel.grid = element_blank(),
+        axis.title.x = element_blank(),
+        axis.text.x = element_blank(),
+        axis.ticks.x = element_blank())
+
+```
 
