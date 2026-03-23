@@ -9,11 +9,12 @@ date: "2026-03-20"
 
 library(fitPCurve)
 library(rio)
-library(dplyr)
+library(tidyverse)
 library(ggplot2)
 library(scales)
 library(patchwork)
 library(GGally)
+library(RColorBrewer)
 
 # The working directory should be the project root
 # if quarto:render is called
@@ -135,19 +136,18 @@ plot_pcurves_new <- function(simdat, poriginal, GOF = "g2", n_best=NA, alpha=NA,
 
 P-curve 1
 ```{r}
-plot_1 <-  plot_pcurves_new(simres |> filter(condition == "multDV_realistic"), poriginal = simplify2array(pcurves[1, paste0("p", 1:5)]), n_best = 5, GOF="g2", n_studies = pcurves$nsig[1], tol = 1e-6, title = "Realistic World: Multiple DVs", background_dat = pcurves500_long |> filter(dataset == "2010-2012"))
+plot_dvr <-  plot_pcurves_new(simres |> filter(condition == "multDV_realistic"), poriginal = simplify2array(pcurves[1, paste0("p", 1:5)]), n_best = 5, GOF="g2", n_studies = pcurves$nsig[1], tol = 1e-6, title = "Realistic World: Multiple DVs", background_dat = pcurves500_long |> filter(dataset == "2010-2012"))
 
-plot_2 <- plot_pcurves_new(simres |> filter(condition == "optStop_realistic"), poriginal = simplify2array(pcurves[1, paste0("p", 1:5)]), n_best = 1, GOF="g2", n_studies = pcurves$nsig[1], tol = 1e-6, title = "Realistic World: Optional Stopping", background_dat = pcurves500_long |> filter(dataset == "2010-2012"))
+plot_optr <- plot_pcurves_new(simres |> filter(condition == "optStop_realistic"), poriginal = simplify2array(pcurves[1, paste0("p", 1:5)]), n_best = 1, GOF="g2", n_studies = pcurves$nsig[1], tol = 1e-6, title = "Realistic World: Optional Stopping", background_dat = pcurves500_long |> filter(dataset == "2010-2012"))
 
-plot_3 <- plot_pcurves_new(simres |> filter(condition == "multDV_worst"), poriginal = simplify2array(pcurves[1, paste0("p", 1:5)]), n_best = 5, GOF="g2", n_studies = pcurves$nsig[1], tol = 1e-6, title = "Worst World: Multiple DVs", background_dat = pcurves500_long |> filter(dataset == "2010-2012"))
+plot_dvw <- plot_pcurves_new(simres |> filter(condition == "multDV_worst"), poriginal = simplify2array(pcurves[1, paste0("p", 1:5)]), n_best = 5, GOF="g2", n_studies = pcurves$nsig[1], tol = 1e-6, title = "Worst World: Multiple DVs", background_dat = pcurves500_long |> filter(dataset == "2010-2012"))
 
-plot_4 <- plot_pcurves_new(simres |> filter(condition == "optStop_worst"), poriginal = simplify2array(pcurves[1, paste0("p", 1:5)]), n_best = 5, GOF="g2", n_studies = pcurves$nsig[1], tol = 1e-6, title = "Worst World: Optional Stopping", background_dat = pcurves500_long |> filter(dataset == "2010-2012"))
+plot_optw <- plot_pcurves_new(simres |> filter(condition == "optStop_worst"), poriginal = simplify2array(pcurves[1, paste0("p", 1:5)]), n_best = 5, GOF="g2", n_studies = pcurves$nsig[1], tol = 1e-6, title = "Worst World: Optional Stopping", background_dat = pcurves500_long |> filter(dataset == "2010-2012"))
 
-plot_5 <- plot_pcurves_new(simres |> filter(condition == "multDV_perfect"), poriginal = simplify2array(pcurves[1, paste0("p", 1:5)]), n_best = 5, GOF="g2", n_studies = pcurves$nsig[1], tol = 1e-6, title = "Perfect World", background_dat = pcurves500_long |> filter(dataset == "2010-2012"))
+plot_perf <- plot_pcurves_new(simres |> filter(condition == "multDV_perfect"), poriginal = simplify2array(pcurves[1, paste0("p", 1:5)]), n_best = 5, GOF="g2", n_studies = pcurves$nsig[1], tol = 1e-6, title = "Perfect World", background_dat = pcurves500_long |> filter(dataset == "2010-2012"))
 
-plot_6 <- plot_pcurves_new(simres |> filter(condition == "multDV_H0"), poriginal = simplify2array(pcurves[1, paste0("p", 1:5)]), n_best = 1, GOF="g2", n_studies = pcurves$nsig[1], tol = 1e-6, title = "Flat World", background_dat = pcurves500_long |> filter(dataset == "2010-2012"))
+plot_flat <- plot_pcurves_new(simres |> filter(condition == "multDV_H0"), poriginal = simplify2array(pcurves[1, paste0("p", 1:5)]), n_best = 1, GOF="g2", n_studies = pcurves$nsig[1], tol = 1e-6, title = "Flat World", background_dat = pcurves500_long |> filter(dataset == "2010-2012"))
 
-plot_1 + plot_2 + plot_3 + plot_4 + plot_5 + plot_6
 
 no_y <- theme(
   axis.title.y = element_blank(),
@@ -155,7 +155,9 @@ no_y <- theme(
   axis.ticks.y = element_blank()
 )
 
-(plot_1 | plot_2 + no_y | plot_3 + no_y) / (plot_4 | plot_5 + no_y | plot_6 + no_y)
+(plot_dvr | 
+    # plot_optr + no_y |  remove -- we will highlight this as the focus for the profile plot
+    plot_dvw + no_y) / (plot_optw | plot_perf + no_y | plot_flat + no_y)
 ```
 
 Profile coordinates plot
@@ -165,14 +167,25 @@ Profile coordinates plot
 top_condition <- simres$condition[which.min(simres$fit_pcurve1_g2)] # which condition had the simulation with the highest g^2
 
 level_lookup <- simres |> # create a reference point of the variables and their values (note: some of these variables only apply to the optional stopping condition, the multiDV variables are not included here)
-  pivot_longer(cols = c(d, prop_Hacker, prop_H1, het, nmin, nmax, stepsize),
+  pivot_longer(cols = c(prop_Hacker, prop_H1, het, d, nmin, nmax, stepsize),
                names_to = "variable", values_to = "value") |>
   group_by(variable) |>
   summarise(levels = list(sort(unique(value))), .groups = "drop") 
 
 # Set the order
-var_levels <- c("d", "prop_Hacker", "prop_H1", "het", "nmin", "nmax",  "stepsize")
+var_levels <- c("prop_Hacker", "prop_H1", "het", "d", "nmin", "nmax",  "stepsize")
 var_numeric <- setNames(seq_along(var_levels), var_levels)
+
+# Recode to readable labels
+var_levels <- recode(var_levels,
+  "prop_Hacker" = "Proportion p-hackers",
+  "prop_H1"     = "Proportion true effects",
+  "het"         = "Heterogeneity (SD of d)",
+  "d"           = "Effect size (d)",
+  "nmin"        = "Min. N.",
+  "nmax"        = "Max N.",
+  "stepsize"    = "Step size N."
+)
 
 # Prepare the data for plotting
 plotdat <- simres |>
@@ -187,7 +200,9 @@ plotdat <- simres |>
   group_by(sim_ID) |>
   mutate(jitter = runif(1, -0.2, 0.2),
          value_norm_j = value_norm + jitter) |>
-  ungroup()
+  ungroup() |>
+  arrange(sim_ID, y)  |>
+  mutate(sim_ID = reorder(as.factor(sim_ID), fit_pcurve1_g2))
 
 # Create the data frame for the background of the profile plot
 background_dat <- level_lookup |>
@@ -201,22 +216,40 @@ background_dat <- level_lookup |>
 
 ```{r }
 # Plot!
-plotdat |>
-  ggplot(aes(x = value_norm_j, y = y, group = sim_ID, color = as.factor(sim_ID))) +
+profile_plot_p1 <- plotdat |>
+  ggplot(aes(x = value_norm_j, y = y, group = sim_ID, color = fit_pcurve1_g2)) +
   geom_tile(data = background_dat,
             aes(x = value_norm, y = y, group = NULL),
             fill = "white", color = "grey70", width = 1, height = 0.9) +
-  geom_path(alpha = 0.5, size = 2.3) +
-  geom_point(alpha = 0.5, size = 2) +
-  geom_text(data = background_dat,
-            aes(x = value_norm, y = y, label = label, group = NULL),
-            size = 3, color = "grey30") +
+  geom_path(alpha = 1, size = 2) +
+  geom_point(alpha = 1, size = 2) +
+  geom_label(data = background_dat,
+           aes(x = value_norm, y = y, label = label, group = NULL),
+           size = 4, color = "grey20", fill = alpha("white", 0.5),
+           label.size = 0,
+           label.padding = unit(0.1, "lines")) +
+  scale_color_gradient(high = "#9ecae1", low = "#08306b",
+                       name = "Simulation fit (G²)",
+                       guide = guide_colorbar(reverse = TRUE)) +
   scale_y_continuous(breaks = seq_along(var_levels), labels = var_levels) +
-  theme_minimal() +
+  theme_minimal(base_size = 14) +
   theme(panel.grid = element_blank(),
-        axis.title.x = element_blank(),
         axis.text.x = element_blank(),
-        axis.ticks.x = element_blank())
+        axis.ticks.x = element_blank()) +
+  labs(
+    title = "Top 5 Best-Fitting Simulations for P-Curve 1 in the 
+'Optional Stopping Realistic' World",
+    x = "Parameter Value",
+    y = "Parameter"
+  )
+
+# Figure 1 -- all simulation worlds
+(plot_flat | plot_perf + no_y | plot_optw + no_y) / 
+  (plot_dvw | plot_dvr + no_y | plot_optr + no_y) 
+
+# Figure 2 -- best fitting p-curve world with profile plot
+(plot_optr + profile_plot_p1)
 
 ```
+
 
