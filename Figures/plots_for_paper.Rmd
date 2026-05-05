@@ -305,7 +305,7 @@ x_label_row <- (plot_spacer() |
 rows_12 / line / row_3 / x_label_row +
   plot_layout(heights = c(2, 0.04, 1.25, 0.08)) 
 
-ggsave("Figures/p-curve_1/figure1_option1.png", width = 12, height = 12, units = "in")
+ggsave("p-curve_1/figure1_option1.png", width = 12, height = 12, units = "in")
 ```
 
 ## F1 option 2
@@ -345,7 +345,7 @@ fig1_transposed <- (row_labels_transposed | y_label() |
 fig1_transposed / x_label_row +
   plot_layout(heights = c(1, 0.05))
 
-ggsave("Figures/p-curve_1/figure1_option2.png", width = 12, height = 14, units = "in")
+ggsave("p-curve_1/figure1_option2.png", width = 12, height = 14, units = "in")
 ```
 
 ## F1 option 3
@@ -414,7 +414,7 @@ fig1_transposed_p1 <- (row_labels_transposed_p1 | y_label() |
 fig1_transposed_p1 / x_label_row +
   plot_layout(heights = c(1, 0.05)) 
 
-ggsave("Figures/p-curve_1/figure1_option3.png", width = 12, height = 14, units = "in")
+ggsave("p-curve_1/figure1_option3.png", width = 12, height = 14, units = "in")
 ```
 ### option 3 with different themes
 ```{r}
@@ -457,15 +457,15 @@ fig1_transposed_p1_light <- (row_labels_transposed_p1_wrapped | y_label_wrapped 
 
 fig1_transposed_p1_minimal / x_label_row +
   plot_layout(heights = c(1, 0.05))
-ggsave("Figures/p-curve_1/figure1_option3_minimal.png", width = 12, height = 14, units = "in")
+ggsave("p-curve_1/figure1_option3_minimal.png", width = 12, height = 14, units = "in")
 
 fig1_transposed_p1_bw / x_label_row +
   plot_layout(heights = c(1, 0.05))
-ggsave("Figures/p-curve_1/figure1_option3_bw.png", width = 12, height = 14, units = "in")
+ggsave("p-curve_1/figure1_option3_bw.png", width = 12, height = 14, units = "in")
 
 fig1_transposed_p1_light / x_label_row +
   plot_layout(heights = c(1, 0.05))
-ggsave("Figures/p-curve_1/figure1_option3_light.png", width = 12, height = 14, units = "in")
+ggsave("p-curve_1/figure1_option3_light.png", width = 12, height = 14, units = "in")
 ```
 
 # Figure 2
@@ -581,7 +581,7 @@ col_title_row <- (plot_spacer() | col_titles) +
 col_title_row / hm_rows_12 +
   plot_layout(heights = c(0.05, 1))
 
-ggsave("Figures/p-curve_1/figure2_option1.png", width = 12, height = 10, units = "in")
+ggsave("p-curve_1/figure2_option1.png", width = 12, height = 10, units = "in")
 ```
 
 
@@ -672,7 +672,7 @@ profile_plot_p1 <- plotdat |>
 # Figure 2 -- best fitting p-curve world with profile plot
 (plot_optr + profile_plot_p1)
 
-ggsave("Figures/p-curve_1/figure2_option2.png", width = 12, height = 5, units = "in")
+ggsave("p-curve_1/figure2_option2.png", width = 12, height = 5, units = "in")
 ```
 
 ## F2 option 3 - combined
@@ -703,7 +703,7 @@ hm_with_profile <- hm_top +
   scale_color_identity()
 
 plot_optr | (hm_with_profile + no_y_title)
-ggsave("Figures/p-curve_1/figure2_option3.png", width = 14, height = 6, units = "in")
+ggsave("p-curve_1/figure2_option3.png", width = 14, height = 6, units = "in")
 ```
 # P-curve 2
 ## Figure 1 option 1
@@ -789,7 +789,7 @@ x_label_row_p2 <- (plot_spacer() |
 rows_12_p2 / line / row_3_p2 / x_label_row_p2 +
   plot_layout(heights = c(2, 0.04, 1.25, 0.08)) 
 
-ggsave("Figures/p-curve_2/figure1_option1.png", width = 12, height = 12, units = "in")
+ggsave("p-curve_2/figure1_option1.png", width = 12, height = 12, units = "in")
 ```
 ## F1 option 2
 ```{r figure1-transposed}
@@ -826,7 +826,7 @@ fig1_transposed_p2 <- (row_labels_transposed_p2 | y_label() |
 fig1_transposed_p2 / x_label_row +
   plot_layout(heights = c(1, 0.05))
 
-ggsave("Figures/p-curve_2/figure1_option2.png", width = 12, height = 14, units = "in")
+ggsave("p-curve_2/figure1_option2.png", width = 12, height = 14, units = "in")
 ```
 
 ## F1 option 3 (including G^2 and BIC)
@@ -893,7 +893,7 @@ fig1_transposed_p2 <- (row_labels_transposed_p2 | y_label() |
 fig1_transposed_p2 / x_label_row +
   plot_layout(heights = c(1, 0.05))
 
-ggsave("Figures/p-curve_2/figure1_option3.png", width = 12, height = 14, units = "in")
+ggsave("p-curve_2/figure1_option3.png", width = 12, height = 14, units = "in")
 ```
 
 ### option 3 with different themes
@@ -937,15 +937,15 @@ fig1_transposed_p2_light <- (row_labels_transposed_p2_wrapped | y_label_wrapped 
 
 fig1_transposed_p2_minimal / x_label_row +
   plot_layout(heights = c(1, 0.05))
-ggsave("Figures/p-curve_2/figure1_option3_minimal.png", width = 12, height = 14, units = "in")
+ggsave("p-curve_2/figure1_option3_minimal.png", width = 12, height = 14, units = "in")
 
 fig1_transposed_p2_bw / x_label_row +
   plot_layout(heights = c(1, 0.05))
-ggsave("Figures/p-curve_2/figure1_option3_bw.png", width = 12, height = 14, units = "in")
+ggsave("p-curve_2/figure1_option3_bw.png", width = 12, height = 14, units = "in")
 
 fig1_transposed_p2_light / x_label_row +
   plot_layout(heights = c(1, 0.05))
-ggsave("Figures/p-curve_2/figure1_option3_light.png", width = 12, height = 14, units = "in")
+ggsave("p-curve_2/figure1_option3_light.png", width = 12, height = 14, units = "in")
 ```
 
 ## Figure 2
@@ -976,7 +976,7 @@ hm_rows_12_p2 <- ((row_label("Multiple DVs") / row_label("Optional Stopping")) |
 col_title_row / hm_rows_12_p2 +
   plot_layout(heights = c(0.05, 1))
 
-ggsave("Figures/p-curve_2/figure2_option1.png", width = 12, height = 10, units = "in")
+ggsave("p-curve_2/figure2_option1.png", width = 12, height = 10, units = "in")
 ```
 
 ## F2 option 2 - Profile coordinates plot
@@ -1057,7 +1057,7 @@ profile_plot_p2 <- plotdat_p2 |>
   )
 
 plot_dvr_c_p2 + profile_plot_p2
-ggsave("Figures/p-curve_2/figure2_option2.png", width = 12, height = 5, units = "in")
+ggsave("p-curve_2/figure2_option2.png", width = 12, height = 5, units = "in")
 ```
 
 ## F2 option 3 - combined
@@ -1088,5 +1088,5 @@ hm_with_profile_p2 <- hm_top_p2 +
   scale_color_identity()
 
 plot_dvr_c_p2 | (hm_with_profile_p2 + no_y_title)
-ggsave("Figures/p-curve_2/figure2_option3.png", width = 14, height = 6, units = "in")
+ggsave("p-curve_2/figure2_option3.png", width = 14, height = 6, units = "in")
 ```
