@@ -4,6 +4,13 @@ library(tidyr)
 library(ggplot2)
 library(stringr)
 library(shinyWidgets)
+library(rio)
+
+# The two empirical reference p-curves
+pcurves <- import("../avg_pcurve_simulation_study/avg_pcurve.csv")
+pcurves_long <- pcurves %>%
+  pivot_longer(cols = starts_with("p"), names_to = "metric", values_to = "value") %>%
+  mutate(p_bin = str_sub(metric, 2, 2))
 
 # depending on whether the app is run from RStudio or from the server,
 # the working directory may be different, so we try two locations
@@ -37,8 +44,9 @@ mid_choice_chr <- function(x_chr) {
   x_chr[ceiling(length(x_chr) / 2)]
 }
 
-# Dummy plotting function (replace with your own)
-plot_fun <- function(df) {
+
+#' @param reference A data frame with columns `p_bin` and `value` for the reference p-curve (optional)
+plot_fun <- function(df, reference=NA) {
   p_vars <- paste0("p", 1:5)
   have <- all(p_vars %in% names(df))
   if (!have) {
@@ -68,14 +76,19 @@ plot_fun <- function(df) {
     pivot_longer(everything(), names_to = "metric", values_to = "value")
   df_sel$p_bin <- str_sub(df_sel$metric, 2, 2)
 
-  df_sel %>%
+  p1 <- df_sel %>%
     ggplot(aes(x = p_bin, y = value, group=1)) +
-    geom_line() +
-    geom_point() +
-    #geom_col() +
+    geom_line(color="blue", linewidth=1) +
+    scale_x_discrete(labels = c("1" = ".01", "2" = ".02", "3" = ".03", "4" = ".04", "5" = ".05")) +
     theme_minimal() +
-    labs(x = NULL, y = "% of p-values", title = "p-curve") +
+    labs(x = "p-value bin", y = "% of p-values", title = "p-curve") +
     ylim(0, 1)
+
+  if (!all(is.na(reference))) {
+    p1 <- p1 + geom_line(data = reference, aes(x = p_bin, y = value), color = "black", linetype = "solid", linewidth = 1)
+  }
+
+  p1
 }
 
 # Precompute discrete choices (as characters) for sliders 1–6
@@ -85,6 +98,7 @@ ch_d <- choices_num_chr(simres$d)
 ch_propHacker <- choices_num_chr(simres$prop_Hacker)
 ch_propH1 <- choices_num_chr(simres$prop_H1)
 ch_het <- choices_num_chr(simres$het)
+reference_choices <- choices_without_any(pcurves_long$dataset)
 
 # --------------------------------------------------------------------
 # UI
@@ -93,6 +107,11 @@ ui <- fluidPage(
   titlePanel("Simulation Explorer for hacked p-curves"),
   sidebarLayout(
     sidebarPanel(
+
+      selectInput("reference_line", "Reference p-curve",
+                  choices = c("None", reference_choices),
+                  selected = "None"),
+      
       # The controlling select — its value determines which sliders are visible
       selectInput("type", "p-hacking type",
                   choices = choices_without_any(simres$type),
@@ -175,6 +194,7 @@ server <- function(input, output, session) {
     updateSelectInput(session, "nmin", selected = "Any")
     updateSelectInput(session, "nmax", selected = "Any")
     updateSelectInput(session, "stepsize", selected = "Any")
+    updateSelectInput(session, "reference_line", selected = "None")
   })
 
   # Filtered data according to UI
@@ -220,8 +240,20 @@ server <- function(input, output, session) {
     df
   })
 
+  reference_line_data <- reactive({
+    req(input$reference_line)
+
+    if (identical(input$reference_line, "None")) {
+      return(NA)
+    }
+
+    pcurves_long %>%
+      filter(dataset == input$reference_line) %>%
+      select(p_bin, value)
+  })
+
   output$plot <- renderPlot({
-    plot_fun(filtered())
+    plot_fun(filtered(), reference_line_data())
   })
 
   output$nrows <- renderText({
