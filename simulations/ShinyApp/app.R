@@ -5,6 +5,7 @@ library(ggplot2)
 library(stringr)
 library(shinyWidgets)
 library(rio)
+library(shinyjs)
 
 # The two empirical reference p-curves
 pcurves <- import("../avg_pcurve_simulation_study/avg_pcurve.csv")
@@ -104,6 +105,13 @@ reference_choices <- choices_without_any(pcurves_long$dataset)
 # UI
 # --------------------------------------------------------------------
 ui <- fluidPage(
+  useShinyjs(),
+  tags$script(HTML("
+  Shiny.addCustomMessageHandler('updateSliderText', function(msg) {
+    var slider = $('#' + msg.id).data('ionRangeSlider');
+    slider.update({from: msg.index});
+  });
+")),
   titlePanel("Simulation Explorer for hacked p-curves"),
   sidebarLayout(
     sidebarPanel(
@@ -114,32 +122,37 @@ ui <- fluidPage(
       
       # The controlling select — its value determines which sliders are visible
       selectInput("type", "p-hacking type",
-                  choices = choices_without_any(simres$type),
+                  choices = c("Multiple DVs" = "multDV", "Optional Stopping" = "optStop",
+                              "No p-hacking, true effects" = "multDV_perfect",
+                              "No p-hacking, null effects" = "multDV_H0"),
                   selected = "multDV"),
 
-      sliderTextInput("d", "Effect size d under H1",
-                      choices = ch_d,
-                      selected = mid_choice_chr(ch_d),
-                      grid = TRUE),
+      conditionalPanel(
+        condition = "input.type == 'multDV' || input.type == 'optStop'",
+        sliderTextInput("d", "Effect size d under H1",
+                        choices = ch_d,
+                        selected = mid_choice_chr(ch_d),
+                        grid = TRUE),
         sliderTextInput("prop_Hacker", "Proportion of p-hackers",
-                      choices = ch_propHacker,
-                      selected = mid_choice_chr(ch_propHacker),
-                      grid = TRUE),
+                        choices = ch_propHacker[ch_propHacker != "0"],
+                        selected = mid_choice_chr(ch_propHacker[ch_propHacker != "0"]),
+                        grid = TRUE),
         sliderTextInput("prop_H1", "Probability of H1",
-                      choices = ch_propH1,
-                      selected = mid_choice_chr(ch_propH1),
-                      grid = TRUE),
+                        choices = ch_propH1,
+                        selected = mid_choice_chr(ch_propH1),
+                        grid = TRUE),
         sliderTextInput("het", "Heterogeneity under H1 effect sizes",
-                      choices = ch_het,
-                      selected = mid_choice_chr(ch_het),
-                      grid = TRUE),
+                        choices = ch_het,
+                        selected = mid_choice_chr(ch_het),
+                        grid = TRUE)
+      ),
 
       conditionalPanel(
         condition = "input.type == 'multDV'",
         sliderTextInput("nvar", "Number of DVs to choose from",
-                      choices = ch_nvar,
-                      selected = mid_choice_chr(ch_nvar),
-                      grid = TRUE),
+                        choices = ch_nvar[ch_nvar != "1"],
+                        selected = mid_choice_chr(ch_nvar[ch_nvar != "1"]),
+                        grid = TRUE),
         sliderTextInput("r", "Correlation r between DVs",
                       choices = ch_r,
                       selected = mid_choice_chr(ch_r),
@@ -162,6 +175,38 @@ ui <- fluidPage(
                       choices = choices_without_any(simres$stepsize),
                       selected = min(simres$stepsize, na.rm=TRUE),
                       grid = TRUE),
+      ),
+      
+      conditionalPanel(
+        condition = "input.type == 'multDV_perfect'",
+        sliderTextInput("d_perfect", "Effect size d under H1",
+                        choices = ch_d[ch_d != "0"],
+                        selected = mid_choice_chr(ch_d[ch_d != "0"]),
+                        grid = TRUE),
+        sliderTextInput("het_perfect", "Heterogeneity under H1 effect sizes",
+                        choices = ch_het,
+                        selected = mid_choice_chr(ch_het),
+                        grid = TRUE),
+        sliderTextInput("prop_H1_perfect", "Probability of H1",
+                        choices = ch_propH1[ch_propH1 != "0"],
+                        selected = mid_choice_chr(ch_propH1[ch_propH1 != "0"]),
+                        grid = TRUE),
+        disabled(sliderTextInput("prop_Hacker_perfect", "Proportion of p-hackers (fixed at 0)",
+                                 choices = "0",
+                                 selected = "0",
+                                 grid = TRUE))
+      ),
+      
+      conditionalPanel(
+        condition = "input.type == 'multDV_H0'",
+        disabled(sliderTextInput("d_H0", "Effect size d (fixed at 0)",
+                                 choices = "0", selected = "0", grid = TRUE)),
+        disabled(sliderTextInput("het_H0", "Heterogeneity (fixed at 0)",
+                                 choices = "0", selected = "0", grid = TRUE)),
+        disabled(sliderTextInput("prop_H1_H0", "Probability of H1 (fixed at 0)",
+                                 choices = "0", selected = "0", grid = TRUE)),
+        disabled(sliderTextInput("prop_Hacker_H0", "Proportion of p-hackers (fixed at 0)",
+                                 choices = "0", selected = "0", grid = TRUE))
       ),
         
       tags$hr(),
@@ -196,10 +241,56 @@ server <- function(input, output, session) {
     updateSelectInput(session, "stepsize", selected = "Any")
     updateSelectInput(session, "reference_line", selected = "None")
   })
+  
+  # When prop_H1 is set to 0, force d and het to 0
+  trigger_propH1 <- reactiveVal(0)
+  trigger_d <- reactiveVal(0)
+  ignore_next_propH1 <- reactiveVal(FALSE)
+  ignore_next_d <- reactiveVal(FALSE)
+  
+  observeEvent(trigger_propH1(), {
+    if (trigger_propH1() > 0)
+      session$sendCustomMessage("updateSliderText", list(
+        id = "prop_H1",
+        index = which(ch_propH1 == "0.1") - 1
+      ))
+  }, ignoreInit = TRUE)
+  
+  observeEvent(trigger_d(), {
+    if (trigger_d() > 0)
+      session$sendCustomMessage("updateSliderText", list(
+        id = "d",
+        index = which(ch_d == "0.1") - 1
+      ))
+  }, ignoreInit = TRUE)
+  
+  observeEvent(input$prop_H1, {
+    if (ignore_next_propH1()) { ignore_next_propH1(FALSE); return() }
+    if (input$prop_H1 == "0") {
+      ignore_next_d(TRUE)
+      updateSliderTextInput(session, "d", selected = "0")
+      updateSliderTextInput(session, "het", selected = "0")
+    } else if (input$d == "0") {
+      ignore_next_d(TRUE)
+      trigger_d(trigger_d() + 1)
+    }
+  }, ignoreInit = TRUE)
+  
+  observeEvent(input$d, {
+    if (ignore_next_d()) { ignore_next_d(FALSE); return() }
+    if (input$d == "0") {
+      ignore_next_propH1(TRUE)
+      updateSliderTextInput(session, "prop_H1", selected = "0")
+      updateSliderTextInput(session, "het", selected = "0")
+    } else if (input$prop_H1 == "0") {
+      ignore_next_propH1(TRUE)
+      trigger_propH1(trigger_propH1() + 1)
+    }
+  }, ignoreInit = TRUE)
 
   # Filtered data according to UI
   filtered <- reactive({
-    req(input$nvar, input$r, input$d, input$prop_Hacker, input$prop_H1, input$het)
+    req(input$type)
 
     # Convert sliderTextInput selections to numeric for filtering
     sel_nvar <- as.integer(input$nvar)
@@ -236,9 +327,29 @@ server <- function(input, output, session) {
           stepsize == as.integer(input$stepsize)
         )
     }
-
+    
+    if (input$type == "multDV_perfect") {
+      req(input$d_perfect, input$prop_H1_perfect, input$het_perfect)
+      df <- simres %>%
+        filter(
+          condition == "multDV_perfect",
+          dplyr::near(d, as.numeric(input$d_perfect), tol = 1e-12),
+          dplyr::near(prop_H1, as.numeric(input$prop_H1_perfect), tol = 1e-12),
+          dplyr::near(het, as.numeric(input$het_perfect), tol = 1e-12),
+          strategy == as.integer(input$strategy)
+        )
+    }
+    
+    if (input$type == "multDV_H0") {
+      df <- simres %>%
+        filter(condition == "multDV_H0") %>%
+        slice(1)
+      return(df)
+    }
+    
     df
   })
+
 
   reference_line_data <- reactive({
     req(input$reference_line)
