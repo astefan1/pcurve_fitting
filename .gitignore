@@ -54,3 +54,6 @@ rsconnect/
 /simulations/archive/*
 
 /.quarto/
+
+# mac files
+*.DS_Store
