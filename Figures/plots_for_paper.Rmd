@@ -457,7 +457,6 @@ fit_col = "fit_pcurve1_g2"){
 }
 ```
 
-## profile plot
 ## profile coordinates plot - p-curve 1
 ```{r}
 top_condition <- simres$condition[which.min(simres$fit_pcurve1_g2)]
@@ -528,7 +527,7 @@ geom_path(data = plotdat,
           inherit.aes = FALSE) +
   geom_point(data = plotdat,
              aes(x = value_norm_j, y = y, color = fit_pcurve1_g2),
-             size = 2, alpha = 0.7,
+             size = 2, alpha = 0.9,
              inherit.aes = FALSE) +
   scale_color_gradient(high = "#65738a", low = "#4287f5",
                        name = "Simulation fit (G²)",
@@ -726,7 +725,12 @@ hm_with_profile_p2 <- hm_top_p2 +
             inherit.aes = FALSE) +
   scale_color_identity()
 
-plot_dvr_c_p2 | (hm_with_profile_p2 + no_y_title)
+# remove text from red bubble
+plot_dvr_c_p2_fig2  <- add_n_circle(plot_dvr_p2,  "multDV_realistic",  max_n, best_cond = best_cond_p2) +
+  theme(panel.border = element_rect(color = alpha("grey", 0.6), 
+                                    linewidth = 2, fill = NA))
+
+plot_dvr_c_p2_fig2  | (hm_with_profile_p2 + no_y_title)
 ggsave("p-curve_2/p2_figure2.png", width = 14, height = 6, units = "in")
 ```
 
