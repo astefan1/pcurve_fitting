@@ -425,7 +425,7 @@ fit_col = "fit_pcurve1_g2"){
   heatmap_dat <- background_dat_local |>
     left_join(prop_dat, by = c("variable", "y", "value_norm")) |>
     mutate(prop = replace_na(prop, 0),
-           text_color = ifelse(prop > 0.5, "white", "grey30"))
+           text_color = "grey30")
   
   p <- heatmap_dat |>
     ggplot(aes(x = value_norm, y = y, fill = prop)) +
@@ -519,15 +519,15 @@ hm_with_profile <- hm_top +
   ggnewscale::new_scale_color() +
 geom_path(data = plotdat,
           aes(x = value_norm_j, y = y, group = sim_ID),
-          color = "white", linewidth = 4, alpha = 0.9,
+          color = "white", linewidth = 4, alpha = 0.7,
           inherit.aes = FALSE) +
 geom_path(data = plotdat,
           aes(x = value_norm_j, y = y, group = sim_ID, color = fit_pcurve1_g2),
-          linewidth = 2, alpha = 0.9,
+          linewidth = 2, alpha = 0.5,
           inherit.aes = FALSE) +
   geom_point(data = plotdat,
              aes(x = value_norm_j, y = y, color = fit_pcurve1_g2),
-             size = 2, alpha = 0.9,
+             size = 2, alpha = 0.5,
              inherit.aes = FALSE) +
   scale_color_gradient(high = "#65738a", low = "#4287f5",
                        name = "Simulation fit (G²)",
@@ -704,15 +704,15 @@ hm_with_profile_p2 <- hm_top_p2 +
   ggnewscale::new_scale_color() +
   geom_path(data = plotdat_p2,
           aes(x = value_norm_j, y = y, group = sim_ID),
-          color = "white", linewidth = 4, alpha = 0.9,
+          color = "white", linewidth = 4, alpha = 0.7,
           inherit.aes = FALSE) +
   geom_path(data = plotdat_p2,
             aes(x = value_norm_j, y = y, group = sim_ID, color = fit_pcurve2_g2),
-            linewidth = 2, alpha = 0.9,
+            linewidth = 2, alpha = 0.5,
             inherit.aes = FALSE) +
   geom_point(data = plotdat_p2,
              aes(x = value_norm_j, y = y, color = fit_pcurve2_g2),
-             size = 2, alpha = 0.7,
+             size = 2, alpha = 0.5,
              inherit.aes = FALSE) +
   scale_color_gradient(high = "#65738a", low = "#4287f5",
                        name = "Simulation fit (G²)",
