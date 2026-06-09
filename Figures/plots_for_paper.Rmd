@@ -6,6 +6,7 @@ date: "2026-03-20"
 ---
 # setup
 ```{r setup, include=FALSE}
+# remotes::install_github("astefan1/pcurve_fitting")
 library(fitPCurve)
 library(rio)
 library(tidyverse)
@@ -46,10 +47,14 @@ pcurves500_long <- pcurves500 %>%
 ## prep
 Calculate number of simulations for each p-curve
 ```{r}
+simres <- simres %>% #some simulations have duplicate rows because strategy was varied (but strategy shouldn't matter)
+  filter(!(condition == "multDV_perfect" & strategy != 3) & 
+         !(condition == "multDV_H0" & strategy != 3))
+
+
 n_sims <- simres %>% 
   group_by(condition) %>% 
-  summarise(simulations = n()) %>% 
-  mutate(simulations = ifelse(condition == "multDV_H0", 1, simulations)) # this is really just 1 simulation, strategy was varied in the simulation but does not matter
+  summarise(simulations = n()) 
 
 get_n <- function(cond) n_sims$simulations[n_sims$condition == cond]
 
@@ -193,12 +198,6 @@ add_n_circle_label <- function(plot, cond, max_n, min_size = 8, max_size = 17,
       y = unit(1, "npc") - unit(size + 2, "mm"),
       gp = gpar(col = "darkred", fontsize = size * 1.8, fontface = "bold", alpha = 0.6)
     ),
-    if (is_best) textGrob(
-      label = "*",
-      x = unit(0.97, "npc"), 
-      y = unit(0.93, "npc"), 
-      gp = gpar(col = "darkred", fontsize = size * 1.9, fontface = "bold", alpha = 0.6)
-    ),
     textGrob(
       label = "simulations",
       x = unit(1, "npc") - unit(size + 2, "mm"),
@@ -231,12 +230,6 @@ add_n_circle <- function(plot, cond, max_n, min_size = 8, max_size = 17,
       x = unit(1, "npc") - unit(size + 2, "mm"),
       y = unit(1, "npc") - unit(size + 2, "mm"),
       gp = gpar(col = "darkred", fontsize = size * 1.8, fontface = "bold", alpha = 0.6)
-    ),
-    if (is_best) textGrob(
-      label = "*",
-      x = unit(0.97, "npc"), 
-      y = unit(0.93, "npc"), 
-      gp = gpar(col = "darkred", fontsize = size * 1.9, fontface = "bold", alpha = 0.6)
     )
   )
   
