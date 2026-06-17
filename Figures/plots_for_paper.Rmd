@@ -197,12 +197,6 @@ add_n_circle_label <- function(plot, cond, max_n, min_size = 8, max_size = 17,
       y = unit(1, "npc") - unit(size + 2, "mm"),
       gp = gpar(col = "darkred", fontsize = size * 1.8, fontface = "bold", alpha = 0.6)
     ),
-    if (is_best) textGrob(
-      label = "*",
-      x = unit(0.97, "npc"), 
-      y = unit(0.93, "npc"), 
-      gp = gpar(col = "darkred", fontsize = size * 1.9, fontface = "bold", alpha = 0.6)
-    ),
     textGrob(
       label = "simulations",
       x = unit(1, "npc") - unit(size + 2, "mm"),
@@ -235,12 +229,6 @@ add_n_circle <- function(plot, cond, max_n, min_size = 8, max_size = 17,
       x = unit(1, "npc") - unit(size + 2, "mm"),
       y = unit(1, "npc") - unit(size + 2, "mm"),
       gp = gpar(col = "darkred", fontsize = size * 1.8, fontface = "bold", alpha = 0.6)
-    ),
-    if (is_best) textGrob(
-      label = "*",
-      x = unit(0.97, "npc"), 
-      y = unit(0.93, "npc"), 
-      gp = gpar(col = "darkred", fontsize = size * 1.9, fontface = "bold", alpha = 0.6)
     )
   )
   
