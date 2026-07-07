@@ -52,5 +52,5 @@ The simulation results (which are already included in the repository) can be exp
 
 ```r
 library(fitPCurve)
-source("simulations/ShinyApp/app.R", echo=TRUE)
+runApp("simulations/ShinyApp/app.R", echo=TRUE)
 ```
