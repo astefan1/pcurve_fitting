@@ -1,6 +1,8 @@
 library(shiny)
 library(dplyr)
 library(tidyr)
+library(munsell)
+library(S7)
 library(ggplot2)
 library(stringr)
 library(shinyWidgets)
@@ -8,7 +10,7 @@ library(rio)
 library(shinyjs)
 
 # The two empirical reference p-curves
-pcurves <- import("../avg_pcurve_simulation_study/avg_pcurve.csv")
+pcurves <- import("avg_pcurve.csv")
 pcurves_long <- pcurves %>%
   pivot_longer(cols = starts_with("p"), names_to = "metric", values_to = "value") %>%
   mutate(p_bin = str_sub(metric, 2, 2))

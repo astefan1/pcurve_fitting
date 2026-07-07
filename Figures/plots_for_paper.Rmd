@@ -51,7 +51,6 @@ simres <- simres %>% #some simulations have duplicate rows because strategy was 
   filter(!(condition == "multDV_perfect" & strategy != 3) & 
          !(condition == "multDV_H0" & strategy != 3))
 
-
 n_sims <- simres %>% 
   group_by(condition) %>% 
   summarise(simulations = n()) 
@@ -372,19 +371,11 @@ ggsave("p-curve_1/p1_figure1.png", width = 12, height = 14, units = "in")
 ## Heat map plotting function
 ```{r }
 plot_heatmap <- function(condition_name, n_top = 100, show_legend = FALSE,
-fit_col = "fit_pcurve1_g2"){
+                         fit_col = "fit_pcurve1_g2"){
   
-  if (grepl("multDV", condition_name)) {
-    vars <- c("prop_Hacker", "prop_H1", "het", "d", "nvar", "r", "strategy")
-    labels <- c("Proportion p-hackers", "Proportion true effects", 
-                "Heterogeneity (SD of d)", "Effect size (d)", 
-                "N variables", "Correlation (r)", "Strategy")
-  } else if (grepl("optStop", condition_name)) {
-    vars <- c("prop_Hacker", "prop_H1", "het", "d", "nmin", "nmax", "stepsize")
-    labels <- c("Proportion p-hackers", "Proportion true effects",
-                "Heterogeneity (SD of d)", "Effect size (d)",
-                "Min. N.", "Max N.", "Step size N.")
-  }
+  pv     <- get_profile_vars(condition_name)
+  vars   <- pv$vars
+  labels <- pv$labels
   
   level_lookup_local <- simres |>
     filter(condition == condition_name) |>
@@ -448,32 +439,40 @@ fit_col = "fit_pcurve1_g2"){
   
   list(plot = p, heatmap_dat = heatmap_dat)
 }
+
+# Map a condition to its variable set +  labels
+get_profile_vars <- function(condition_name) {
+  base     <- c("prop_Hacker", "prop_H1", "het", "d")
+  base_lab <- c("Proportion p-hackers", "Proportion true effects",
+                "Heterogeneity (SD of d)", "Effect size (d)")
+
+  if (grepl("perfect|H0", condition_name)) {        # Perfect & Flat worlds
+    list(vars = base, labels = base_lab)
+  } else if (grepl("multDV", condition_name)) {     # Multiple DVs
+    list(vars   = c(base, "nvar", "r", "strategy"),
+         labels = c(base_lab, "N variables", "Correlation (r)", "Strategy"))
+  } else {                                          # Optional Stopping
+    list(vars   = c(base, "nmin", "nmax", "stepsize"),
+         labels = c(base_lab, "Min. N.", "Max N.", "Step size N."))
+  }
+}
 ```
 
 ## profile coordinates plot - p-curve 1
 ```{r}
 top_condition <- simres$condition[which.min(simres$fit_pcurve1_g2)]
 
+pv          <- get_profile_vars(top_condition)
+vars        <- pv$vars
+var_numeric <- setNames(seq_along(vars), vars)
+var_levels  <- pv$labels   # pretty labels for the y-axis
+
 level_lookup <- simres |>
   filter(condition == top_condition) |>
-  pivot_longer(cols = c(prop_Hacker, prop_H1, het, d, nmin, nmax, stepsize),
-               names_to = "variable", values_to = "value") |>
+  pivot_longer(cols = all_of(vars), names_to = "variable", values_to = "value") |>
   filter(!is.na(value)) |>
   group_by(variable) |>
   summarise(levels = list(sort(unique(value))), .groups = "drop")
-
-var_levels <- c("prop_Hacker", "prop_H1", "het", "d", "nmin", "nmax", "stepsize")
-var_numeric <- setNames(seq_along(var_levels), var_levels)
-
-var_levels <- recode(var_levels,
-  "prop_Hacker" = "Proportion p-hackers",
-  "prop_H1"     = "Proportion true effects",
-  "het"         = "Heterogeneity (SD of d)",
-  "d"           = "Effect size (d)",
-  "nmin"        = "Min. N.",
-  "nmax"        = "Max N.",
-  "stepsize"    = "Step size N."
-)
 
 set.seed(130522026)
 
@@ -483,8 +482,7 @@ plotdat <- simres |>
   arrange(fit_pcurve1_g2) |>
   mutate(rank = row_number(),
          jitter = (rank - 3) * 0.15) |>
-  pivot_longer(cols = c(d, prop_Hacker, prop_H1, het, nmin, nmax, stepsize),
-               names_to = "variable", values_to = "value") |>
+ pivot_longer(cols = all_of(vars), names_to = "variable", values_to = "value") |>
   filter(!is.na(value)) |>
   left_join(level_lookup, by = "variable") |>
   mutate(value_norm = map2_int(value, levels, ~ match(.x, .y)),
@@ -639,26 +637,17 @@ ggsave("p-curve_2/p2_figure1.png", width = 12, height = 14, units = "in")
 ```{r}
 top_condition_p2 <- simres$condition[which.min(simres$fit_pcurve2_g2)]
 
+pv_p2          <- get_profile_vars(top_condition_p2)
+vars_p2        <- pv_p2$vars
+var_numeric_p2 <- setNames(seq_along(vars_p2), vars_p2)
+var_levels_p2  <- pv_p2$labels   # pretty labels for the y-axis
+
 level_lookup_p2 <- simres |>
   filter(condition == top_condition_p2) |>
-  pivot_longer(cols = c(prop_Hacker, prop_H1, het, d, nvar, r, strategy),
-               names_to = "variable", values_to = "value") |>
+  pivot_longer(cols = all_of(vars_p2), names_to = "variable", values_to = "value") |>
   filter(!is.na(value)) |>
   group_by(variable) |>
   summarise(levels = list(sort(unique(value))), .groups = "drop")
-
-var_levels_p2 <- c("prop_Hacker", "prop_H1", "het", "d", "nvar", "r", "strategy")
-var_numeric_p2 <- setNames(seq_along(var_levels_p2), var_levels_p2)
-
-var_levels_p2 <- recode(var_levels_p2,
-  "prop_Hacker" = "Proportion p-hackers",
-  "prop_H1"     = "Proportion true effects",
-  "het"         = "Heterogeneity (SD of d)",
-  "d"           = "Effect size (d)",
-  "nvar"        = "N variables",
-  "r"           = "Correlation (r)",
-  "strategy"    = "Strategy"
-)
 
 set.seed(130522026)
 
@@ -668,8 +657,7 @@ plotdat_p2 <- simres |>
   arrange(fit_pcurve2_g2) |>
   mutate(rank = row_number(),
          jitter = (rank - 3) * 0.15) |>
-  pivot_longer(cols = c(prop_Hacker, prop_H1, het, d, nvar, r, strategy),
-               names_to = "variable", values_to = "value") |>
+  pivot_longer(cols = all_of(vars_p2), names_to = "variable", values_to = "value") |>
   filter(!is.na(value)) |>
   left_join(level_lookup_p2, by = "variable") |>
   mutate(value_norm = map2_int(value, levels, ~ match(.x, .y)),
@@ -727,4 +715,145 @@ plot_dvr_c_p2_fig2  | (hm_with_profile_p2 + no_y_title)
 ggsave("p-curve_2/p2_figure2.png", width = 14, height = 6, units = "in")
 ```
 
+# Appendices
+```{r}
+## =====================================================================
+## fig2 for EVERY condition, per p-curve  (6 conditions x 2 p-curves = 12)
+## Requires: plot_heatmap(), get_profile_vars(), simres, ggnewscale, tidyverse
+## =====================================================================
+
+# condition -> pre-built p-curve panel object, per p-curve
+panel_lookup <- list(
+  p1 = c(multDV_realistic  = "plot_dvr_c",  multDV_worst      = "plot_dvw_c",
+         multDV_perfect    = "plot_perf_c", multDV_H0         = "plot_flat_c",
+         optStop_realistic = "plot_optr_c", optStop_worst     = "plot_optw_c"),
+  p2 = c(multDV_realistic  = "plot_dvr_c_p2",  multDV_worst      = "plot_dvw_c_p2",
+         multDV_perfect    = "plot_perf_c_p2", multDV_H0         = "plot_flat_c_p2",
+         optStop_realistic = "plot_optr_c_p2", optStop_worst     = "plot_optw_c_p2")
+)
+
+# condition -> title shown above the left p-curve panel
+title_lookup <- c(
+  multDV_realistic  = "Realistic World: Multiple DVs",
+  multDV_worst      = "Worst World: Multiple DVs",
+  multDV_perfect    = "Perfect World",
+  multDV_H0         = "Flat World",
+  optStop_realistic = "Realistic World: Optional Stopping",
+  optStop_worst     = "Worst World: Optional Stopping"
+)
+
+#' Build a fig2 (p-curve panel | heatmap + profile overlay) for ONE condition / p-curve
+#'
+#' @param cond      Condition name, e.g. "multDV_realistic"
+#' @param fit_col   Fit column to minimise, e.g. "fit_pcurve1_g2"
+#' @param pc        Which p-curve, "p1" or "p2" (selects the left panel)
+#' @param n_profile Number of best simulations to overlay (auto-capped to availability)
+#' @param n_top     Number of top sims for the heatmap proportions
+#' @param seed      Seed for reproducible jitter
+#' @return patchwork object (panel | heatmap+profile)
+build_fig2_condition <- function(cond, fit_col, pc,
+                                 n_profile = 5, n_top = 100,
+                                 seed = 130522026) {
+
+  # variable set + pretty labels for THIS condition's world
+  pv          <- get_profile_vars(cond)
+  vars        <- pv$vars
+  var_numeric <- setNames(seq_along(vars), vars)
+  var_labels  <- pv$labels
+
+  # how many sims actually exist for this condition (Flat world has only 1)
+  n_avail   <- sum(simres$condition == cond)
+  n_profile <- min(n_profile, n_avail)
+
+  # level lookup for this condition
+  level_lookup <- simres |>
+    filter(condition == cond) |>
+    pivot_longer(cols = all_of(vars), names_to = "variable", values_to = "value") |>
+    filter(!is.na(value)) |>
+    group_by(variable) |>
+    summarise(levels = list(sort(unique(value))), .groups = "drop")
+
+  # profile data: n best sims within this condition
+  set.seed(seed)
+  plotdat <- simres |>
+    filter(condition == cond) |>
+    slice_min(.data[[fit_col]], n = n_profile) |>
+    arrange(.data[[fit_col]]) |>
+    mutate(rank   = row_number(),
+           jitter = (rank - ceiling(n_profile / 2)) * 0.15) |>
+    pivot_longer(cols = all_of(vars), names_to = "variable", values_to = "value") |>
+    filter(!is.na(value)) |>
+    left_join(level_lookup, by = "variable") |>
+    mutate(value_norm   = map2_int(value, levels, ~ match(.x, .y)),
+           y            = var_numeric[variable],
+           value_norm_j = value_norm + jitter) |>
+    ungroup() |>
+    arrange(sim_ID, y) |>
+    mutate(sim_ID = reorder(as.factor(sim_ID), .data[[fit_col]]))
+
+  # heatmap (cap n_top to availability so Flat world doesn't error)
+  hm_out      <- plot_heatmap(cond, n_top = min(n_top, n_avail),
+                              fit_col = fit_col, show_legend = TRUE)
+  hm_top      <- hm_out$plot
+  heatmap_dat <- hm_out$heatmap_dat
+
+  # overlay profile on heatmap
+  hm_with_profile <- hm_top +
+    ggnewscale::new_scale_color() +
+    geom_path(data = plotdat,
+              aes(x = value_norm_j, y = y, group = sim_ID),
+              color = "white", linewidth = 4, alpha = 0.7, inherit.aes = FALSE) +
+    geom_path(data = plotdat,
+              aes(x = value_norm_j, y = y, group = sim_ID, color = .data[[fit_col]]),
+              linewidth = 2, alpha = 0.5, inherit.aes = FALSE) +
+    geom_point(data = plotdat,
+               aes(x = value_norm_j, y = y, color = .data[[fit_col]]),
+               size = 2, alpha = 0.5, inherit.aes = FALSE) +
+    scale_color_gradient(high = "#65738a", low = "#4287f5",
+                         name = "Simulation fit (G\u00b2)",
+                         guide = guide_colorbar(reverse = TRUE)) +
+    scale_y_continuous(breaks = seq_along(vars), labels = var_labels) +
+    ggnewscale::new_scale_color() +
+    geom_text(data = heatmap_dat,
+              aes(x = value_norm, y = y, label = label, color = text_color),
+              size = 4, fontface = "bold", inherit.aes = FALSE) +
+    scale_color_identity()
+
+  # left panel: pre-built p-curve panel for this condition / p-curve
+  panel <- get(panel_lookup[[pc]][[cond]])
+
+  # p2 optStop_realistic is the first appendix entry for p-curve 2:
+  # give it the "Best of ... simulations" label version
+  if (pc == "p2" && cond == "optStop_realistic") {
+    panel <- add_n_circle_label(plot_optr_p2, "optStop_realistic",
+                                max_n, best_cond = best_cond_p2)
+  }
+
+  # title above the panel (centered, bold) — same look as figure 2
+  panel <- panel + ggtitle(title_lookup[[cond]]) + center_title
+
+  panel | (hm_with_profile + no_y_title)
+}
+
+## ---------------------------------------------------------------------
+## Generate all 12 and save
+## ---------------------------------------------------------------------
+all_conditions <- c("multDV_realistic", "multDV_worst", "multDV_perfect",
+                    "multDV_H0", "optStop_realistic", "optStop_worst")
+
+# choose output dirs / fit columns per p-curve
+pcurve_spec <- list(
+  p1 = list(fit_col = "fit_pcurve1_g2", dir = "p-curve_1"),
+  p2 = list(fit_col = "fit_pcurve2_g2", dir = "p-curve_2")
+)
+
+for (pc in names(pcurve_spec)) {
+  spec <- pcurve_spec[[pc]]
+  for (cond in all_conditions) {
+    fig <- build_fig2_condition(cond, fit_col = spec$fit_col, pc = pc)
+    ggsave(file.path(spec$dir, paste0(pc, "_fig2_", cond, ".png")),
+           plot = fig, width = 14, height = 6, units = "in")
+  }
+}
+```
 
