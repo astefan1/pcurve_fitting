@@ -40,11 +40,17 @@ For a completely fresh run of the simulations, delete everything in the `sim-res
 
 Once the computation has finished, the results are stored in the `sim_realistic.csv` file in the `/simulations/sim-results` folder and the subfolder can be deleted.
 
+## Computing the results 
+
+The code that summarises the best fitting simulation results can be found in `simulations/eval_simResults_new.qmd`. There is also a .html version available for convenience.
+
+The code to reproduce the Figures in the manuscript can be found in `/Figures/plots_for_paper.Rmd`.
+
 ## Start the Shiny App
 
 The simulation results (which are already included in the repository) can be explored with a Shiny App. To start the app, run:
 
 ```r
 library(fitPCurve)
-source("simulations/ShinyApp.R", echo=TRUE)
+source("simulations/ShinyApp/app.R", echo=TRUE)
 ```
