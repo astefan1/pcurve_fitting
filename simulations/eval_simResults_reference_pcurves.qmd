@@ -1,5 +1,5 @@
 ---
-title: "Evaluation of p-curve simulation results"
+title: "Results from fitting to reference p-curves"
 author: "Beth Clarke, Felix Schönbrodt, Angelika Stefan"
 date: today
 execute:
@@ -21,16 +21,9 @@ library(rio)
 library(dplyr)
 library(ggplot2)
 
-# The working directory should be the project root
-# if quarto:render is called
-if (!interactive()) {
-  print("Switching working directory to project root")
-  setwd("..")
-}
-
 
 # reference p-curves
-pcurves <- import("avg_pcurve_simulation_study/avg_pcurve.csv")
+pcurves <- import("reference-pcurves.csv")
 
 # load the multiple DV simulation results:
 simres_realistic <- import("sim-results/sim_realistic.csv")
@@ -65,60 +58,60 @@ simres_optStop$type <- "optStop"
 # Combine simulations from both p-hacking strategies (they have different parameter columns)
 simres <- bind_rows(simres_multDV, simres_optStop)
 
-save(simres, file="sim-results/simres_all.RData")
-save(simres, file="ShinyApp/simres_all.RData")
 ```
 
 Compute G-squared fit statistics
 
 ```{r}
-simres$fit_pcurve1_g2 <- g2(
+simres$fit_sotola_g2 <- g2(
   observed = simplify2array(pcurves[1, paste0("p", 1:5)]), 
   expected = simres[, paste0("p", 1:5)], n = pcurves$nsig[1], tol=1e-6)
 
-simres$fit_pcurve2_g2 <- g2(
+simres$fit_wetzels_g2 <- g2(
   observed = simplify2array(pcurves[2, paste0("p", 1:5)]), 
   expected = simres[, paste0("p", 1:5)], n = pcurves$nsig[2], tol=1e-6)
+
+simres$fit_simonsohn_g2 <- g2(
+  observed = simplify2array(pcurves[3, paste0("p", 1:5)]), 
+  expected = simres[, paste0("p", 1:5)], n = pcurves$nsig[3], tol=1e-6)
 ```
 
 Also compute chi-squared and RMSE for robustness checks
 
 ```{r}
 # Chi-squared
-simres$fit_pcurve1_chi2 <- chi2(
+simres$fit_sotola_chi2 <- chi2(
   observed = simplify2array(pcurves[1, paste0("p", 1:5)]), 
   expected = simres[, paste0("p", 1:5)], n = pcurves$nsig[1], tol=1e-6)
-simres$fit_pcurve2_chi2 <- chi2(
+
+simres$fit_wetzels_chi2 <- chi2(
   observed = simplify2array(pcurves[2, paste0("p", 1:5)]), 
   expected = simres[, paste0("p", 1:5)], n = pcurves$nsig[2], tol=1e-6)
 
+simres$fit_simonsohn_chi2 <- chi2(
+  observed = simplify2array(pcurves[3, paste0("p", 1:5)]), 
+  expected = simres[, paste0("p", 1:5)], n = pcurves$nsig[3], tol=1e-6)
+
 # RMSE
-simres$fit_pcurve1_rmse <- rmse(
+simres$fit_sotola_rmse <- rmse(
   observed = simplify2array(pcurves[1, paste0("p", 1:5)]), 
   expected = simres[, paste0("p", 1:5)], n = pcurves$nsig[1])
-simres$fit_pcurve2_rmse <- rmse(
+
+simres$fit_wetzels_rmse <- rmse(
   observed = simplify2array(pcurves[2, paste0("p", 1:5)]), 
   expected = simres[, paste0("p", 1:5)], n = pcurves$nsig[2])
+
+simres$fit_simonsohn_rmse <- rmse(
+  observed = simplify2array(pcurves[3, paste0("p", 1:5)]), 
+  expected = simres[, paste0("p", 1:5)], n = pcurves$nsig[3])
 ```
+
+### Note BC: up to here
 
 ## Extract best fits in each "world"
 
-### For the first p-curve:
+### Sotola (2023):
 
-Investigate best fits overall:
-
-Find the best fit that is *not* in the realistic world:
-
-```{r}
-simres_ordered <- simres |> arrange(fit_pcurve1_g2)
-which(!simres_ordered$condition %in% c("optStop_realistic", "multDV_realistic"))[1]
-```
-
-Among the best fitting conditions, calculate percentage of both p-hacking strategies: 
-
-```{r}
-simres |> arrange(fit_pcurve1_g2) |> slice(1:3226) |> select(condition) |> table()/3226 |> print()
-```
 Total range of G-squared values:
 
 ```{r}
@@ -470,8 +463,4 @@ plot_pcurves(simres |> filter(condition == "multDV_perfect"), poriginal = simpli
 plot_pcurves(simres |> filter(condition == "multDV_H0"), poriginal = simplify2array(pcurves[2, paste0("p", 1:5)]), n_best = 1, GOF="g2", n_studies = pcurves$nsig[2], tol = 1e-6, title = "Flat World")
 ```
 
-save simres for plotting
-```{r}
-save(simres, file = "simulations/sim-results/simres_full.RData")
-```
 
