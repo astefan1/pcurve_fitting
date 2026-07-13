@@ -10,7 +10,7 @@ format:
     embed-resources: true
 ---
 
-## Data wrangling and Goodness of Fit calculation
+# Data wrangling and Goodness of Fit calculation
 
 Combine simulation results from all conditions into one big dataset
 
@@ -20,6 +20,7 @@ library(fitPCurve)
 library(rio)
 library(dplyr)
 library(ggplot2)
+library(kableExtra)
 
 
 # reference p-curves
@@ -106,166 +107,6 @@ simres$fit_simonsohn_rmse <- rmse(
   expected = simres[, paste0("p", 1:5)], n = pcurves$nsig[3])
 ```
 
-### Note BC: up to here
-
-## Extract best fits in each "world"
-
-### Sotola (2023):
-
-Total range of G-squared values:
-
-```{r}
-simres |> arrange(fit_pcurve1_g2) |> select(fit_pcurve1_g2) |> range() |> print()
-```
-
-G-squared quartiles:
-
-```{r}
-simres |> arrange(fit_pcurve1_g2) |> select(fit_pcurve1_g2) |> summary()  |> print()
-```
-Look at parameters of best fitting condition:
-
-```{r}
-simres |> arrange(fit_pcurve1_g2) |> slice(1:10) |> print()
-```
-
-
-Extract best fits in each world using G-squared statistic
-
-```{r}
-# Flat world
-simres |> filter(condition == "multDV_H0") |> arrange(fit_pcurve1_g2) |> print()
-```
-
-
-```{r}
-# Worst case, multiple DVs
-simres |> filter(condition == "multDV_worst") |> arrange(fit_pcurve1_g2) |> slice(1:10) |> select(c(1:9, 10:15), fit_pcurve1_g2) |> round(2) |> print()
-```
-
-```{r}
-# Worst case, optional stopping
-simres |> filter(condition == "optStop_worst") |> arrange(fit_pcurve1_g2) |> slice(1:10) |> select(c(3:8, 10:15, 20:23), fit_pcurve1_g2) |> round(2) |> print()
-```
-
-```{r}
-# Realistic, multiple DVs
-simres |> filter(condition == "multDV_realistic") |> arrange(fit_pcurve1_g2) |> slice(1:10) |> select(c(1:9, 10:15), fit_pcurve1_g2) |> round(2) |> print()
-```
-
-```{r}
-# Realistic, optional stopping
-simres |> filter(condition == "optStop_realistic") |> arrange(fit_pcurve1_g2) |> slice(1:10) |> select(c(3:8, 10:15, 20:23), fit_pcurve1_g2) |> round(2) |> print()
-```
-
-```{r}
-# Perfect
-simres |> filter(condition == "multDV_perfect") |> arrange(fit_pcurve1_g2) |> slice(1:10) |> select(c(1:9, 10:15), fit_pcurve1_g2) |> round(2) |> print()
-```
-
-Robustness checks: Check if results change depending on the Goodness of fit statistic
-
-Worst case, multiple DVs
-
-```{r}
-simres$sim_ID <- rownames(simres)
-
-# Worst case, multiple DVs
-G2_fits <- simres |> filter(condition == "multDV_worst") |> arrange(fit_pcurve1_g2) |> slice(1:5) |> select("sim_ID", "fit_pcurve1_g2")
-Chi2_fits <- simres |> filter(condition == "multDV_worst") |> arrange(fit_pcurve1_chi2) |> slice(1:5) |> select("sim_ID", "fit_pcurve1_chi2")
-RMSE_fits <- simres |> filter(condition == "multDV_worst") |> arrange(fit_pcurve1_rmse) |> slice(1:5) |> select("sim_ID", "fit_pcurve1_rmse")
-
-worstcase_multDV_fits <- cbind(G2_fits, Chi2_fits, RMSE_fits)
-colnames(worstcase_multDV_fits) <- c("G2_best_sims", "G2", "Chi2_best_sims", "Chi2", "RMSE_best_sims", "RMSE")
-
-worstcase_multDV_fits
-```
-
-Worst case, optional stopping
-
-```{r}
-# Worst case, optional stopping
-G2_fits <- simres |> filter(condition == "optStop_worst") |> arrange(fit_pcurve1_g2) |> slice(1:5) |> select("sim_ID", "fit_pcurve1_g2")
-Chi2_fits <- simres |> filter(condition == "optStop_worst") |> arrange(fit_pcurve1_chi2) |> slice(1:5) |> select("sim_ID", "fit_pcurve1_chi2")
-RMSE_fits <- simres |> filter(condition == "optStop_worst") |> arrange(fit_pcurve1_rmse) |> slice(1:5) |> select("sim_ID", "fit_pcurve1_rmse")
-
-worstcase_optstop_fits <- cbind(G2_fits, Chi2_fits, RMSE_fits)
-colnames(worstcase_optstop_fits) <- c("G2_best_sims", "G2", "Chi2_best_sims", "Chi2", "RMSE_best_sims", "RMSE")
-
-worstcase_optstop_fits
-```
-
-Realistic, multiple DVs
-
-```{r}
-# Realistic, multiple DVs
-G2_fits <- simres |> filter(condition == "multDV_realistic") |> arrange(fit_pcurve1_g2) |> slice(1:5) |> select("sim_ID", "fit_pcurve1_g2")
-Chi2_fits <- simres |> filter(condition == "multDV_realistic") |> arrange(fit_pcurve1_chi2) |> slice(1:5) |> select("sim_ID", "fit_pcurve1_chi2")
-RMSE_fits <- simres |> filter(condition == "multDV_realistic") |> arrange(fit_pcurve1_rmse) |> slice(1:5) |> select("sim_ID", "fit_pcurve1_rmse")
-
-multDV_realistic_fits <- cbind(G2_fits, Chi2_fits, RMSE_fits)
-colnames(multDV_realistic_fits) <- c("G2_best_sims", "G2", "Chi2_best_sims", "Chi2", "RMSE_best_sims", "RMSE")
-
-multDV_realistic_fits
-```
-
-Realistic, optional stopping
-
-```{r}
-# Realistic, optional stopping
-G2_fits <- simres |> filter(condition == "optStop_realistic") |> arrange(fit_pcurve1_g2) |> slice(1:5) |> select("sim_ID", "fit_pcurve1_g2")
-Chi2_fits <- simres |> filter(condition == "optStop_realistic") |> arrange(fit_pcurve1_chi2) |> slice(1:5) |> select("sim_ID", "fit_pcurve1_chi2")
-RMSE_fits <- simres |> filter(condition == "optStop_realistic") |> arrange(fit_pcurve1_rmse) |> slice(1:5) |> select("sim_ID", "fit_pcurve1_rmse")
-
-optstop_realistic_fits <- cbind(G2_fits, Chi2_fits, RMSE_fits)
-colnames(optstop_realistic_fits) <- c("G2_best_sims", "G2", "Chi2_best_sims", "Chi2", "RMSE_best_sims", "RMSE")
-
-optstop_realistic_fits
-```
-
-Perfect
-
-```{r}
-# Perfect
-G2_fits <- simres |> filter(condition == "multDV_perfect") |> arrange(fit_pcurve1_g2) |> slice(1:5) |> select("sim_ID", "fit_pcurve1_g2")
-Chi2_fits <- simres |> filter(condition == "multDV_perfect") |> arrange(fit_pcurve1_chi2) |> slice(1:5) |> select("sim_ID", "fit_pcurve1_chi2")
-RMSE_fits <- simres |> filter(condition == "multDV_perfect") |> arrange(fit_pcurve1_rmse) |> slice(1:5) |> select("sim_ID", "fit_pcurve1_rmse")
-
-perfect_fits <- cbind(G2_fits, Chi2_fits, RMSE_fits)
-colnames(perfect_fits) <- c("G2_best_sims", "G2", "Chi2_best_sims", "Chi2", "RMSE_best_sims", "RMSE")
-
-perfect_fits
-```
-Flat
-
-```{r}
-# Flat
-G2_fits <- simres |> filter(condition == "multDV_H0") |> arrange(fit_pcurve1_g2) |> slice(1:5) |> select("sim_ID", "fit_pcurve1_g2")
-Chi2_fits <- simres |> filter(condition == "multDV_H0") |> arrange(fit_pcurve1_chi2) |> slice(1:5) |> select("sim_ID", "fit_pcurve1_chi2")
-RMSE_fits <- simres |> filter(condition == "multDV_H0") |> arrange(fit_pcurve1_rmse) |> slice(1:5) |> select("sim_ID", "fit_pcurve1_rmse")
-
-flat_fits <- cbind(G2_fits, Chi2_fits, RMSE_fits)
-colnames(perfect_fits) <- c("G2_best_sims", "G2", "Chi2_best_sims", "Chi2", "RMSE_best_sims", "RMSE")
-
-flat_fits
-```
-
-G2 and RMSE differ, so we investigate the parameters:
-
-```{r}
-print(simres[simres$sim_ID == perfect_fits$G2_best_sims[1], ])
-print(simres[simres$sim_ID == perfect_fits$RMSE_best_sims[1], ])
-```
-
-Find out how the condition picked by RMSE fared under G2:
-
-```{r}
-allG2_fits <- simres |> filter(condition == "multDV_perfect") |> arrange(fit_pcurve1_g2) |> select("sim_ID")
-which(allG2_fits == perfect_fits$RMSE_best_sims[1])
-```
-
-
-
 Compute BICs for between-world comparisons (accounting for model complexity)
 
 ```{r}
@@ -279,14 +120,31 @@ simres$free_parameters <- case_match(simres$condition,
                                      "optStop_worst" ~ 4)
 
 # Compute BIC from G-squared and number of free parameters
-simres$BIC <- simres$fit_pcurve1_g2 + simres$free_parameters * log(pcurves$nsig[1])
+simres$BIC_sotola <- simres$fit_sotola_g2 + simres$free_parameters * log(pcurves$nsig[1])
 
-# Compare BICs for best fits
-simres |> group_by(condition) |> arrange(fit_pcurve1_g2) |> slice(1) |> select(BIC, fit_pcurve1_g2) |> ungroup() |> print()
+simres$BIC_wetzels <- simres$fit_wetzels_g2 + simres$free_parameters * log(pcurves$nsig[1])
 
+simres$BIC_simonsohn <- simres$fit_simonsohn_g2 + simres$free_parameters * log(pcurves$nsig[1])
 ```
 
-Visualisation
+```{r}
+# Save condition labels for later use
+condition_labels <- c(
+  multDV_perfect    = "Perfect World",
+  multDV_H0         = "Flat World",
+  multDV_realistic  = "Realistic World: Multiple DVs",
+  multDV_worst      = "Worst World: Multiple DVs",
+  optStop_realistic = "Realistic World: Optional stopping",
+  optStop_worst     = "Worst World: Optional stopping"
+)
+```
+
+
+# Target p-curve: Sotola (2023):
+
+## Visualisations of best simulations in each world
+
+You can visually inspect the fit of the top 5 (where available) simulations in each world (in blue) to the target p-curve (in black).
 
 ```{r}
 plot_pcurves(simres |> filter(condition == "multDV_realistic"), poriginal = simplify2array(pcurves[1, paste0("p", 1:5)]), n_best = 5, GOF="g2", n_studies = pcurves$nsig[1], tol = 1e-6, title = "Realistic World: Multiple DVs")
@@ -302,165 +160,146 @@ plot_pcurves(simres |> filter(condition == "multDV_perfect"), poriginal = simpli
 plot_pcurves(simres |> filter(condition == "multDV_H0"), poriginal = simplify2array(pcurves[1, paste0("p", 1:5)]), n_best = 1, GOF="g2", n_studies = pcurves$nsig[1], tol = 1e-6, title = "Flat World")
 ```
 
-### For the second p-curve:
+## Overview of best fitting simulations in each world
 
-Investigate best fits overall:
-
-Find the best fit that is *not* in the realistic world:
-
+These fit indices reflect the fit of the best-fitting simulation in each condition/ world. Lower numbers indicate better fit. Note that BIC is a transformation of G2 that penalises for model complexity.
 ```{r}
-simres_ordered <- simres |> arrange(fit_pcurve2_g2)
-which(!simres_ordered$condition %in% c("optStop_realistic", "multDV_realistic"))[1]
+fit_tab <- simres %>%
+  group_by(condition) %>%
+  summarise(
+    G2   = min(fit_sotola_g2),
+    BIC  = min(BIC_sotola),
+    Chi2 = min(fit_sotola_chi2),
+    RMSE = min(fit_sotola_rmse)
+  ) 
+
+fit_tab %>%
+  mutate(condition = recode(condition, !!!condition_labels)) %>%
+  mutate(across(
+    -condition,
+    ~ cell_spec(sprintf("%.2f", .x), bold = .x == min(.x))
+  )) %>%
+  kbl(escape = FALSE) %>%
+  kable_styling()
 ```
 
-G-squared quartiles:
+
+According to G2, the Realistic World: Optional stopping contained the best-fitting simulation to the target p-curve. Once model complexity is accounted for, the Perfect World contained the simulation with the best fit to the target p-curve. Results for chi-squared and RMSE are also provided as robustness checks.
+
+## What were the top 10 best fitting simulations (according to G^2)?
+
+These rows reflect the 10 simulations that had the best fit to the target p-curve according to G^2.
 
 ```{r}
-simres |> arrange(fit_pcurve2_g2) |> select(fit_pcurve2_g2) |> summary()  |> print()
+simres |> arrange(fit_sotola_g2) |> slice(1:10) |> print()
 ```
 
-Extract best fits in each world using G-squared statistic
+# Target p-curve: Wetzels (2011):
+
+## Visualisations of best simulations in each world
+
+You can visually inspect the fit of the top 5 (where available) simulations in each world (in blue) to the target p-curve (in black).
 
 ```{r}
-# Flat world
-simres |> filter(condition == "multDV_H0") |> arrange(fit_pcurve2_g2) |> print()
+plot_pcurves(simres |> filter(condition == "multDV_realistic"), poriginal = simplify2array(pcurves[2, paste0("p", 1:5)]), n_best = 5, GOF="g2", n_studies = pcurves$nsig[1], tol = 1e-6, title = "Realistic World: Multiple DVs")
+
+plot_pcurves(simres |> filter(condition == "optStop_realistic"), poriginal = simplify2array(pcurves[2, paste0("p", 1:5)]), n_best = 1, GOF="g2", n_studies = pcurves$nsig[1], tol = 1e-6, title = "Realistic World: Optional Stopping")
+
+plot_pcurves(simres |> filter(condition == "multDV_worst"), poriginal = simplify2array(pcurves[2, paste0("p", 1:5)]), n_best = 5, GOF="g2", n_studies = pcurves$nsig[1], tol = 1e-6, title = "Worst Possible World: Multiple DVs")
+
+plot_pcurves(simres |> filter(condition == "optStop_worst"), poriginal = simplify2array(pcurves[2, paste0("p", 1:5)]), n_best = 5, GOF="g2", n_studies = pcurves$nsig[1], tol = 1e-6, title = "Worst Possible World: Optional Stopping")
+
+plot_pcurves(simres |> filter(condition == "multDV_perfect"), poriginal = simplify2array(pcurves[2, paste0("p", 1:5)]), n_best = 5, GOF="g2", n_studies = pcurves$nsig[1], tol = 1e-6, title = "Perfect World")
+
+plot_pcurves(simres |> filter(condition == "multDV_H0"), poriginal = simplify2array(pcurves[2, paste0("p", 1:5)]), n_best = 1, GOF="g2", n_studies = pcurves$nsig[1], tol = 1e-6, title = "Flat World")
 ```
 
+## Overview of best fitting simulations in each world
+
+These fit indices reflect the fit of the best-fitting simulation in each condition/ world. Lower numbers indicate better fit. Note that BIC is a transformation of G2 that penalises for model complexity.
 ```{r}
-# Worst case, multiple DVs
-simres |> filter(condition == "multDV_worst") |> arrange(fit_pcurve2_g2) |> slice(1:5) |> select(c(1:9, 10:15), fit_pcurve2_g2) |> round(2) |> print()
+fit_tab <- simres %>%
+  group_by(condition) %>%
+  summarise(
+    G2   = min(fit_wetzels_g2),
+    BIC  = min(BIC_wetzels),
+    Chi2 = min(fit_wetzels_chi2),
+    RMSE = min(fit_wetzels_rmse)
+  ) 
+
+fit_tab %>%
+  mutate(condition = recode(condition, !!!condition_labels)) %>%
+  mutate(across(
+    -condition,
+    ~ cell_spec(sprintf("%.2f", .x), bold = .x == min(.x))
+  )) %>%
+  kbl(escape = FALSE) %>%
+  kable_styling()
 ```
 
+
+According to G2, the Realistic World: Multiple DVs contained the best-fitting simulation to the target p-curve. Once model complexity is accounted for, the Perfect World contained the simulation with the best fit to the target p-curve. Results for chi-squared and RMSE are also provided as robustness checks.
+
+## What were the top 10 best fitting simulations (according to G^2)?
+
+These rows reflect the 10 simulations that had the best fit to the target p-curve according to G^2.
+
 ```{r}
-# Worst case, optional stopping
-simres |> filter(condition == "optStop_worst") |> arrange(fit_pcurve2_g2) |> slice(1:5) |> select(c(3:8, 10:15, 20:23), fit_pcurve2_g2) |> round(2) |> print()
+simres |> arrange(fit_wetzels_g2) |> slice(1:10) |> print()
 ```
 
+# Target p-curve: Simonsohn (2014):
+
+## Visualisations of best simulations in each world
+
+You can visually inspect the fit of the top 5 (where available) simulations in each world (in blue) to the target p-curve (in black).
+
 ```{r}
-# Realistic, multiple DVs
-simres |> filter(condition == "multDV_realistic") |> arrange(fit_pcurve2_g2) |> slice(1:5) |> select(c(1:9, 10:14), fit_pcurve2_g2) |> round(2) |> print()
+plot_pcurves(simres |> filter(condition == "multDV_realistic"), poriginal = simplify2array(pcurves[3, paste0("p", 1:5)]), n_best = 5, GOF="g2", n_studies = pcurves$nsig[1], tol = 1e-6, title = "Realistic World: Multiple DVs")
+
+plot_pcurves(simres |> filter(condition == "optStop_realistic"), poriginal = simplify2array(pcurves[3, paste0("p", 1:5)]), n_best = 1, GOF="g2", n_studies = pcurves$nsig[1], tol = 1e-6, title = "Realistic World: Optional Stopping")
+
+plot_pcurves(simres |> filter(condition == "multDV_worst"), poriginal = simplify2array(pcurves[3, paste0("p", 1:5)]), n_best = 5, GOF="g2", n_studies = pcurves$nsig[1], tol = 1e-6, title = "Worst Possible World: Multiple DVs")
+
+plot_pcurves(simres |> filter(condition == "optStop_worst"), poriginal = simplify2array(pcurves[3, paste0("p", 1:5)]), n_best = 5, GOF="g2", n_studies = pcurves$nsig[1], tol = 1e-6, title = "Worst Possible World: Optional Stopping")
+
+plot_pcurves(simres |> filter(condition == "multDV_perfect"), poriginal = simplify2array(pcurves[3, paste0("p", 1:5)]), n_best = 5, GOF="g2", n_studies = pcurves$nsig[1], tol = 1e-6, title = "Perfect World")
+
+plot_pcurves(simres |> filter(condition == "multDV_H0"), poriginal = simplify2array(pcurves[3, paste0("p", 1:5)]), n_best = 1, GOF="g2", n_studies = pcurves$nsig[1], tol = 1e-6, title = "Flat World")
 ```
 
+## Overview of best fitting simulations in each world
+
+These fit indices reflect the fit of the best-fitting simulation in each condition/ world. Lower numbers indicate better fit. Note that BIC is a transformation of G2 that penalises for model complexity.
 ```{r}
-# Realistic, optional stopping
-simres |> filter(condition == "optStop_realistic") |> arrange(fit_pcurve2_g2) |> slice(1:5) |> select(c(3:8, 10:15, 20:23), fit_pcurve2_g2) |> round(2) |> print()
+fit_tab <- simres %>%
+  group_by(condition) %>%
+  summarise(
+    G2   = min(fit_simonsohn_g2),
+    BIC  = min(BIC_simonsohn),
+    Chi2 = min(fit_simonsohn_chi2),
+    RMSE = min(fit_simonsohn_rmse)
+  ) 
+
+fit_tab %>%
+  mutate(condition = recode(condition, !!!condition_labels)) %>%
+  mutate(across(
+    -condition,
+    ~ cell_spec(sprintf("%.2f", .x), bold = .x == min(.x))
+  )) %>%
+  kbl(escape = FALSE) %>%
+  kable_styling()
 ```
 
-```{r}
-# Perfect
-simres |> filter(condition == "multDV_perfect") |> arrange(fit_pcurve2_g2) |> slice(1:5) |> select(c(1:9, 10:15), fit_pcurve2_g2) |> round(2) |> print()
-```
 
-Robustness checks: Check if results change depending on the Goodness of fit statistic
+According to G2, the Realistic World: Multiple DVs contained the best-fitting simulation to the target p-curve. Once model complexity is accounted for, the Flat World contained the simulation with the best fit to the target p-curve. Results for chi-squared and RMSE are also provided as robustness checks.
 
-```{r}
-simres$sim_ID <- rownames(simres)
+## What were the top 10 best fitting simulations (according to G^2)?
 
-# Worst case, multiple DVs
-G2_fits <- simres |> filter(condition == "multDV_worst") |> arrange(fit_pcurve2_g2) |> slice(1:5) |> select("sim_ID", "fit_pcurve2_g2")
-Chi2_fits <- simres |> filter(condition == "multDV_worst") |> arrange(fit_pcurve2_chi2) |> slice(1:5) |> select("sim_ID", "fit_pcurve2_chi2")
-RMSE_fits <- simres |> filter(condition == "multDV_worst") |> arrange(fit_pcurve2_rmse) |> slice(1:5) |> select("sim_ID", "fit_pcurve2_rmse")
-
-worstcase_multDV_fits <- cbind(G2_fits, Chi2_fits, RMSE_fits)
-colnames(worstcase_multDV_fits) <- c("G2_best_sims", "G2", "Chi2_best_sims", "Chi2", "RMSE_best_sims", "RMSE")
-
-worstcase_multDV_fits
-```
+These rows reflect the 10 simulations that had the best fit to the target p-curve according to G^2.
 
 ```{r}
-# Worst case, optional stopping
-G2_fits <- simres |> filter(condition == "optStop_worst") |> arrange(fit_pcurve2_g2) |> slice(1:5) |> select("sim_ID", "fit_pcurve2_g2")
-Chi2_fits <- simres |> filter(condition == "optStop_worst") |> arrange(fit_pcurve2_chi2) |> slice(1:5) |> select("sim_ID", "fit_pcurve2_chi2")
-RMSE_fits <- simres |> filter(condition == "optStop_worst") |> arrange(fit_pcurve2_rmse) |> slice(1:5) |> select("sim_ID", "fit_pcurve2_rmse")
-
-worstcase_optstop_fits <- cbind(G2_fits, Chi2_fits, RMSE_fits)
-colnames(worstcase_optstop_fits) <- c("G2_best_sims", "G2", "Chi2_best_sims", "Chi2", "RMSE_best_sims", "RMSE")
-
-worstcase_optstop_fits
-```
-
-```{r}
-# Realistic, multiple DVs
-G2_fits <- simres |> filter(condition == "multDV_realistic") |> arrange(fit_pcurve2_g2) |> slice(1:5) |> select("sim_ID", "fit_pcurve2_g2")
-Chi2_fits <- simres |> filter(condition == "multDV_realistic") |> arrange(fit_pcurve2_chi2) |> slice(1:5) |> select("sim_ID", "fit_pcurve2_chi2")
-RMSE_fits <- simres |> filter(condition == "multDV_realistic") |> arrange(fit_pcurve2_rmse) |> slice(1:5) |> select("sim_ID", "fit_pcurve2_rmse")
-
-multDV_realistic_fits <- cbind(G2_fits, Chi2_fits, RMSE_fits)
-colnames(multDV_realistic_fits) <- c("G2_best_sims", "G2", "Chi2_best_sims", "Chi2", "RMSE_best_sims", "RMSE")
-
-multDV_realistic_fits
-```
-
-```{r}
-# Realistic, optional stopping
-G2_fits <- simres |> filter(condition == "optStop_realistic") |> arrange(fit_pcurve2_g2) |> slice(1:5) |> select("sim_ID", "fit_pcurve2_g2")
-Chi2_fits <- simres |> filter(condition == "optStop_realistic") |> arrange(fit_pcurve2_chi2) |> slice(1:5) |> select("sim_ID", "fit_pcurve2_chi2")
-RMSE_fits <- simres |> filter(condition == "optStop_realistic") |> arrange(fit_pcurve2_rmse) |> slice(1:5) |> select("sim_ID", "fit_pcurve2_rmse")
-
-optstop_realistic_fits <- cbind(G2_fits, Chi2_fits, RMSE_fits)
-colnames(optstop_realistic_fits) <- c("G2_best_sims", "G2", "Chi2_best_sims", "Chi2", "RMSE_best_sims", "RMSE")
-
-optstop_realistic_fits
-```
-
-```{r}
-# Perfect
-G2_fits <- simres |> filter(condition == "multDV_perfect") |> arrange(fit_pcurve2_g2) |> slice(1:5) |> select("sim_ID", "fit_pcurve2_g2")
-Chi2_fits <- simres |> filter(condition == "multDV_perfect") |> arrange(fit_pcurve2_chi2) |> slice(1:5) |> select("sim_ID", "fit_pcurve2_chi2")
-RMSE_fits <- simres |> filter(condition == "multDV_perfect") |> arrange(fit_pcurve2_rmse) |> slice(1:5) |> select("sim_ID", "fit_pcurve2_rmse")
-
-perfect_fits <- cbind(G2_fits, Chi2_fits, RMSE_fits)
-colnames(perfect_fits) <- c("G2_best_sims", "G2", "Chi2_best_sims", "Chi2", "RMSE_best_sims", "RMSE")
-
-perfect_fits
-```
-
-```{r}
-# Flat
-G2_fits <- simres |> filter(condition == "multDV_H0") |> arrange(fit_pcurve2_g2) |> slice(1:5) |> select("sim_ID", "fit_pcurve2_g2")
-Chi2_fits <- simres |> filter(condition == "multDV_H0") |> arrange(fit_pcurve2_chi2) |> slice(1:5) |> select("sim_ID", "fit_pcurve2_chi2")
-RMSE_fits <- simres |> filter(condition == "multDV_H0") |> arrange(fit_pcurve2_rmse) |> slice(1:5) |> select("sim_ID", "fit_pcurve2_rmse")
-
-flat_fits <- cbind(G2_fits, Chi2_fits, RMSE_fits)
-colnames(perfect_fits) <- c("G2_best_sims", "G2", "Chi2_best_sims", "Chi2", "RMSE_best_sims", "RMSE")
-
-flat_fits
-```
-
-Compute BICs for between-world comparisons (accounting for model complexity)
-
-```{r}
-# Number of free parameters in each simulated "world"
-simres$free_parameters <- case_match(simres$condition,
-                                     "multDV_realistic" ~ 6,
-                                     "multDV_worst" ~ 3,
-                                     "multDV_perfect" ~ 3,
-                                     "multDV_H0" ~ 0,
-                                     "optStop_realistic" ~ 7,
-                                     "optStop_worst" ~ 4)
-
-# Compute BIC from G-squared and number of free parameters
-simres$BIC <- simres$fit_pcurve2_g2 + simres$free_parameters * log(pcurves$nsig[2])
-
-# Compare BICs for best fits
-simres |> group_by(condition) |> arrange(fit_pcurve2_g2) |> slice(1) |> select(BIC, fit_pcurve2_g2) |> ungroup() |> print()
-
-```
-
-Visualisation
-
-```{r}
-plot_pcurves(simres |> filter(condition == "multDV_realistic"), poriginal = simplify2array(pcurves[2, paste0("p", 1:5)]), n_best = 5, GOF="g2", n_studies = pcurves$nsig[2], tol = 1e-6, title = "Realistic World: Multiple DVs")
-
-plot_pcurves(simres |> filter(condition == "optStop_realistic"), poriginal = simplify2array(pcurves[2, paste0("p", 1:5)]), n_best = 1, GOF="g2", n_studies = pcurves$nsig[2], tol = 1e-6, title = "Realistic World: Optional Stopping")
-
-plot_pcurves(simres |> filter(condition == "multDV_worst"), poriginal = simplify2array(pcurves[2, paste0("p", 1:5)]), n_best = 5, GOF="g2", n_studies = pcurves$nsig[2], tol = 1e-6, title = "Worst Possible World: Multiple DVs")
-
-plot_pcurves(simres |> filter(condition == "optStop_worst"), poriginal = simplify2array(pcurves[2, paste0("p", 1:5)]), n_best = 5, GOF="g2", n_studies = pcurves$nsig[2], tol = 1e-6, title = "Worst Possible World: Optional Stopping")
-
-plot_pcurves(simres |> filter(condition == "multDV_perfect"), poriginal = simplify2array(pcurves[2, paste0("p", 1:5)]), n_best = 5, GOF="g2", n_studies = pcurves$nsig[2], tol = 1e-6, title = "Perfect World") 
-
-plot_pcurves(simres |> filter(condition == "multDV_H0"), poriginal = simplify2array(pcurves[2, paste0("p", 1:5)]), n_best = 1, GOF="g2", n_studies = pcurves$nsig[2], tol = 1e-6, title = "Flat World")
+simres |> arrange(fit_simonsohn_g2) |> slice(1:10) |> print()
 ```
 
 
