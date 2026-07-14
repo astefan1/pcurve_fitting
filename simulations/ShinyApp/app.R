@@ -338,7 +338,7 @@ server <- function(input, output, session) {
           dplyr::near(d, as.numeric(input$d_perfect), tol = 1e-12),
           dplyr::near(prop_H1, as.numeric(input$prop_H1_perfect), tol = 1e-12),
           dplyr::near(het, as.numeric(input$het_perfect), tol = 1e-12),
-          strategy == as.integer(input$strategy)
+          strategy == 3
         )
     }
     
