@@ -59,3 +59,5 @@ While building the simulations (before knowing the actual target p-curve by Clar
     - k = 22 significant p-values
 
 These have different shapes and numbers of p-values, which is useful for testing the fitting procedure.
+
+For completeness, we report the results regarding the fit of our simulated p-curves to these empirical p-curves in `simulations/reference_pcurves/eval_simResults_reference_pcurves.html`.

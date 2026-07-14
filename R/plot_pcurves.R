@@ -72,8 +72,8 @@ plot_pcurves <- function(simdat, poriginal, GOF = "g2", n_best=NA, alpha=NA, n_s
     theme(axis.title = element_text(size = 18),
           axis.text = element_text(size = 15),
           plot.title = element_text(size = 20)) +
-    geom_line(color = "steelblue", alpha=alpha) +
-    geom_line(data=plotdat, aes(y = yval, x=pval, group=1), linewidth=2, alpha = 0.8) +
+    geom_line(data=plotdat, aes(y = yval, x=pval, group=1), linewidth=2, alpha = 0.85) +
+    geom_line(color = "steelblue", linewidth = 1.05, alpha=1) +
     ggtitle(title)
 
   p1

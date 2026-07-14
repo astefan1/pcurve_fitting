@@ -10,15 +10,27 @@ format:
     embed-resources: true
 ---
 
-# Data wrangling and Goodness of Fit calculation
+::: {.callout-note title = "Background"}
+While building the simulations (before knowing the actual target p-curve by Clarke et al.), to test our fitting procedure, we used three existing empirical p-curves as targets:
 
-Combine simulation results from all conditions into one big dataset
+1. **Sotola** (*k* = 1,556 significant p-values): Sotola (2023), Meta-Psychology. [doi](https://doi.org/10.15626/MP.2022.3299) → [results](#sec-sotola)
+2. **Wetzels** (*k* = 593): Wetzels et al. (2011), Perspectives on Psychological Science. [doi](https://doi.org/10.1177/...) → [results](#sec-wetzels)
+3. **Simonsohn** (*k* = 22): Simonsohn et al. (2014), JEP: General, Figure 3B. [data](http://www.p-curve.com/Supplement/full_pdt.xlsx) → [results](#sec-simonsohn)
+
+
+In this document, we report the results of the best-fitting simulations for each of those empirical p-curves including: i) visualisations of the top 5 best fitting simulations to each empirical p-curves for each world; ii) fit indices for the best simulations in each world for each empirical p-curve; iii) the parameter values for the top 10 best fitting p-curves (across all worlds) for each empirical p-curve.
+:::
+
+# Set-up code: Data wrangling and goodness of fit calculations
 
 ```{r}
+#| message: false
+#| warning: false
 
-library(fitPCurve)
+# Combine simulation results from all conditions into one big dataset
+devtools::load_all("../..") # load fit p curve with updated plot_pcurves() function
 library(rio)
-library(dplyr)
+library(tidyverse)
 library(ggplot2)
 library(kableExtra)
 
@@ -27,13 +39,13 @@ library(kableExtra)
 pcurves <- import("reference-pcurves.csv")
 
 # load the multiple DV simulation results:
-simres_realistic <- import("sim-results/sim_realistic.csv")
+simres_realistic <- import("../sim-results/sim_realistic.csv")
 simres_realistic$condition <- "multDV_realistic"
-simres_worst <- import("sim-results/sim_worst.csv")
+simres_worst <- import("../sim-results/sim_worst.csv")
 simres_worst$condition <- "multDV_worst"
-simres_perfect <- import("sim-results/sim_perfect.csv")
+simres_perfect <- import("../sim-results/sim_perfect.csv")
 simres_perfect$condition <- "multDV_perfect"
-simres_H0 <- import("sim-results/sim_H0.csv")
+simres_H0 <- import("../sim-results/sim_H0.csv")
 simres_H0$condition <- "multDV_H0"
 
 # Delete unnecessary rows for different reporting strategies from simres_perfect      and simres_H0 (these yield identical results as there is only one p-value)
@@ -41,9 +53,9 @@ simres_perfect <- simres_perfect |> filter(strategy == 3)
 simres_H0 <- simres_H0 |> filter(strategy == 3)
 
 # load the optional stopping simulation results:
-simres_optStop_worst <- import("sim-results/sim_optStop_worst.csv")
+simres_optStop_worst <- import("../sim-results/sim_optStop_worst.csv")
 simres_optStop_worst$condition <- "optStop_worst"
-simres_optStop_realistic <- import("sim-results/sim_optStop_realistic.csv")
+simres_optStop_realistic <- import("../sim-results/sim_optStop_realistic.csv")
 simres_optStop_realistic$condition <- "optStop_realistic"
 
 simres_multDV <- rbind(simres_realistic, simres_worst, simres_perfect, simres_H0)
@@ -61,9 +73,10 @@ simres <- bind_rows(simres_multDV, simres_optStop)
 
 ```
 
-Compute G-squared fit statistics
+
 
 ```{r}
+# Compute G-squared fit statistics
 simres$fit_sotola_g2 <- g2(
   observed = simplify2array(pcurves[1, paste0("p", 1:5)]), 
   expected = simres[, paste0("p", 1:5)], n = pcurves$nsig[1], tol=1e-6)
@@ -77,9 +90,9 @@ simres$fit_simonsohn_g2 <- g2(
   expected = simres[, paste0("p", 1:5)], n = pcurves$nsig[3], tol=1e-6)
 ```
 
-Also compute chi-squared and RMSE for robustness checks
 
 ```{r}
+# Also compute chi-squared and RMSE for robustness checks
 # Chi-squared
 simres$fit_sotola_chi2 <- chi2(
   observed = simplify2array(pcurves[1, paste0("p", 1:5)]), 
@@ -107,11 +120,12 @@ simres$fit_simonsohn_rmse <- rmse(
   expected = simres[, paste0("p", 1:5)], n = pcurves$nsig[3])
 ```
 
-Compute BICs for between-world comparisons (accounting for model complexity)
 
 ```{r}
+# Compute BICs for between-world comparisons (accounting for model complexity)
+
 # Number of free parameters in each simulated "world"
-simres$free_parameters <- case_match(simres$condition,
+simres$free_parameters <- recode_values(simres$condition,
                                      "multDV_realistic" ~ 6,
                                      "multDV_worst" ~ 3,
                                      "multDV_perfect" ~ 3,
@@ -140,29 +154,42 @@ condition_labels <- c(
 ```
 
 
-# Target p-curve: Sotola (2023):
+# 1. Target p-curve: Sotola (2023): {#sec-sotola}
 
 ## Visualisations of best simulations in each world
 
-You can visually inspect the fit of the top 5 (where available) simulations in each world (in blue) to the target p-curve (in black).
+You can visually inspect the fit of the top 5 (where available) simulations in each world (in blue) to the target p-curve (in black). Note that the Flat World only involved one simuulation.
 
+::: {.panel-tabset}
+## Realistic: Multiples DVs
 ```{r}
 plot_pcurves(simres |> filter(condition == "multDV_realistic"), poriginal = simplify2array(pcurves[1, paste0("p", 1:5)]), n_best = 5, GOF="g2", n_studies = pcurves$nsig[1], tol = 1e-6, title = "Realistic World: Multiple DVs")
-
+```
+## Realistic: Optional Stopping
+```{r}
 plot_pcurves(simres |> filter(condition == "optStop_realistic"), poriginal = simplify2array(pcurves[1, paste0("p", 1:5)]), n_best = 1, GOF="g2", n_studies = pcurves$nsig[1], tol = 1e-6, title = "Realistic World: Optional Stopping")
-
+```
+## Worst: Multiple DVs
+```{r}
 plot_pcurves(simres |> filter(condition == "multDV_worst"), poriginal = simplify2array(pcurves[1, paste0("p", 1:5)]), n_best = 5, GOF="g2", n_studies = pcurves$nsig[1], tol = 1e-6, title = "Worst Possible World: Multiple DVs")
-
+```
+## Worst: Optional Stopping
+```{r}
 plot_pcurves(simres |> filter(condition == "optStop_worst"), poriginal = simplify2array(pcurves[1, paste0("p", 1:5)]), n_best = 5, GOF="g2", n_studies = pcurves$nsig[1], tol = 1e-6, title = "Worst Possible World: Optional Stopping")
-
+```
+## Perfect
+```{r}
 plot_pcurves(simres |> filter(condition == "multDV_perfect"), poriginal = simplify2array(pcurves[1, paste0("p", 1:5)]), n_best = 5, GOF="g2", n_studies = pcurves$nsig[1], tol = 1e-6, title = "Perfect World")
-
+```
+## Flat
+```{r}
 plot_pcurves(simres |> filter(condition == "multDV_H0"), poriginal = simplify2array(pcurves[1, paste0("p", 1:5)]), n_best = 1, GOF="g2", n_studies = pcurves$nsig[1], tol = 1e-6, title = "Flat World")
 ```
+:::
 
 ## Overview of best fitting simulations in each world
 
-These fit indices reflect the fit of the best-fitting simulation in each condition/ world. Lower numbers indicate better fit. Note that BIC is a transformation of G2 that penalises for model complexity.
+These fit indices reflect the fit of the best-fitting simulation in each condition/ world. Lower numbers indicate better fit. Note that BIC is a transformation of G2 that penalises for model complexity. 
 ```{r}
 fit_tab <- simres %>%
   group_by(condition) %>%
@@ -188,31 +215,50 @@ According to G2, the Realistic World: Optional stopping contained the best-fitti
 
 ## What were the top 10 best fitting simulations (according to G^2)?
 
-These rows reflect the 10 simulations that had the best fit to the target p-curve according to G^2.
+These rows reflect the 10 simulations that had the best fit to the target p-curve according to G^2. (Scroll to see the other fit indices for these simulations.)
 
 ```{r}
-simres |> arrange(fit_sotola_g2) |> slice(1:10) |> print()
+simres |> arrange(fit_sotola_g2) |> slice(1:10) |> 
+  select(condition, nvar, r, d, prop_Hacker, prop_H1, het, strategy, nmin, nmax, stepsize, contains("sotola")) |>
+  kbl(digits = 2) |>
+  kable_styling() |>
+  scroll_box(width = "100%", height = "400px")
 ```
 
-# Target p-curve: Wetzels (2011):
+# 2. Target p-curve: Wetzels (2011): {#sec-wetzels}
 
 ## Visualisations of best simulations in each world
 
-You can visually inspect the fit of the top 5 (where available) simulations in each world (in blue) to the target p-curve (in black).
+You can visually inspect the fit of the top 5 (where available) simulations in each world (in blue) to the target p-curve (in black). Note that the Flat World only involved one simuulation.
 
+::: {.panel-tabset}
+
+## Realistic: Multiple DVs
 ```{r}
 plot_pcurves(simres |> filter(condition == "multDV_realistic"), poriginal = simplify2array(pcurves[2, paste0("p", 1:5)]), n_best = 5, GOF="g2", n_studies = pcurves$nsig[1], tol = 1e-6, title = "Realistic World: Multiple DVs")
-
+```
+## Realistic: Optional Stopping
+```{r}
 plot_pcurves(simres |> filter(condition == "optStop_realistic"), poriginal = simplify2array(pcurves[2, paste0("p", 1:5)]), n_best = 1, GOF="g2", n_studies = pcurves$nsig[1], tol = 1e-6, title = "Realistic World: Optional Stopping")
-
+```
+## Worst: Multiple DVs
+```{r}
 plot_pcurves(simres |> filter(condition == "multDV_worst"), poriginal = simplify2array(pcurves[2, paste0("p", 1:5)]), n_best = 5, GOF="g2", n_studies = pcurves$nsig[1], tol = 1e-6, title = "Worst Possible World: Multiple DVs")
-
+```
+## Worst: Optional Stopping
+```{r}
 plot_pcurves(simres |> filter(condition == "optStop_worst"), poriginal = simplify2array(pcurves[2, paste0("p", 1:5)]), n_best = 5, GOF="g2", n_studies = pcurves$nsig[1], tol = 1e-6, title = "Worst Possible World: Optional Stopping")
-
+```
+## Perfect
+```{r}
 plot_pcurves(simres |> filter(condition == "multDV_perfect"), poriginal = simplify2array(pcurves[2, paste0("p", 1:5)]), n_best = 5, GOF="g2", n_studies = pcurves$nsig[1], tol = 1e-6, title = "Perfect World")
-
+```
+## Flat
+```{r}
 plot_pcurves(simres |> filter(condition == "multDV_H0"), poriginal = simplify2array(pcurves[2, paste0("p", 1:5)]), n_best = 1, GOF="g2", n_studies = pcurves$nsig[1], tol = 1e-6, title = "Flat World")
 ```
+
+:::
 
 ## Overview of best fitting simulations in each world
 
@@ -242,32 +288,48 @@ According to G2, the Realistic World: Multiple DVs contained the best-fitting si
 
 ## What were the top 10 best fitting simulations (according to G^2)?
 
-These rows reflect the 10 simulations that had the best fit to the target p-curve according to G^2.
+These rows reflect the 10 simulations that had the best fit to the target p-curve according to G^2. (Scroll to see the other fit indices for these simulations.)
 
 ```{r}
-simres |> arrange(fit_wetzels_g2) |> slice(1:10) |> print()
+simres |> arrange(fit_wetzels_g2) |> slice(1:10) |> 
+  select(condition, nvar, r, d, prop_Hacker, prop_H1, het, strategy, nmin, nmax, stepsize, contains("wetzels")) |>
+  kbl(digits = 2) |>
+  kable_styling() |>
+  scroll_box(width = "100%", height = "400px")
 ```
 
-# Target p-curve: Simonsohn (2014):
+# 3. Target p-curve: Simonsohn (2014): {#sec-simonsohn}
 
 ## Visualisations of best simulations in each world
 
-You can visually inspect the fit of the top 5 (where available) simulations in each world (in blue) to the target p-curve (in black).
+You can visually inspect the fit of the top 5 (where available) simulations in each world (in blue) to the target p-curve (in black). Note that the Flat World only involved one simuulation.
 
+::: {.panel-tabset}
+## Realistic: Multiple DVs
 ```{r}
 plot_pcurves(simres |> filter(condition == "multDV_realistic"), poriginal = simplify2array(pcurves[3, paste0("p", 1:5)]), n_best = 5, GOF="g2", n_studies = pcurves$nsig[1], tol = 1e-6, title = "Realistic World: Multiple DVs")
-
+```
+## Realistic: Optional Stopping
+```{r}
 plot_pcurves(simres |> filter(condition == "optStop_realistic"), poriginal = simplify2array(pcurves[3, paste0("p", 1:5)]), n_best = 1, GOF="g2", n_studies = pcurves$nsig[1], tol = 1e-6, title = "Realistic World: Optional Stopping")
-
+```
+## Worst: Multiple DVs
+```{r}
 plot_pcurves(simres |> filter(condition == "multDV_worst"), poriginal = simplify2array(pcurves[3, paste0("p", 1:5)]), n_best = 5, GOF="g2", n_studies = pcurves$nsig[1], tol = 1e-6, title = "Worst Possible World: Multiple DVs")
-
+```
+## Worst: Optional Stopping
+```{r}
 plot_pcurves(simres |> filter(condition == "optStop_worst"), poriginal = simplify2array(pcurves[3, paste0("p", 1:5)]), n_best = 5, GOF="g2", n_studies = pcurves$nsig[1], tol = 1e-6, title = "Worst Possible World: Optional Stopping")
-
+```
+## Perfect
+```{r}
 plot_pcurves(simres |> filter(condition == "multDV_perfect"), poriginal = simplify2array(pcurves[3, paste0("p", 1:5)]), n_best = 5, GOF="g2", n_studies = pcurves$nsig[1], tol = 1e-6, title = "Perfect World")
-
+```
+## Flat
+```{r}
 plot_pcurves(simres |> filter(condition == "multDV_H0"), poriginal = simplify2array(pcurves[3, paste0("p", 1:5)]), n_best = 1, GOF="g2", n_studies = pcurves$nsig[1], tol = 1e-6, title = "Flat World")
 ```
-
+:::
 ## Overview of best fitting simulations in each world
 
 These fit indices reflect the fit of the best-fitting simulation in each condition/ world. Lower numbers indicate better fit. Note that BIC is a transformation of G2 that penalises for model complexity.
@@ -296,10 +358,14 @@ According to G2, the Realistic World: Multiple DVs contained the best-fitting si
 
 ## What were the top 10 best fitting simulations (according to G^2)?
 
-These rows reflect the 10 simulations that had the best fit to the target p-curve according to G^2.
+These rows reflect the 10 simulations that had the best fit to the target p-curve according to G^2. (Scroll to see the other fit indices for these simulations.)
 
 ```{r}
-simres |> arrange(fit_simonsohn_g2) |> slice(1:10) |> print()
+simres |> arrange(fit_simonsohn_g2) |> slice(1:10) |> 
+  select(condition, nvar, r, d, prop_Hacker, prop_H1, het, strategy, nmin, nmax, stepsize, contains("simonsohn")) |>
+  kbl(digits = 2) |>
+  kable_styling() |>
+  scroll_box(width = "100%", height = "400px")
 ```
 
 
