@@ -126,8 +126,8 @@ simres$fit_simonsohn_rmse <- rmse(
 
 # Number of free parameters in each simulated "world"
 simres$free_parameters <- recode_values(simres$condition,
-                                     "multDV_realistic" ~ 6,
-                                     "multDV_worst" ~ 3,
+                                     "multDV_realistic" ~ 7,
+                                     "multDV_worst" ~ 4,
                                      "multDV_perfect" ~ 3,
                                      "multDV_H0" ~ 0,
                                      "optStop_realistic" ~ 7,

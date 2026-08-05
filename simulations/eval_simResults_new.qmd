@@ -23,10 +23,10 @@ library(ggplot2)
 
 # The working directory should be the project root
 # if quarto:render is called
-if (!interactive()) {
-  print("Switching working directory to project root")
-  setwd("..")
-}
+# if (!interactive()) {
+#   print("Switching working directory to project root")
+#   setwd("..")
+# }
 
 
 # reference p-curves
@@ -278,8 +278,8 @@ Compute BICs for between-world comparisons (accounting for model complexity)
 ```{r}
 # Number of free parameters in each simulated "world"
 simres$free_parameters <- case_match(simres$condition,
-                                     "multDV_realistic" ~ 6,
-                                     "multDV_worst" ~ 3,
+                                     "multDV_realistic" ~ 7,
+                                     "multDV_worst" ~ 4,
                                      "multDV_perfect" ~ 3,
                                      "multDV_H0" ~ 0,
                                      "optStop_realistic" ~ 7,
@@ -439,8 +439,8 @@ Compute BICs for between-world comparisons (accounting for model complexity)
 ```{r}
 # Number of free parameters in each simulated "world"
 simres$free_parameters <- case_match(simres$condition,
-                                     "multDV_realistic" ~ 6,
-                                     "multDV_worst" ~ 3,
+                                     "multDV_realistic" ~ 7,
+                                     "multDV_worst" ~ 4,
                                      "multDV_perfect" ~ 3,
                                      "multDV_H0" ~ 0,
                                      "optStop_realistic" ~ 7,
@@ -472,6 +472,6 @@ plot_pcurves(simres |> filter(condition == "multDV_H0"), poriginal = simplify2ar
 
 save simres for plotting
 ```{r}
-save(simres, file = "simulations/sim-results/simres_full.RData")
+save(simres, file = "sim-results/simres_full.RData")
 ```
 
