@@ -60,4 +60,4 @@ While building the simulations (before knowing the actual target p-curve by Clar
 
 These have different shapes and numbers of p-values, which is useful for testing the fitting procedure.
 
-For completeness, we report the results regarding the fit of our simulated p-curves to these empirical p-curves in `simulations/reference_pcurves/eval_simResults_reference_pcurves.html`.
+For completeness, we report the results regarding the fit of our simulated p-curves to these empirical p-curves [here](https://htmlpreview.github.io/?https://github.com/astefan1/pcurve_fitting/blob/main/simulations/reference_pcurves/eval_simResults_reference_pcurves.html#sec-sotola).
